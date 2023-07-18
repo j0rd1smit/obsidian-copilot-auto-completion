@@ -1,6 +1,6 @@
 {
-    "id": "obsidian-pilot-plugin",
-    "name": "Obsidian pilot",
+    "id": "obsidian-copilot-plugin",
+    "name": "Obsidian copilot",
     "version": "1.0.0",
     "minAppVersion": "0.15.0",
     "description": "TODO description...",
