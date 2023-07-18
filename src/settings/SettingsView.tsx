@@ -310,7 +310,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 suffix={" chars"}
             />
             <SliderSettingsItem
-                name={"Maximum Prefix Length"}
+                name={"Maximum Suffix Length"}
                 description={
                     "The maximum number of characters that will be included in the suffix. Larger value will increase the context for the completion, but it can also increase the cost or push you over the token limit."
                 }
