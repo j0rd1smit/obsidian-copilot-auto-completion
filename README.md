@@ -1,5 +1,8 @@
 # Obsidian Sample Plugin
-TODO
+This is copilot plugin for obsidian. 
+It uses the openai API or Azure OpenAi API to generate text based on the X characters before and after the cursor.
+
+
 
 ## Manual instalation
 Installation instruction:
