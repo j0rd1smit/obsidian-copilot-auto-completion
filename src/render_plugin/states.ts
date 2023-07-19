@@ -7,7 +7,7 @@ import {
     Transaction,
     TransactionSpec,
 } from "@codemirror/state";
-import { InlineSuggestion, OptionalSuggestion, Suggestion } from "./types";
+import {InlineSuggestion,  OptionalSuggestion, Suggestion} from "./types";
 import { EditorView } from "@codemirror/view";
 import { sleep } from "../utils";
 
@@ -37,15 +37,19 @@ export const InlineSuggestionState = StateField.define<OptionalSuggestion>({
 
 export const updateSuggestion = (
     view: EditorView,
-    suggestion: OptionalSuggestion
+    suggestion: string
 ) => {
     const doc = view.state.doc;
     // else we cannot do state updates in the callback.
     sleep(5).then(() => {
         view.dispatch({
             effects: InlineSuggestionEffect.of({
-                suggestion: suggestion,
+                suggestion: {
+                    value: suggestion,
+                    render: true,
+                },
                 doc: doc,
+
             }),
         });
     });
@@ -57,14 +61,17 @@ export function cancelSuggestion(view: EditorView) {
     sleep(5).then(() => {
         view.dispatch({
             effects: InlineSuggestionEffect.of({
-                suggestion: "",
+                suggestion: {
+                    value: "suggestion",
+                    render: false,
+                },
                 doc: doc,
             }),
         });
     });
 }
 
-export function insertSuggestion(view: EditorView, suggestion: Suggestion) {
+export function insertSuggestion(view: EditorView, suggestion: string) {
     view.dispatch({
         ...createInsertSuggestionTransaction(
             view.state,

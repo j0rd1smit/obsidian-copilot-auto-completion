@@ -107,11 +107,16 @@ class EventListener implements EventHandler, SettingsObserver {
     }
 
     handleSettingChanged(settings: Settings): void {
-        this.settings = settings;
+        const fromDisabledToEnabled = !this.settings.enabled && settings.enabled;
+        const fromEnabledToDisabled = this.settings.enabled && !settings.enabled;
+
 
         const settingErrors = checkForErrors(settings);
         if (!settings.enabled) {
-            new Notice("Copilot is disabled.");
+            if (fromDisabledToEnabled) {
+                new Notice("Copilot is disabled.");
+            }
+
             this.transitionTo(new DisabledState(this));
         } else if (settingErrors.size > 0) {
             new Notice(
@@ -119,10 +124,13 @@ class EventListener implements EventHandler, SettingsObserver {
             );
             this.transitionTo(new DisabledState(this));
         } else {
-            new Notice("Copilot is enabled.");
+            if (fromEnabledToDisabled) {
+                new Notice("Copilot is enabled.");
+            }
             this.predictionService = createPredictionService(settings);
             this.transitionTo(new IdleState(this));
         }
+         this.settings = settings;
     }
 
     async handleDocumentChange(

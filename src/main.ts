@@ -131,6 +131,7 @@ export default class CopilotPlugin extends Plugin {
                 return true;
             },
         });
+
     }
 
     private async saveSettings(settings: Settings): Promise<void> {

@@ -30,6 +30,8 @@ class AzureOAIClient implements ApiClient {
             body: JSON.stringify({ messages, ...this.modelOptions }),
         });
 
+
+
         const data = await response.json();
 
         return data.choices[0].message.content;

@@ -6,8 +6,9 @@ import {
     ViewUpdate,
     WidgetType,
 } from "@codemirror/view";
-import { InlineSuggestionState } from "./states";
+import {cancelSuggestion, InlineSuggestionState} from "./states";
 import { Prec } from "@codemirror/state";
+import {OptionalSuggestion, Suggestion} from "./types";
 
 const RenderSuggestionPlugin = () =>
     Prec.lowest(
@@ -15,22 +16,27 @@ const RenderSuggestionPlugin = () =>
         ViewPlugin.fromClass(
             class RenderPlugin {
                 decorations: DecorationSet;
-                suggestion = "";
+                suggestion: Suggestion;
 
                 constructor(view: EditorView) {
                     this.decorations = Decoration.none;
+                    this.suggestion = {
+                        value: "",
+                        render: false,
+                    }
                 }
 
                 async update(update: ViewUpdate) {
-                    const suggestion = update.state.field(
+                    const suggestion: OptionalSuggestion = update.state.field(
                         InlineSuggestionState
                     );
 
                     if (suggestion === null || suggestion === undefined) {
                         return;
-                    } else {
-                        this.suggestion = suggestion;
                     }
+                    this.suggestion = suggestion;
+                    console.log("suggestion", suggestion);
+
 
                     this.decorations = inlineSuggestionDecoration(
                         update.view,
@@ -46,21 +52,27 @@ const RenderSuggestionPlugin = () =>
 
 function inlineSuggestionDecoration(
     view: EditorView,
-    display_suggestion: string
+    display_suggestion: Suggestion
 ) {
     const post = view.state.selection.main.head;
 
+    if (!display_suggestion.render) {
+        return Decoration.none;
+    }
+    const widget =  new InlineSuggestionWidget(display_suggestion.value, view);
     const decoration = Decoration.widget({
-        widget: new InlineSuggestionWidget(display_suggestion),
+        widget,
         side: 1,
     });
+
     return Decoration.set([decoration.range(post)]);
 }
 
 class InlineSuggestionWidget extends WidgetType {
-    constructor(readonly display_suggestion: string) {
+    constructor(readonly display_suggestion: string, readonly view: EditorView) {
         super();
         this.display_suggestion = display_suggestion;
+        this.view = view;
     }
 
     eq(other: InlineSuggestionWidget) {
@@ -70,9 +82,21 @@ class InlineSuggestionWidget extends WidgetType {
     toDOM() {
         const span = document.createElement("span");
         span.textContent = this.display_suggestion;
-        span.style.opacity = "0.4"; // TODO replace with css class
+        span.style.opacity = "0.4"; // TODO replace with css
+        span.onclick = () => {
+           cancelSuggestion(this.view);
+        }
+        span.onselect = () => {
+            cancelSuggestion(this.view);
+        }
+
         return span;
     }
+
+    destroy(dom: HTMLElement) {
+        super.destroy(dom);
+    }
+
 }
 
 export default RenderSuggestionPlugin;

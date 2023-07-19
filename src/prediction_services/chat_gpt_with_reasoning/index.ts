@@ -19,6 +19,7 @@ import DataViewRemover from "../pre_processors/data_view_remover";
 import LengthLimiter from "../pre_processors/length_limiter";
 import OpenAIApiClient from "../api_clients/OpenAIApiClient";
 import AzureOAIClient from "../api_clients/AzureOAIClient";
+import RemoveWhiteSpacing from "../post_processors/remove_white_spacing";
 
 class ChatGPTWithReasoning implements PredictionService {
     private readonly client: ApiClient;
@@ -72,6 +73,8 @@ class ChatGPTWithReasoning implements PredictionService {
         if (settings.removeDuplicateCodeBlockIndicator) {
             postProcessors.push(new RemoveCodeIndicators());
         }
+        // TODO make this configurable
+        postProcessors.push(new RemoveWhiteSpacing());
 
         let client: ApiClient;
         if (settings.apiProvider === "openai") {
