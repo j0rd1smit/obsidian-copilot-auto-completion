@@ -17,8 +17,6 @@ https://github.com/j0rd1smit/obsidian-copilot
 7. `npm run build`.
 8. Restart obsidian
 9. Go to the community plugins and enable obsidian-copilot.
-10. Go to the obsidian-copilot settings and add the needed secrets:
-10. a) Enter the openai API secret this can be found in our 1pass keyvault.
-10. b) Or use the azureOAI API key and URL. I will show this one during the demo.
+10. Go to the obsidian-copilot settings and add the needed secrets.
 
 
