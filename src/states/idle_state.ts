@@ -25,10 +25,15 @@ class IdleState extends State {
     private containsTriggerCharacters(
         documentChanges: DocumentChanges
     ): boolean {
-        for (const triggerCharacter of this.context.settings.triggerWords) {
-            if (documentChanges.getPrefix().endsWith(triggerCharacter)) {
+        for (const trigger of this.context.settings.triggers) {
+            if (trigger.type === "string" && documentChanges.getPrefix().endsWith(trigger.value)) {
                 return true;
             }
+            if (trigger.type === "regex" && documentChanges.getPrefix().match(trigger.value)) {
+                return true;
+            }
+
+
         }
         return false;
     }

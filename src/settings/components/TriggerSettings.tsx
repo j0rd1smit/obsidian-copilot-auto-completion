@@ -1,33 +1,46 @@
 import * as React from "react";
+import {Trigger} from "../settings";
 
 interface IProps {
     name: string;
     description: string;
-    values: string[];
+    triggers: Trigger[];
 
-    setValues(value: string[]): void;
+    setValues(value: Trigger[]): void;
 
     errorMessage?: string;
 }
 
-function TextListSettingsItem(props: IProps): React.JSX.Element {
-    const { name, values, description, setValues, errorMessage } = props;
+function TriggerSettings(props: IProps): React.JSX.Element {
+    const { name, triggers, description, setValues, errorMessage } = props;
     const onClickAddButton = () => {
-        setValues(["TODO...", ...values]);
+        setValues([{value: "TODO...", type: "string"}, ...triggers]);
     };
     const onClickRemoveButton = (index: number) => {
         return () => {
-            const newValues = values
+            const newTriggers = triggers
                 .slice(0, index)
-                .concat(values.slice(index + 1));
-            setValues(newValues);
+                .concat(triggers.slice(index + 1));
+            setValues(newTriggers);
         };
     };
+    const onChangeType = (index: number) => {
+        return (e: React.ChangeEvent<HTMLSelectElement>) => {
+            if (e.target.value === "regex" || e.target.value === "string") {
+                const value = triggers[index].value;
+                const newTriggers = [...triggers];
+                newTriggers[index] = {type: e.target.value as Trigger["type"], value};
+                setValues(newTriggers);
+            }
+        };
+    }
+
     const onChangeValue = (index: number) => {
         return (e: React.ChangeEvent<HTMLInputElement>) => {
-            const newValues = [...values];
-            newValues[index] = decodeHiddenCharacters(e.target.value);
-            setValues(newValues);
+            const type = triggers[index].type;
+            const newTriggers = [...triggers];
+            newTriggers[index] = {type, value: decodeHiddenCharacters(e.target.value)};
+            setValues(newTriggers);
         };
     };
 
@@ -72,18 +85,30 @@ function TextListSettingsItem(props: IProps): React.JSX.Element {
                 </div>
             </div>
 
-            {values.map((value: string, index: number) => (
+            {triggers.map((trigger: Trigger, index: number) => (
                 <div
                     className="setting-list-item"
                     key={`setting-list-item-${name.replace(" ", "-")}-${index}`}
                 >
                     <div className="setting-item-info">
                         <div className="setting-item-control">
+                            <select
+                                className="dropdown"
+                                value={trigger.type}
+                                onChange={onChangeType(index)}
+                            >
+                                    <option value={"string"}>
+                                       string
+                                    </option>
+                                    <option value={"regex"}>
+                                       regex
+                                    </option>
+                            </select>
                             <input
                                 style={{ whiteSpace: "pre-wrap" }}
                                 type="text"
                                 placeholder={"TODO..."}
-                                value={encodeHiddenCharacters(value)}
+                                value={encodeHiddenCharacters(trigger.value)}
                                 onChange={onChangeValue(index)}
                             />
 
@@ -124,4 +149,4 @@ function decodeHiddenCharacters(value: string) {
     return value.replace("\\t", "\t").replace("\\n", "\n");
 }
 
-export default TextListSettingsItem;
+export default TriggerSettings;

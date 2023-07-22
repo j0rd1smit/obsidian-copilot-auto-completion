@@ -35,7 +35,12 @@ export default function ConnectivityCheck(props: IProps): React.JSX.Element {
     };
 
     const onClickConnectionButton = async () => {
+        if (status === Status.Loading) {
+            return;
+        }
+
         setStatus(Status.Loading);
+
 
         const client = createClient();
         const isWorking = await client.isConfiguredCorrectly();
@@ -113,6 +118,7 @@ export default function ConnectivityCheck(props: IProps): React.JSX.Element {
             <button
                 aria-label="Test Connection"
                 onClick={onClickConnectionButton}
+                disabled={status === Status.Loading}
             >
                 Test Connection
             </button>

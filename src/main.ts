@@ -1,4 +1,4 @@
-import { Editor, MarkdownView, Plugin } from "obsidian";
+import {Editor, MarkdownView, Notice, Plugin} from "obsidian";
 
 import { DEFAULT_SETTINGS, Settings, SettingTab } from "./settings/settings";
 import EventListener from "./event_listener";
@@ -8,10 +8,12 @@ import { EditorView } from "@codemirror/view";
 import RenderSuggestionPlugin from "./render_plugin/render_surgestion_plugin";
 import { InlineSuggestionState } from "./render_plugin/states";
 import CompletionKeyWatcher from "./render_plugin/completion_key_watcher";
+import {hasSameAttributes} from "./settings/utils";
 
 export default class CopilotPlugin extends Plugin {
     async onload() {
         const settings = await this.loadSettings();
+
         const settingsTab = await SettingTab.addSettingsTab(
             this,
             settings,
@@ -140,12 +142,18 @@ export default class CopilotPlugin extends Plugin {
     }
 
     private async loadSettings(): Promise<Settings> {
-        const settings = Object.assign(
+        const data = Object.assign(
             {},
             { settings: DEFAULT_SETTINGS },
             await this.loadData()
         );
-        return settings.settings;
+        const settings = data.settings;
+        if (!hasSameAttributes(settings, DEFAULT_SETTINGS)) {
+            new Notice("Copilot: Could not load settings, reverting to default settings");
+            return DEFAULT_SETTINGS;
+        }
+
+        return settings;
     }
 
     onunload() {

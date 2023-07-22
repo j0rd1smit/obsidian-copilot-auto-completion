@@ -1,21 +1,29 @@
-import { Plugin, PluginSettingTab } from "obsidian";
-import { createRoot, Root } from "react-dom/client";
+import {Plugin, PluginSettingTab} from "obsidian";
+import {createRoot, Root} from "react-dom/client";
 import SettingsView from "./SettingsView";
 import * as React from "react";
-import { FewShotExample, ModelOptions } from "../prediction_services/types";
+import {FewShotExample, ModelOptions} from "../prediction_services/types";
 import block_qoute_example from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/block_qoute_example";
-import codeblock_function_completion from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/codeblock_function_completion";
-import codeblock_function_parameters from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/codeblock_function_parameters";
+import codeblock_function_completion
+    from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/codeblock_function_completion";
+import codeblock_function_parameters
+    from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/codeblock_function_parameters";
 import header_example from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/header_example";
-import numbered_list_example from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/numbered_list_example";
-import sub_task_list_example from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/sub_task_list_example";
+import numbered_list_example
+    from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/numbered_list_example";
+import sub_task_list_example
+    from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/sub_task_list_example";
 import task_list_example from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/task_list_example";
 import text_completion_end from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/text_completion_end";
-import text_completion_middle from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/text_completion_middle";
-import unordered_list_pro_and_con_list from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/unordered_list_pro_and_con_list";
-import unordered_list_solid from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/unordered_list_solid";
+import text_completion_middle
+    from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/text_completion_middle";
+import unordered_list_pro_and_con_list
+    from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/unordered_list_pro_and_con_list";
+import unordered_list_solid
+    from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/unordered_list_solid";
 import math_block_inline from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/math_block_inline";
-import math_block_multi_line from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/math_block_multi_line";
+import math_block_multi_line
+    from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/math_block_multi_line";
 
 export interface AzureOAIApiSettings {
     key: string;
@@ -28,6 +36,11 @@ export interface OpenAiApiSettings {
     model: string;
 }
 
+export interface Trigger {
+    type: "regex" | "string";
+    value: string;
+}
+
 export interface Settings {
     // General settings
     readonly enabled: boolean;
@@ -38,7 +51,7 @@ export interface Settings {
     readonly openAIApiSettings: OpenAiApiSettings;
 
     // Trigger settings
-    readonly triggerWords: string[];
+    readonly triggers: Trigger[];
     readonly delay: number;
     // Request settings
     readonly modelOptions: ModelOptions;
@@ -76,24 +89,26 @@ export const DEFAULT_SETTINGS: Settings = {
     },
 
     // Trigger settings
-    triggerWords: [
-        ")",
-        "{",
-        "}",
-        ". ",
-        ":",
-        "\n",
-        "\t",
-        "' ",
-        "! ",
-        "# ",
-        "%",
-        "for",
-        "- ",
-        "```",
-        "= ",
+    triggers: [
+        {type: "string", value: ")"},
+        {type: "string", value: "{"},
+        {type: "string", value: "}"},
+        {type: "string", value: ". "},
+        {type: "string", value: ":"},
+        {type: "string", value: "\n"},
+        {type: "string", value: "\t"},
+        {type: "string", value: "' "},
+        {type: "string", value: "! "},
+        {type: "string", value: "# "},
+        {type: "string", value: "%"},
+        {type: "string", value: "for"},
+        {type: "string", value: "- "},
+        {type: "regex", value: "```[a-zA-Z0-9]*(\\n\\s*)?$"},
+        {type: "string", value: "= "},
     ],
-    delay: 500,
+
+
+    delay: 1000,
     // Request settings
     modelOptions: {
         temperature: 1,
@@ -139,6 +154,7 @@ ANSWER: here you write the text that should be at the location of <mask/>
 export interface SettingsObserver {
     handleSettingChanged(settings: Settings): void;
 }
+
 type SaveSettings = (settings: Settings) => Promise<void>;
 
 export class SettingTab extends PluginSettingTab {
@@ -175,7 +191,7 @@ export class SettingTab extends PluginSettingTab {
     }
 
     public setEnable(enabled: boolean): void {
-        this.settings = { ...this.settings, enabled: enabled };
+        this.settings = {...this.settings, enabled: enabled};
         this.saveSettings(this.settings).then(() => this.updateObservers());
     }
 
@@ -198,7 +214,9 @@ export class SettingTab extends PluginSettingTab {
                 />
             </React.StrictMode>
         );
+
     }
+
 
     hide(): void {
         if (this.updatedSettings) {

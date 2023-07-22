@@ -5,7 +5,7 @@ import { useState } from "react";
 import { checkForErrors } from "./utils";
 import SliderSettingsItem from "./components/SliderSettingsItem";
 
-import TextListSettingsItem from "./components/TextListSettingsItem";
+import TriggerSettings from "./components/TriggerSettings";
 import SettingsItem from "./components/SettingsItem";
 import CheckBoxSettingItem from "./components/CheckBoxSettingItem";
 import FewShotExampleSettings from "./components/FewShotExampleSettings";
@@ -54,13 +54,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
         new Notice("Factory reset complete.");
     };
 
-    // const checkForErrors = (value: string): string[] => {
-    //     const errors: string[] = [];
-    //     if (value.length === 0) {
-    //         errors.push("Value cannot be empty");
-    //     }
-    //     return errors;
-    // };
+
 
     const renderAPISettings = () => {
         if (settings.apiProvider === "azure") {
@@ -356,17 +350,17 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 errorMessage={errors.get("delay")}
                 setValue={(value: number) => updateSettings({ delay: value })}
                 min={0}
-                max={2000}
+                max={5000}
                 step={100}
                 suffix={"ms"}
             />
-            <TextListSettingsItem
+            <TriggerSettings
                 name={"Trigger words"}
                 description={
-                    "Completions will be triggered if the text before the matches any of these words or characters."
+                    "Completions will be triggered if the text before the matches any of these words or characters. This can either be a direct string match or a regex match. When using a regex, make sure to include the end of line character ($)."
                 }
-                values={settings.triggerWords}
-                setValues={(value) => updateSettings({ triggerWords: value })}
+                triggers={settings.triggers}
+                setValues={(triggers) => updateSettings({ triggers })}
                 errorMessage={errors.get("triggerWords")}
             />
 

@@ -111,13 +111,13 @@ export function checkForErrors(settings: Settings) {
             "The max suffix char limit must be between 200 and 10000!"
         );
     }
-    if (settings.delay < 0 || settings.delay > 2000) {
-        errors.set("delay", "The delay must be between 0 and 2000!");
+    if (settings.delay < 0 || settings.delay > 5000) {
+        errors.set("delay", "The delay must be between 0 and 5000!");
     }
-    if (settings.triggerWords.some((word) => word.length === 0)) {
+    if (settings.triggers.some((word) => word.value.length === 0)) {
         errors.set("triggerWords", "The trigger words cannot be empty!");
     }
-    if (settings.triggerWords.length !== new Set(settings.triggerWords).size) {
+    if (settings.triggers.length !== new Set(settings.triggers.map(e => e.value)).size) {
         errors.set("triggerWords", "The trigger words cannot be duplicates!");
     }
 
@@ -182,4 +182,15 @@ export function isEveryContextPresent(
     return Context.values().every((context) => {
         return fewShotExamples.some((example) => example.context === context);
     });
+}
+
+export function hasSameAttributes(target: any, reference: any): boolean {
+  const keysB = Object.keys(reference);
+
+  return keysB.every(key => {
+    if (typeof reference[key] === 'object' && typeof target[key] === 'object') {
+      return hasSameAttributes(target[key], reference[key]);
+    }
+    return key in target;
+  });
 }
