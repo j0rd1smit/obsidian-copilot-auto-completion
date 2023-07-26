@@ -7,7 +7,7 @@ import {
     Transaction,
     TransactionSpec,
 } from "@codemirror/state";
-import {InlineSuggestion,  OptionalSuggestion, Suggestion} from "./types";
+import {InlineSuggestion,  OptionalSuggestion} from "./types";
 import { EditorView } from "@codemirror/view";
 import { sleep } from "../utils";
 

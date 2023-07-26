@@ -1,22 +1,27 @@
 repos:
-    -   repo: https://github.com/pre-commit/pre-commit-hooks
-        rev: v4.0.1
-        hooks:
-            -   id: check-added-large-files
-                args: [ '--maxkb=500' ]
-            -   id: detect-aws-credentials
-                args: [ '--allow-missing-credentials' ]
-            -   id: detect-private-key
-            -   id: check-case-conflict
-            -   id: check-symlinks
-            -   id: check-merge-conflict
-            -   id: destroyed-symlinks
-            -   id: fix-byte-order-marker
-            -   id: mixed-line-ending
-
-    -   repo: https://github.com/pre-commit/mirrors-eslint
-        rev: ''  # Use the sha / tag you want to point at
-        hooks:
-        -   id: eslint
-            files: \.[jt]sx?$  # *.js, *.jsx, *.ts and *.tsx
-            types: [file]
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.0.1
+  hooks:
+  - id: check-added-large-files
+    args: [--maxkb=500]
+  - id: detect-aws-credentials
+    args: [--allow-missing-credentials]
+  - id: detect-private-key
+  - id: check-case-conflict
+  - id: check-symlinks
+  - id: check-merge-conflict
+  - id: destroyed-symlinks
+  - id: fix-byte-order-marker
+  - id: mixed-line-ending
+  - id: check-yaml
+- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+  rev: v2.6.0
+  hooks:
+  - id: pretty-format-yaml
+    args: [--autofix]
+- repo: https://github.com/pre-commit/mirrors-eslint
+  rev: ''        # Use the sha / tag you want to point at
+  hooks:
+  - id: eslint
+    files: \.[jt]sx?$          # *.js, *.jsx, *.ts and *.tsx
+    types: [file]
