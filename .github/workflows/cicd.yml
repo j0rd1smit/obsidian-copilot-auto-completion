@@ -1,8 +1,13 @@
-name: Release Obsidian plugin
+name: cicd
 
 on:
   push:
+    branches:
+    - master
   pull_request:
+    branches:
+    - master
+
 
 env:
   PLUGIN_NAME: obsidian-copilot-plugin
@@ -26,22 +31,3 @@ jobs:
         npm run build
 
     - uses: pre-commit/action@v2.0.3
-
-    - name: Bundle
-      id: bundle
-      run: |
-        mkdir ${{ env.PLUGIN_NAME }}
-        cp main.js manifest.json styles.css ${{ env.PLUGIN_NAME }}
-        zip -r ${{ env.PLUGIN_NAME }}-${{ steps.build.outputs.tag_name }}.zip ${{ env.PLUGIN_NAME }}
-        ls
-        echo "::set-output name=tag_name::$(git tag --sort version:refname | tail -n 1)"            
-
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: |
-          ${{ env.PLUGIN_NAME }}-${{ steps.build.outputs.tag_name }}.zip
-          main.js
-          manifest.json
-          styles.css
