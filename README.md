@@ -6,17 +6,6 @@ You can then press tab to insert the suggestion or press escape or move the curs
 
 ![demo](assets/demo.gif)
 
-## Features
-This plugin provides the following features:
-- **Takes text before and after cursor into account**: During the prediction the plugin uses both the text before and the cursor. As a result the generated text will be more consistent with the text you have already written. 
-- **Context aware text generation**: The plugin knows what kind of text you are writing and will generate text accordingly. For example, if your cursor is in a list, it knows that you are interested in list items. When you are in a math block, it knows that you want latex, etc.  It does this use so-called few shot examples ([click here to learn more](https://www.promptingguide.ai/techniques/fewshot)).
-- **Configurable few shot examples**: The plugin provides these examples out of the box, but if you are an advanced user, you can adjust them to your liking in the settings (see the advanced section below).
-- **Support multiple API providers**: The plugin supports multiple API providers, including the OpenAI API and Azure OpenAi API.
-- **Flexible configuration**: The plugin is highly configurable. You can adjust the trigger conditions, model options, enable/disable preprocessing and postprocessing, etc.
-- **Prevent excessive API calls**: The plugin has been designed to minimize the number of API calls. It does this using a smart queueing and trigger detection system. In the bottom right corner of the screen you can see the current state of the plugin. If you want to reduce the number of API calls even further, you can increase the trigger delay even further in the settings.
-- **Ability to turn it off**: If you are working a privacy-sensitive document, you can turn the plugin off for that document using one of the quick actions. As long as the plugin is turned off, it will **never** send any of your text to the API provider.
-
-
 ## Usage
 When you are writing, the plugin watches if the text before your cursor matches any of the trigger words or regex.
 If it does, it will queue a prediction request. 
@@ -43,7 +32,6 @@ When you want to enable the plugin again, you can use the `Obsidian Copilot: Ena
 ![disable](assets/disable_quick_action.jpg)
 
 
-
 ## Installation
 After installing the plugin, you need to configure your API provider.
 You can do this as follows:
@@ -59,10 +47,8 @@ You can do this as follows:
 
 ![settings](assets/settings_demo.gif)
 
-
-
 ## How does it work?
-TODO
+
 ### Model
 The prediction task has been formulated as mask replacement task.
 Using prompt engineering, we can make a Chat-LLM model perform this task.
