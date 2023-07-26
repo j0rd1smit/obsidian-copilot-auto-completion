@@ -35,8 +35,6 @@ const RenderSuggestionPlugin = () =>
                         return;
                     }
                     this.suggestion = suggestion;
-                    console.log("suggestion", suggestion);
-
 
                     this.decorations = inlineSuggestionDecoration(
                         update.view,
@@ -59,13 +57,21 @@ function inlineSuggestionDecoration(
     if (!display_suggestion.render) {
         return Decoration.none;
     }
-    const widget =  new InlineSuggestionWidget(display_suggestion.value, view);
-    const decoration = Decoration.widget({
-        widget,
-        side: 1,
-    });
+
+    try {
+        const widget =  new InlineSuggestionWidget(display_suggestion.value, view);
+        const decoration = Decoration.widget({
+            widget,
+            side: 1,
+        });
 
     return Decoration.set([decoration.range(post)]);
+    }
+    catch (e) {
+        console.log(e);
+        return Decoration.none;
+    }
+
 }
 
 class InlineSuggestionWidget extends WidgetType {
