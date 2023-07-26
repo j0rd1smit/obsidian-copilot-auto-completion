@@ -20,8 +20,8 @@ repos:
   - id: pretty-format-yaml
     args: [--autofix]
 - repo: https://github.com/pre-commit/mirrors-eslint
-  rev: ''        # Use the sha / tag you want to point at
+  rev: v8.45.0
   hooks:
   - id: eslint
-    files: \.[jt]sx?$          # *.js, *.jsx, *.ts and *.tsx
+    files: \.[jt]sx?$
     types: [file]
