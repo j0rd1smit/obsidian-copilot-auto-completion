@@ -35,8 +35,6 @@ const RenderSuggestionPlugin = () =>
                         return;
                     }
                     this.suggestion = suggestion;
-                    console.log("suggestion", suggestion);
-
 
                     this.decorations = inlineSuggestionDecoration(
                         update.view,
