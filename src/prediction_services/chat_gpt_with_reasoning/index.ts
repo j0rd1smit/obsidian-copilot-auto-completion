@@ -102,8 +102,7 @@ class ChatGPTWithReasoning implements PredictionService {
         suffix: string
     ): Promise<string | undefined> {
         const context: Context = Context.getContext(prefix, suffix);
-        console.log("context");
-        console.log(context);
+
 
         for (const preProcessor of this.preProcessors) {
             if (preProcessor.removesCursor(prefix, suffix)) {
@@ -134,16 +133,9 @@ class ChatGPTWithReasoning implements PredictionService {
                 }),
             },
         ];
-        console.log("input:");
-        console.log(
-            this.userMessageFormatter({
-                suffix,
-                prefix,
-            })
-        );
+
         let result = await this.client.queryChatModel(messages);
-        console.log("result");
-        console.log(result);
+
 
         result = result.replace(
             new RegExp(this.removePreAnswerGenerationRegex, "gm"),

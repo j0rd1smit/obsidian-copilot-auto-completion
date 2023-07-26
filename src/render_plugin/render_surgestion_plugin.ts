@@ -7,7 +7,7 @@ import {
     WidgetType,
 } from "@codemirror/view";
 import {cancelSuggestion, InlineSuggestionState} from "./states";
-import { Prec } from "@codemirror/state";
+import {Prec} from "@codemirror/state";
 import {OptionalSuggestion, Suggestion} from "./types";
 
 const RenderSuggestionPlugin = () =>
@@ -59,13 +59,19 @@ function inlineSuggestionDecoration(
     if (!display_suggestion.render) {
         return Decoration.none;
     }
-    const widget =  new InlineSuggestionWidget(display_suggestion.value, view);
-    const decoration = Decoration.widget({
-        widget,
-        side: 1,
-    });
+    try {
+        const widget = new InlineSuggestionWidget(display_suggestion.value, view);
+        const decoration = Decoration.widget({
+            widget,
+            side: 1,
+        });
 
-    return Decoration.set([decoration.range(post)]);
+        return Decoration.set([decoration.range(post)]);
+    } catch (e) {
+        console.error(e);
+        return Decoration.none;
+    }
+
 }
 
 class InlineSuggestionWidget extends WidgetType {
@@ -84,7 +90,7 @@ class InlineSuggestionWidget extends WidgetType {
         span.textContent = this.display_suggestion;
         span.style.opacity = "0.4"; // TODO replace with css
         span.onclick = () => {
-           cancelSuggestion(this.view);
+            cancelSuggestion(this.view);
         }
         span.onselect = () => {
             cancelSuggestion(this.view);

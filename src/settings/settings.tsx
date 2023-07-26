@@ -90,21 +90,28 @@ export const DEFAULT_SETTINGS: Settings = {
 
     // Trigger settings
     triggers: [
-        {type: "string", value: ")"},
-        {type: "string", value: "{"},
-        {type: "string", value: "}"},
-        {type: "string", value: ". "},
-        {type: "string", value: ":"},
-        {type: "string", value: "\n"},
-        {type: "string", value: "\t"},
-        {type: "string", value: "' "},
-        {type: "string", value: "! "},
         {type: "string", value: "# "},
-        {type: "string", value: "%"},
-        {type: "string", value: "for"},
-        {type: "string", value: "- "},
-        {type: "regex", value: "```[a-zA-Z0-9]*(\\n\\s*)?$"},
+        {type: "string", value: ". "},
+        {type: "string", value: ": "},
+        {type: "string", value: ", "},
+        {type: "string", value: "! "},
+        {type: "string", value: "? "},
+        {type: "string", value: "`"},
+        {type: "string", value: "' "},
         {type: "string", value: "= "},
+        {type: "string", value: "$ "},
+        {type: "string", value: "\n"},
+
+        // bullet list
+        {type: "regex", value: "[\\t ]*(\\-|\\*)[\\t ]+$"},
+        // numbered list
+        {type: "regex", value: "[\\t ]*[0-9A-Za-z]+\\.[\\t ]+$"},
+        // new line with spaces
+        {type: "regex", value: "\\$\\$\\n[\\t ]*$"},
+        // markdown multiline code block
+        {type: "regex", value: "```[a-zA-Z0-9]*(\\n\\s*)?$"},
+        // task list normal, sub or numbered.
+        {type: "regex", value: "\\s*(-|[0-9]+\\.) \\[.\\]\\s+$"},
     ],
 
 

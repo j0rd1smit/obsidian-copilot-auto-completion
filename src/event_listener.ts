@@ -154,6 +154,21 @@ class EventListener implements EventHandler, SettingsObserver {
     handleAcceptCommand(): void {
         this.state.handleAcceptCommand();
     }
+    containsTriggerCharacters(
+        documentChanges: DocumentChanges
+    ): boolean {
+        for (const trigger of this.settings.triggers) {
+            if (trigger.type === "string" && documentChanges.getPrefix().endsWith(trigger.value)) {
+                return true;
+            }
+            if (trigger.type === "regex" && documentChanges.getPrefix().match(trigger.value)) {
+                return true;
+            }
+
+
+        }
+        return false;
+    }
 }
 
 function createPredictionService(settings: Settings) {
