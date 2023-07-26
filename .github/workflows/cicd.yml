@@ -19,13 +19,15 @@ jobs:
       with:
         node-version: 20.x
 
-    - uses: pre-commit/action@v2.0.3
-
     - name: Build
       id: build
       run: |
         npm install
         npm run build
+
+    - uses: pre-commit/action@v2.0.3
+
+
 
     - name: Bundle
       id: bundle
