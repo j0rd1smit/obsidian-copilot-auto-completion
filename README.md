@@ -19,7 +19,7 @@ Sometimes, you might want to force a prediction request at a certain location in
 In theory, you can do this by adding a trigger rule that will always match but this can become quite costly.
 Instead, you can use the `Obsidian Copilot: Predict` quick action.
 The plugin will directly make a prediction request and show the suggestion.
-![prediction_quick_action](assets/type_hint_prediction.gif | width=100)
+![prediction_quick_action](assets/type_hint_prediction.gif)
 
 If you are working a privacy-sensitive document, you might not want to share its content with the API provider.
 To prevent this, you can temporarily disable the plugin. 
