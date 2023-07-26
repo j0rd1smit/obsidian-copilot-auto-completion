@@ -27,8 +27,6 @@ jobs:
 
     - uses: pre-commit/action@v2.0.3
 
-
-
     - name: Bundle
       id: bundle
       run: |
