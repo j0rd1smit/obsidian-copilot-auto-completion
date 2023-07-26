@@ -20,6 +20,7 @@ import LengthLimiter from "../pre_processors/length_limiter";
 import OpenAIApiClient from "../api_clients/OpenAIApiClient";
 import AzureOAIClient from "../api_clients/AzureOAIClient";
 import RemoveWhiteSpacing from "../post_processors/remove_white_spacing";
+import RemoveDuplicateDashes from "../post_processors/remove_dashes_spacing";
 
 class ChatGPTWithReasoning implements PredictionService {
     private readonly client: ApiClient;
@@ -66,7 +67,7 @@ class ChatGPTWithReasoning implements PredictionService {
             )
         );
 
-        const postProcessors: PostProcessor[] = [];
+        const postProcessors: PostProcessor[] = [new RemoveDuplicateDashes()];
         if (settings.removeDuplicateMathBlockIndicator) {
             postProcessors.push(new RemoveMathIndicators());
         }
@@ -101,6 +102,8 @@ class ChatGPTWithReasoning implements PredictionService {
         suffix: string
     ): Promise<string | undefined> {
         const context: Context = Context.getContext(prefix, suffix);
+        console.log("context");
+        console.log(context);
 
         for (const preProcessor of this.preProcessors) {
             if (preProcessor.removesCursor(prefix, suffix)) {

@@ -184,7 +184,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
             <SliderSettingsItem
                 name={"Temperature"}
                 description={
-                    "Controls randomness. Lower temperatures result in more repetitive and deterministic responses. Higher temperatures will result in more unexpected or creative responses"
+                    "Controls randomness. Lower temperatures result in more repetitive and deterministic responses. Higher temperatures will result in more unexpected or creative responses."
                 }
                 value={settings.modelOptions.temperature}
                 errorMessage={errors.get("modelOptions.temperature")}
