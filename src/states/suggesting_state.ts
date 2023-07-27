@@ -3,6 +3,7 @@ import { DocumentChanges } from "../render_plugin/document_changes_listener";
 import EventListener from "../event_listener";
 import IdleState from "./idle_state";
 
+
 class SuggestingState extends State {
     private readonly suggestion: string;
 

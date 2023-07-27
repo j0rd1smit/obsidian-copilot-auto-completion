@@ -1,30 +1,28 @@
-import { Settings, SettingsObserver } from "./settings/settings";
+import {Settings, SettingsObserver} from "./settings/settings";
 import StatusBar from "./status_bar";
-import { DocumentChanges } from "./render_plugin/document_changes_listener";
-import {
-    cancelSuggestion,
-    insertSuggestion,
-    updateSuggestion,
-} from "./render_plugin/states";
-import { EditorView } from "@codemirror/view";
+import {DocumentChanges} from "./render_plugin/document_changes_listener";
+import {cancelSuggestion, insertSuggestion, updateSuggestion,} from "./render_plugin/states";
+import {EditorView} from "@codemirror/view";
 import State from "./states/state";
-import { EventHandler } from "./states/types";
+import {EventHandler} from "./states/types";
 import InitState from "./states/init_state";
 import IdleState from "./states/idle_state";
 import QueuedState from "./states/queued_state";
 import DisabledState from "./states/disabled_state";
 import PredictingState from "./states/predicting_state";
 import SuggestingState from "./states/suggesting_state";
-import { PredictionService } from "./prediction_services/types";
+import {PredictionService} from "./prediction_services/types";
 import ChatGPTWithReasoning from "./prediction_services/chat_gpt_with_reasoning";
-import { checkForErrors } from "./settings/utils";
-import { Notice } from "obsidian";
+import {checkForErrors} from "./settings/utils";
+import {Notice} from "obsidian";
+import Context from "./context_detection";
 
 class EventListener implements EventHandler, SettingsObserver {
     private view: EditorView | null = null;
 
     private state: EventHandler = new InitState();
     private statusBar: StatusBar;
+    private context: Context = Context.Text;
     predictionService: PredictionService;
     settings: Settings;
 
@@ -60,6 +58,14 @@ class EventListener implements EventHandler, SettingsObserver {
         this.predictionService = predictionService;
     }
 
+    public setContext(context: Context): void {
+        if (context === this.context) {
+            return;
+        }
+        this.context = context;
+        this.updateStatusBarText();
+    }
+
     public isSuggesting(): boolean {
         return this.state instanceof SuggestingState;
     }
@@ -91,18 +97,22 @@ class EventListener implements EventHandler, SettingsObserver {
 
     transitionTo(state: State): void {
         this.state = state;
-        const prefix = "Copilot:";
+        this.updateStatusBarText();
+    }
 
-        if (state instanceof IdleState) {
+    private updateStatusBarText(): void {
+         const prefix = "Copilot:";
+
+         if (this.state instanceof IdleState) {
             this.statusBar.updateText(`${prefix} Idle`);
-        } else if (state instanceof QueuedState) {
+        } else if (this.state instanceof QueuedState) {
             this.statusBar.updateText(`${prefix} Queued`);
-        } else if (state instanceof DisabledState) {
+        } else if (this.state instanceof DisabledState) {
             this.statusBar.updateText(`${prefix} Disabled`);
-        } else if (state instanceof PredictingState) {
-            this.statusBar.updateText(`${prefix} Predicting`);
-        } else if (state instanceof SuggestingState) {
-            this.statusBar.updateText(`${prefix} Suggesting`);
+        } else if (this.state instanceof PredictingState) {
+            this.statusBar.updateText(`${prefix} Predicting for ${this.context}`);
+        } else if (this.state instanceof SuggestingState) {
+            this.statusBar.updateText(`${prefix} Suggesting for ${this.context}`);
         }
     }
 

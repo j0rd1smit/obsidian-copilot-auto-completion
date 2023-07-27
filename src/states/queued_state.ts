@@ -3,6 +3,8 @@ import { DocumentChanges } from "../render_plugin/document_changes_listener";
 import EventListener from "../event_listener";
 import IdleState from "./idle_state";
 import PredictingState from "./predicting_state";
+import Context from "../context_detection";
+
 
 class QueuedState extends State {
     private timer: NodeJS.Timeout | null = null;
@@ -27,6 +29,7 @@ class QueuedState extends State {
     ): QueuedState {
         const state = new QueuedState(context, prefix, suffix);
         state.startTimer();
+        context.setContext(Context.getContext(prefix, suffix));
         return state;
     }
 

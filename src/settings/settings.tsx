@@ -24,6 +24,8 @@ import unordered_list_solid
 import math_block_inline from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/math_block_inline";
 import math_block_multi_line
     from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/math_block_multi_line";
+import header_example_relu
+    from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/header_example_relu";
 
 export interface AzureOAIApiSettings {
     key: string;
@@ -146,6 +148,7 @@ ANSWER: here you write the text that should be at the location of <mask/>
         unordered_list_solid,
         math_block_inline,
         math_block_multi_line,
+        header_example_relu,
     ].sort((a, b) => a.toString().localeCompare(b.toString())),
     userMessageTemplate: "{{prefix}}<mask/>{{suffix}}",
     chainOfThoughRemovalRegex: `(.|\\n)*ANSWER:`,
