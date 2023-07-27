@@ -1,5 +1,3 @@
-import * as crypto from "crypto";
-
 export function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -11,5 +9,14 @@ export function enumKeys<O extends object, K extends keyof O = keyof O>(
 }
 
 export function generateRandomString(n: number): string {
-    return crypto.randomBytes(n).toString("hex");
+    let result = '';
+    const characters = '0123456789abcdef';
+
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        result += characters[randomIndex];
+    }
+
+    return result;
 }
+
