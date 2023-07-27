@@ -1,4 +1,4 @@
-# Obsidian Sample Plugin
+# Copilot like auto-completion for Obsidian
 This plugin adds a copilot-like auto-completion to Obsidian.
 It uses the OpenAI API or Azure OpenAi API to generate text based on the `n` characters before and after your cursor.
 It will show the suggested completion in transparent text next to your cursor. 
