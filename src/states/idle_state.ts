@@ -10,8 +10,9 @@ class IdleState extends State {
         if (
             documentChanges.isDocInFocus() &&
             documentChanges.hasUserTyped() &&
-            this.containsTriggerCharacters(documentChanges)
+            this.context.containsTriggerCharacters(documentChanges)
         ) {
+
             this.context.transitionTo(
                 QueuedState.createAndStartTimer(
                     this.context,
@@ -22,21 +23,7 @@ class IdleState extends State {
         }
     }
 
-    private containsTriggerCharacters(
-        documentChanges: DocumentChanges
-    ): boolean {
-        for (const trigger of this.context.settings.triggers) {
-            if (trigger.type === "string" && documentChanges.getPrefix().endsWith(trigger.value)) {
-                return true;
-            }
-            if (trigger.type === "regex" && documentChanges.getPrefix().match(trigger.value)) {
-                return true;
-            }
 
-
-        }
-        return false;
-    }
 
     handlePredictCommand(prefix: string, suffix: string): void {
         this.context.transitionTo(

@@ -3,11 +3,14 @@ import { DocumentChanges } from "../render_plugin/document_changes_listener";
 import EventListener from "../event_listener";
 import IdleState from "./idle_state";
 import PredictingState from "./predicting_state";
+import Context from "../context_detection";
+
 
 class QueuedState extends State {
     private timer: NodeJS.Timeout | null = null;
     private readonly prefix: string;
     private readonly suffix: string;
+
 
     private constructor(
         context: EventListener,
@@ -26,6 +29,7 @@ class QueuedState extends State {
     ): QueuedState {
         const state = new QueuedState(context, prefix, suffix);
         state.startTimer();
+        context.setContext(Context.getContext(prefix, suffix));
         return state;
     }
 
@@ -39,11 +43,21 @@ class QueuedState extends State {
         documentChanges: DocumentChanges
     ): Promise<void> {
         if (
-            documentChanges.hasCursorMoved() ||
+            documentChanges.isDocInFocus() &&
+            documentChanges.hasUserTyped() &&
+            this.context.containsTriggerCharacters(documentChanges)
+        ) {
+            this.cancelTimer();
+            const nextState = QueuedState.createAndStartTimer(this.context, documentChanges.getPrefix(), documentChanges.getSuffix())
+            this.context.transitionTo(nextState);
+            return
+        }
+        if (
+            (documentChanges.hasCursorMoved() ||
             documentChanges.hasUserTyped() ||
             documentChanges.hasUserDeleted() ||
             documentChanges.isTextAdded() ||
-            !documentChanges.isDocInFocus()
+            !documentChanges.isDocInFocus())
         ) {
             this.cancelTimer();
             this.context.transitionTo(new IdleState(this.context));

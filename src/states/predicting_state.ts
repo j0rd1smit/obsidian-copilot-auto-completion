@@ -4,6 +4,7 @@ import EventListener from "../event_listener";
 import IdleState from "./idle_state";
 import SuggestingState from "./suggesting_state";
 import { Notice } from "obsidian";
+import Context from "../context_detection";
 
 class PredictingState extends State {
     private predictionPromise: Promise<void> | null = null;
@@ -24,6 +25,7 @@ class PredictingState extends State {
     ): PredictingState {
         const predictingState = new PredictingState(context, prefix, suffix);
         predictingState.startPredicting();
+        context.setContext(Context.getContext(prefix, suffix));
         return predictingState;
     }
 

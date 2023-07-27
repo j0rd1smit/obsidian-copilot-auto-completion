@@ -1,20 +1,15 @@
 import { generateRandomString } from "./utils";
 
 const UNIQUE_CURSOR = `${generateRandomString(16)}`;
-const HEADER_REGEX = new RegExp(`^#+\\s.*${UNIQUE_CURSOR}.*$`, "gm");
-const UNORDERED_LIST_REGEX = new RegExp(`^\\s*-\\s.*${UNIQUE_CURSOR}.*$`, "gm");
-const TASK_LIST_REGEX = new RegExp(
-    `^\\s*- \\[.\\]\\s.*${UNIQUE_CURSOR}.*$`,
-    "gm"
-);
-const BLOCK_QUOTES_REGEX = new RegExp(`^\\s*>.*${UNIQUE_CURSOR}.*$`, "gm");
-const NUMBERED_LIST_REGEX = new RegExp(
-    `^\\s*\\d+\\.\\s.*${UNIQUE_CURSOR}.*$`,
-    "gm"
-);
+const HEADER_REGEX = `^#+\\s.*${UNIQUE_CURSOR}.*$`;
+const UNORDERED_LIST_REGEX = `^\\s*(-|\\*)\\s.*${UNIQUE_CURSOR}.*$`;
+const TASK_LIST_REGEX = `^\\s*(-|[0-9]+\\.) +\\[.\\]\\s.*${UNIQUE_CURSOR}.*$`;
+const BLOCK_QUOTES_REGEX =`^\\s*>.*${UNIQUE_CURSOR}.*$`;
+const NUMBERED_LIST_REGEX = `^\\s*\\d+\\.\\s.*${UNIQUE_CURSOR}.*$`
 const MATH_BLOCK_REGEX = /\$\$[\s\S]*?\$\$/g;
 const INLINE_MATH_BLOCK_REGEX = /\$[\s\S]*?\$/g;
 const CODE_BLOCK_REGEX = /```[\s\S]*?```/g;
+const INLINE_CODE_BLOCK_REGEX = /`.*`/g;
 
 enum Context {
     Text = "Text",
@@ -36,14 +31,15 @@ namespace Context {
     }
 
     export function getContext(prefix: string, suffix: string): Context {
-        if (HEADER_REGEX.test(prefix + UNIQUE_CURSOR + suffix)) {
+        // console.log(prefix + UNIQUE_CURSOR + suffix);
+        if (new RegExp(HEADER_REGEX, "gm").test(prefix + UNIQUE_CURSOR + suffix)) {
             return Context.Heading;
         }
-        if (BLOCK_QUOTES_REGEX.test(prefix + UNIQUE_CURSOR + suffix)) {
+        if (new RegExp(BLOCK_QUOTES_REGEX,"gm").test(prefix + UNIQUE_CURSOR + suffix)) {
             return Context.BlockQuotes;
         }
 
-        if (TASK_LIST_REGEX.test(prefix + UNIQUE_CURSOR + suffix)) {
+        if (new RegExp(TASK_LIST_REGEX, "gm").test(prefix + UNIQUE_CURSOR + suffix)) {
             return Context.TaskList;
         }
 
@@ -54,13 +50,13 @@ namespace Context {
             return Context.MathBlock;
         }
 
-        if (isCursorInRegexBlock(prefix, suffix, CODE_BLOCK_REGEX)) {
+        if (isCursorInRegexBlock(prefix, suffix, CODE_BLOCK_REGEX) || isCursorInRegexBlock(prefix, suffix, INLINE_CODE_BLOCK_REGEX)) {
             return Context.CodeBlock;
         }
-        if (NUMBERED_LIST_REGEX.test(prefix + UNIQUE_CURSOR + suffix)) {
+        if (new RegExp(NUMBERED_LIST_REGEX, "gm").test(prefix + UNIQUE_CURSOR + suffix)) {
             return Context.NumberedList;
         }
-        if (UNORDERED_LIST_REGEX.test(prefix + UNIQUE_CURSOR + suffix)) {
+        if (new RegExp(UNORDERED_LIST_REGEX, "gm").test(prefix + UNIQUE_CURSOR + suffix)) {
             return Context.UnorderedList;
         }
 

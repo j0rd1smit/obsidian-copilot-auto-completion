@@ -13,7 +13,8 @@ abstract class State implements EventHandler {
 
     async handleDocumentChange(
         documentChanges: DocumentChanges
-    ): Promise<void> {}
+    ): Promise<void> {
+    }
 
     handleAcceptonKeyPressed(): boolean {
         return false;
