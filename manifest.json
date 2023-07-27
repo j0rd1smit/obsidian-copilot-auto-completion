@@ -3,7 +3,7 @@
     "name": "Obsidian Copilot",
     "version": "1.0.0",
     "minAppVersion": "0.15.0",
-    "description": "This plugin adds a copilot-like auto-completion to Obsidian. It uses the OpenAI API or Azure OpenAi API to generate text based on the `n` characters before and after your cursor. It will show the suggested completion in transparent text next to your cursor. You can then press Tab to insert the suggestion. Additionally, you can press Escape or move the cursor to ignore the suggestion.",
+    "description": "Adds a highly configurable copilot-like auto-completion to Obsidian.",
     "author": "Jordi Smit",
     "authorUrl": "https://jordismit.com",
     "isDesktopOnly": true
