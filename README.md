@@ -95,7 +95,6 @@ As you can see in the above example, the model only has access to the text in th
 This prevents the model from leaking information from other documents that might be privacy-sensitive. 
 
 ### Context aware few shot examples
-The above model setup works already quite well, but it can be improved by using context aware few shot examples.
 The above model setup already works quite well, but it can be improved by using context-aware few-shot examples.
 The key idea here is that we expect specific types of answers at specific locations in the document.
 For example:
