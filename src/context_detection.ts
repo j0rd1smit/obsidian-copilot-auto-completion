@@ -31,7 +31,6 @@ namespace Context {
     }
 
     export function getContext(prefix: string, suffix: string): Context {
-        // console.log(prefix + UNIQUE_CURSOR + suffix);
         if (new RegExp(HEADER_REGEX, "gm").test(prefix + UNIQUE_CURSOR + suffix)) {
             return Context.Heading;
         }

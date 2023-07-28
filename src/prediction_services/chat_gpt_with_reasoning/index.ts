@@ -103,8 +103,6 @@ class ChatGPTWithReasoning implements PredictionService {
         suffix: string
     ): Promise<string | undefined> {
         const context: Context = Context.getContext(prefix, suffix);
-        console.log(context);
-
 
         for (const preProcessor of this.preProcessors) {
             if (preProcessor.removesCursor(prefix, suffix)) {
