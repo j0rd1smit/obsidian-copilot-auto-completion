@@ -12,7 +12,7 @@ export function generateRandomString(n: number): string {
     let result = '';
     const characters = '0123456789abcdef';
 
-    for (let i = 0; i < length; i++) {
+    for (let i = 0; i < n; i++) {
         const randomIndex = Math.floor(Math.random() * characters.length);
         result += characters[randomIndex];
     }
