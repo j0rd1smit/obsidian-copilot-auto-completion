@@ -202,7 +202,7 @@ export default function FewShotExampleSettings(
                                 Human Message
                             </div>
                             <textarea
-                                className="setting-item-text-area"
+                                className="setting-item-text-area-copilot-auto-completion"
                                 rows={5}
                                 style={{ width: "100%" }}
                                 value={example.input}
@@ -215,7 +215,7 @@ export default function FewShotExampleSettings(
                                 Assistant Message
                             </div>
                             <textarea
-                                className="setting-item-text-area"
+                                className="setting-item-text-area-copilot-auto-completion"
                                 rows={5}
                                 style={{ width: "100%" }}
                                 value={example.answer}

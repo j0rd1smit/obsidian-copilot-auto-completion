@@ -1,50 +1,42 @@
-/*
-
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
-
-If your plugin does not need CSS, delete this file.
-
-*/
-.setting-list-item {
+.setting-list-item-copilot-auto-completion {
     display: flex;
     align-items: center;
     padding: 0.75em 0;
 }
 
-.setting-item-text-area {
+.setting-item-text-area-copilot-auto-completion {
     width: 100%;
     resize: vertical;
     padding: 0.5em;
     margin-top: 0.5em;
 }
 
-.loaderPlaceholder {
+.loader-placeholder-copilot-auto-completion {
     width: 25px;
     height: 25px;
 }
-.loader {
+.loader-copilot-auto-completion {
     width: 25px;
     height: 25px;
     border-radius: 50%;
     position: relative;
-    animation: rotate 1s linear infinite
+    animation: rotate-copilot-auto-completion 1s linear infinite
     }
-.loader::before {
+.loader-copilot-auto-completion::before {
     content: "";
     box-sizing: border-box;
     position: absolute;
     inset: 0px;
     border-radius: 50%;
     border: 2px solid #1976d2;
-    animation: prixClipFix 2s linear infinite ;
+    animation: prix-clip-fix-copilot-auto-completion 2s linear infinite ;
 }
 
-@keyframes rotate {
+@keyframes rotate-copilot-auto-completion {
     100%   {transform: rotate(360deg)}
 }
 
-@keyframes prixClipFix {
+@keyframes prix-clip-fix-copilot-auto-completion {
     0%   {clip-path:polygon(50% 50%,0 0,0 0,0 0,0 0,0 0)}
     25%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 0,100% 0,100% 0)}
     50%  {clip-path:polygon(50% 50%,0 0,100% 0,100% 100%,100% 100%,100% 100%)}

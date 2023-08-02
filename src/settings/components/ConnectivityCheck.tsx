@@ -60,11 +60,11 @@ export default function ConnectivityCheck(props: IProps): React.JSX.Element {
 
     const ProgressFeedback = () => {
         if (status === Status.Loading) {
-            return <span className="loader" />;
+            return <span className="loader-copilot-auto-completion" />;
         }
         if (status === Status.Success) {
             return (
-                <span className={"loaderPlaceholder"}>
+                <span className={"loader-placeholder-copilot-auto-completion"}>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="100%"
@@ -84,7 +84,7 @@ export default function ConnectivityCheck(props: IProps): React.JSX.Element {
         }
         if (status === Status.Failure) {
             return (
-                <span className={"loaderPlaceholder"}>
+                <span className={"loader-placeholder-copilot-auto-completion"}>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -104,7 +104,7 @@ export default function ConnectivityCheck(props: IProps): React.JSX.Element {
             );
         }
 
-        return <span className={"loaderPlaceholder"} />;
+        return <span className={"loader-placeholder-copilot-auto-completion"} />;
     };
 
     return (
