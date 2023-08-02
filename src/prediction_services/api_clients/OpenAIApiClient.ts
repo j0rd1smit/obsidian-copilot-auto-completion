@@ -1,5 +1,6 @@
-import { ApiClient, ChatMessage, ModelOptions } from "../types";
-import { Settings } from "../../settings/settings";
+import {ApiClient, ChatMessage, ModelOptions} from "../types";
+import {Settings} from "../../settings/settings";
+import {requestUrl} from "obsidian";
 
 class OpenAIApiClient implements ApiClient {
     private readonly apiKey: string;
@@ -15,6 +16,7 @@ class OpenAIApiClient implements ApiClient {
             settings.modelOptions
         );
     }
+
     constructor(
         apiKey: string,
         url: string,
@@ -28,20 +30,25 @@ class OpenAIApiClient implements ApiClient {
     }
 
     async queryChatModel(messages: ChatMessage[]): Promise<string> {
-        const response = await fetch(this.url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${this.apiKey}`,
-            },
-            body: JSON.stringify({
-                messages,
-                model: this.model,
-                ...this.modelOptions,
-            }),
-        });
+        const headers = {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiKey}`,
+        };
+        const body = {
+            messages,
+            model: this.model,
+            ...this.modelOptions,
+        }
 
-        const data = await response.json();
+        const response = await requestUrl({
+            url: this.url,
+            method: "POST",
+            body: JSON.stringify(body),
+            headers,
+            throw: true,
+            contentType: "application/json",
+        });
+        const data = response.json;
 
         return data.choices[0].message.content;
     }
@@ -49,7 +56,7 @@ class OpenAIApiClient implements ApiClient {
     async isConfiguredCorrectly(): Promise<boolean> {
         try {
             await this.queryChatModel([
-                { content: "hello world", role: "user" },
+                {content: "hello world", role: "user"},
             ]);
             return true;
         } catch (e) {

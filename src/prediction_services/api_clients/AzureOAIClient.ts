@@ -1,5 +1,6 @@
-import { ApiClient, ChatMessage, ModelOptions } from "../types";
-import { Settings } from "../../settings/settings";
+import {ApiClient, ChatMessage, ModelOptions} from "../types";
+import {Settings} from "../../settings/settings";
+import {requestUrl} from "obsidian";
 
 class AzureOAIClient implements ApiClient {
     private readonly apiKey: string;
@@ -21,26 +22,28 @@ class AzureOAIClient implements ApiClient {
     }
 
     async queryChatModel(messages: ChatMessage[]): Promise<string> {
-        const response = await fetch(this.url, {
+        const headers = {
+            "Content-Type": "application/json",
+            "api-key": this.apiKey,
+        }
+
+        const response = await requestUrl({
+            url: this.url,
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "api-key": this.apiKey,
-            },
-            body: JSON.stringify({ messages, ...this.modelOptions }),
+            body: JSON.stringify({messages, ...this.modelOptions}),
+            headers,
+            throw: true,
+            contentType: "application/json",
         });
 
-
-
-        const data = await response.json();
-
+        const data = response.json;
         return data.choices[0].message.content;
     }
 
     async isConfiguredCorrectly(): Promise<boolean> {
         try {
             await this.queryChatModel([
-                { content: "hello world", role: "user" },
+                {content: "hello world", role: "user"},
             ]);
             return true;
         } catch (e) {
