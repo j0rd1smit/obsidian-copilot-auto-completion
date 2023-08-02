@@ -54,7 +54,7 @@ export default class CopilotPlugin extends Plugin {
             }
         });
         this.addCommand({
-            id: "obsidian-copilot-accept",
+            id: "accept",
             name: "Accept",
             editorCheckCallback: (
                 checking: boolean,
@@ -102,7 +102,7 @@ export default class CopilotPlugin extends Plugin {
         });
 
         this.addCommand({
-            id: "Toggle-copilot-plugin",
+            id: "toggle",
             name: "Toggle",
             callback: () => {
                 const newValue = !settingsTab.settings.enabled;
@@ -110,7 +110,7 @@ export default class CopilotPlugin extends Plugin {
             },
         });
         this.addCommand({
-            id: "Enable-copilot-plugin",
+            id: "enable",
             name: "Enable",
             checkCallback: (checking) => {
                 if (checking) {
@@ -122,7 +122,7 @@ export default class CopilotPlugin extends Plugin {
             },
         });
         this.addCommand({
-            id: "Disable-copilot-plugin",
+            id: "disable",
             name: "Disable",
             checkCallback: (checking) => {
                 if (checking) {
