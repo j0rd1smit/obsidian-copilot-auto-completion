@@ -87,7 +87,7 @@ function TriggerSettings(props: IProps): React.JSX.Element {
 
             {triggers.map((trigger: Trigger, index: number) => (
                 <div
-                    className="setting-list-item"
+                    className="setting-list-item-copilot-auto-completion"
                     key={`setting-list-item-${name.replace(" ", "-")}-${index}`}
                 >
                     <div className="setting-item-info">

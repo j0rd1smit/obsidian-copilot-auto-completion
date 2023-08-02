@@ -7,7 +7,7 @@ import Context from "../context_detection";
 
 
 class QueuedState extends State {
-    private timer: NodeJS.Timeout | null = null;
+    private timer: ReturnType<typeof setTimeout> | null = null;
     private readonly prefix: string;
     private readonly suffix: string;
 

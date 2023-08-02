@@ -148,7 +148,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
 
     return (
         <div>
-            <h1>General Settings</h1>
+            <h2>General</h2>
             <CheckBoxSettingItem
                 name={"Enable"}
                 description={
@@ -175,7 +175,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 errorMessage={errors.get("apiProvider")}
             />
 
-            <h2>API Settings</h2>
+            <h2>API</h2>
             {renderAPISettings()}
 
             <ConnectivityCheck settings={settings} />
@@ -277,7 +277,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 step={10}
             />
 
-            <h2>Preprocessing Settings</h2>
+            <h2>Preprocessing</h2>
             <CheckBoxSettingItem
                 name={"Don't include dataviews"}
                 description={
@@ -318,7 +318,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 step={100}
                 suffix={" chars"}
             />
-            <h2>Postprocessing Settings</h2>
+            <h2>Postprocessing</h2>
             <CheckBoxSettingItem
                 name={"Auto remove duplicate mat block indicators"}
                 description={
@@ -340,7 +340,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 }
             />
 
-            <h2>Trigger Settings</h2>
+            <h2>Trigger</h2>
             <SliderSettingsItem
                 name={"Delay"}
                 description={
@@ -389,7 +389,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
 
             {settings.advancedMode && (
                 <>
-                    <h1>Advanced Settings</h1>
+                    <h2>Advanced</h2>
                     <TextSettingItem
                         name={"Chain of thought removal regex"}
                         description={
@@ -414,7 +414,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                         errorMessage={errors.get("systemMessage")}
                     >
                         <textarea
-                            className="setting-item-text-area"
+                            className="setting-item-text-area-copilot-auto-completion"
                             rows={10}
                             placeholder="Your system message..."
                             value={settings.systemMessage}
@@ -435,7 +435,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                         errorMessage={errors.get("userMessageTemplate")}
                     >
                         <textarea
-                            className="setting-item-text-area"
+                            className="setting-item-text-area-copilot-auto-completion"
                             rows={3}
                             placeholder="{{prefix}}<mask/>{{suffix}}"
                             value={settings.userMessageTemplate}
