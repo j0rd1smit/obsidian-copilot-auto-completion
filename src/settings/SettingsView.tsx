@@ -95,6 +95,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                             })
                         }
                     />
+                    <ConnectivityCheck key={"azure"} settings={settings} />
                 </>
             );
         }
@@ -141,6 +142,8 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                         errorMessage={errors.get("openAIApiSettings.model")}
                         disabled
                     />
+
+                    <ConnectivityCheck key={"openai"} settings={settings} />
                 </>
             );
         }
@@ -178,7 +181,6 @@ export default function SettingsView(props: IProps): React.JSX.Element {
             <h2>API</h2>
             {renderAPISettings()}
 
-            <ConnectivityCheck settings={settings} />
 
             <h2>Model Options</h2>
             <SliderSettingsItem

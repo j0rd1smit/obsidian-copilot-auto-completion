@@ -19,6 +19,7 @@ enum Status {
 
 export default function ConnectivityCheck(props: IProps): React.JSX.Element {
     const [status, setStatus] = useState<Status>(Status.NotStarted);
+    const [errors, setErrors] = useState<string[]>([]);
 
     React.useEffect(() => {
         setStatus(Status.NotStarted);
@@ -43,8 +44,9 @@ export default function ConnectivityCheck(props: IProps): React.JSX.Element {
 
 
         const client = createClient();
-        const isWorking = await client.isConfiguredCorrectly();
-        if (!isWorking) {
+        const _errors = await client.checkIfConfiguredCorrectly();
+        setErrors(_errors);
+        if (_errors.length > 0) {
             new Notice(
                 `Cannot connect to the ${props.settings.apiProvider} API. Please check your settings.`
             );
@@ -113,6 +115,7 @@ export default function ConnectivityCheck(props: IProps): React.JSX.Element {
             description={
                 "Want to test if you configured the API correctly? Click the button below to test the connection."
             }
+            errorMessage={errors.join("\n")}
         >
             {ProgressFeedback()}
             <button

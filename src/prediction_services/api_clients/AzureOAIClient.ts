@@ -32,23 +32,50 @@ class AzureOAIClient implements ApiClient {
             method: "POST",
             body: JSON.stringify({messages, ...this.modelOptions}),
             headers,
-            throw: true,
+            throw: false,
             contentType: "application/json",
         });
+
+        if (response.status >= 500) {
+            throw new Error("Azure OpenAI API returned status code 500. Please try again later.");
+        }
+
+        if (response.status >= 400) {
+            let errorMessage = `Azure OpenAI API returned status code ${response.status}`;
+            if (response.json && response.json.error && response.json.error.message) {
+                errorMessage += `: ${response.json.error.message}`;
+            }
+            throw new Error(errorMessage);
+        }
 
         const data = response.json;
         return data.choices[0].message.content;
     }
 
-    async isConfiguredCorrectly(): Promise<boolean> {
+
+
+    async checkIfConfiguredCorrectly(): Promise<string[]> {
+        const errors: string[] = [];
+
+        if (!this.apiKey) {
+            errors.push("OpenAI API key is not set.");
+        }
+        if (!this.url) {
+            errors.push("OpenAI API url is not set.");
+        }
+        if (errors.length > 0) {
+            // api check is not possible without passing previous checks so return early
+            return errors;
+        }
+
         try {
             await this.queryChatModel([
                 {content: "hello world", role: "user"},
             ]);
-            return true;
         } catch (e) {
-            return false;
+            errors.push(e.message);
         }
+        return errors;
     }
 }
 

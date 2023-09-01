@@ -56,5 +56,5 @@ export interface FewShotExample {
 
 export interface ApiClient {
     queryChatModel(messages: ChatMessage[]): Promise<string>;
-    isConfiguredCorrectly(): Promise<boolean>;
+    checkIfConfiguredCorrectly(): Promise<string[]>;
 }
