@@ -28,6 +28,7 @@ class SuggestingState extends State {
             documentChanges.hasCursorMoved() ||
             documentChanges.hasUserTyped() ||
             documentChanges.hasUserDeleted() ||
+            documentChanges.hasUserUndone() ||
             documentChanges.isTextAdded()
         ) {
             this.clearPrediction();

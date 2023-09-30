@@ -17,6 +17,11 @@ export class DocumentChanges {
         return userEvents.contains(UserEvent.INPUT_TYPE) || this.isTextAdded();
     }
 
+    public hasUserUndone(): boolean {
+        const userEvents = this.getUserEvents();
+        return userEvents.contains(UserEvent.UNDO);
+    }
+
     public hasUserDeleted(): boolean {
         const userEvents = this.getUserEvents();
         return (
