@@ -40,12 +40,24 @@ class SuggestingState extends State {
     }
 
     handleAcceptonKeyPressed(): boolean {
-        this.accept();
+        let partial = this.context.settings.acceptBehaviour === "partial";
+        this.accept(partial);
         return true;
     }
-    private accept() {
-        this.context.insertCurrentSuggestion(this.suggestion);
-        this.context.transitionTo(new IdleState(this.context));
+    private accept(partial: boolean = false) {
+        if (partial && this.suggestion.includes(" ")) {
+            let part = this.suggestion.split(" ")[0] + " ";
+            this.context.insertCurrentSuggestion(part);
+            this.context.transitionTo(
+                SuggestingState.withSuggestion(
+                    this.context,
+                    this.suggestion.substring(part.length)
+                )
+            );
+        } else {
+            this.context.insertCurrentSuggestion(this.suggestion);
+            this.context.transitionTo(new IdleState(this.context));
+        }
     }
 
     handleCancelKeyPressed(): boolean {
