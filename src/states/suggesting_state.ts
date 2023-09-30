@@ -41,13 +41,13 @@ class SuggestingState extends State {
     }
 
     handleAcceptonKeyPressed(): boolean {
-        let partial = this.context.settings.acceptBehaviour === "partial";
+        const partial = this.context.settings.acceptBehaviour === "partial";
         this.accept(partial);
         return true;
     }
     private accept(partial: boolean = false) {
         if (partial && this.suggestion.includes(" ")) {
-            let part = this.suggestion.split(" ")[0] + " ";
+            const part = this.suggestion.split(" ")[0] + " ";
             this.context.insertCurrentSuggestion(part);
             this.context.transitionTo(
                 SuggestingState.withSuggestion(
