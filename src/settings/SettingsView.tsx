@@ -178,26 +178,6 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 errorMessage={errors.get("apiProvider")}
             />
 
-            <DropDownSettingItem
-                name={"Accept Behaviour"}
-                description={
-                    "Control whether the Tab key will accept the entire suggestion or a single word at a time, allowing partial completions."
-                }
-                value={settings.acceptBehaviour}
-                setValue={(value: string) => {
-                    if (value === "all") {
-                        updateSettings({ acceptBehaviour: value });
-                    }
-                    if (value === "partial") {
-                        updateSettings({ acceptBehaviour: value });
-                    }
-                }}
-                options={{
-                    all: "Entire suggestion",
-                    partial: "Single word",
-                }}
-            />
-
             <h2>API</h2>
             {renderAPISettings()}
 

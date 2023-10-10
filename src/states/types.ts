@@ -6,7 +6,9 @@ export interface EventHandler {
 
     handleDocumentChange(documentChanges: DocumentChanges): Promise<void>;
 
-    handleAcceptonKeyPressed(): boolean;
+    handleAcceptKeyPressed(): boolean;
+
+    handlePartialAcceptKeyPressed(): boolean;
 
     handleCancelKeyPressed(): boolean;
 

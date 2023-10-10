@@ -149,8 +149,12 @@ class EventListener implements EventHandler, SettingsObserver {
         await this.state.handleDocumentChange(documentChanges);
     }
 
-    handleAcceptonKeyPressed(): boolean {
-        return this.state.handleAcceptonKeyPressed();
+    handleAcceptKeyPressed(): boolean {
+        return this.state.handleAcceptKeyPressed();
+    }
+
+    handlePartialAcceptKeyPressed(): boolean {
+        return this.state.handlePartialAcceptKeyPressed();
     }
 
     handleCancelKeyPressed(): boolean {

@@ -40,13 +40,21 @@ class SuggestingState extends State {
         this.context.transitionTo(new IdleState(this.context));
     }
 
-    handleAcceptonKeyPressed(): boolean {
-        const partial = this.context.settings.acceptBehaviour === "partial";
-        this.accept(partial);
+    handleAcceptKeyPressed(): boolean {
+        this.accept();
         return true;
     }
-    private accept(partial: boolean = false) {
-        if (partial && this.suggestion.includes(" ")) {
+    private accept() {
+        this.context.insertCurrentSuggestion(this.suggestion);
+        this.context.transitionTo(new IdleState(this.context));
+    }
+
+    handlePartialAcceptKeyPressed(): boolean {
+        this.acceptPartial();
+        return true;
+    }
+    private acceptPartial() {
+        if (this.suggestion.includes(" ")) {
             const part = this.suggestion.split(" ")[0] + " ";
             this.context.insertCurrentSuggestion(part);
             this.context.transitionTo(
@@ -56,8 +64,7 @@ class SuggestingState extends State {
                 )
             );
         } else {
-            this.context.insertCurrentSuggestion(this.suggestion);
-            this.context.transitionTo(new IdleState(this.context));
+            this.accept();
         }
     }
 

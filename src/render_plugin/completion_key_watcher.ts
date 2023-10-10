@@ -3,14 +3,19 @@ import { keymap } from "@codemirror/view";
 import { Prec } from "@codemirror/state";
 
 function CompletionKeyWatcher(
-    handleAcceptonKey: () => boolean,
+    handleAcceptKey: () => boolean,
+    handlePartialAcceptKey: () => boolean,
     handleCancelKey: () => boolean
 ) {
     return Prec.highest(
         keymap.of([
             {
                 key: "Tab",
-                run: handleAcceptonKey,
+                run: handleAcceptKey,
+            },
+            {
+                key: "ArrowRight",
+                run: handlePartialAcceptKey,
             },
             {
                 key: "Escape",

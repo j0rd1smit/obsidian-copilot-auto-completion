@@ -16,7 +16,11 @@ abstract class State implements EventHandler {
     ): Promise<void> {
     }
 
-    handleAcceptonKeyPressed(): boolean {
+    handleAcceptKeyPressed(): boolean {
+        return false;
+    }
+
+    handlePartialAcceptKeyPressed(): boolean {
         return false;
     }
 

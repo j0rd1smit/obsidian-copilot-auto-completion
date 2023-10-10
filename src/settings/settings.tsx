@@ -48,7 +48,6 @@ export interface Settings {
     readonly enabled: boolean;
     readonly advancedMode: boolean;
     readonly apiProvider: "azure" | "openai";
-    readonly acceptBehaviour: "all" | "partial";
     // API settings
     readonly azureOAIApiSettings: AzureOAIApiSettings;
     readonly openAIApiSettings: OpenAiApiSettings;
@@ -80,7 +79,6 @@ export const DEFAULT_SETTINGS: Settings = {
     enabled: true,
     advancedMode: false,
     apiProvider: "openai",
-    acceptBehaviour: "all",
     // API settings
     azureOAIApiSettings: {
         key: "",
