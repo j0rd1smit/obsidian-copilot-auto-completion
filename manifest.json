@@ -1,7 +1,7 @@
 {
     "id": "copilot-auto-completion",
     "name": "Copilot auto completion",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "minAppVersion": "0.15.0",
     "description": "Adds a highly configurable copilot-like auto-completion to Obsidian using the ChatGPT API.",
     "author": "Jordi Smit",
