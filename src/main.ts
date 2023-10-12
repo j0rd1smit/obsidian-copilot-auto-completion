@@ -29,7 +29,8 @@ export default class CopilotPlugin extends Plugin {
         this.registerEditorExtension([
             InlineSuggestionState,
             CompletionKeyWatcher(
-                eventListener.handleAcceptonKeyPressed.bind(eventListener),
+                eventListener.handleAcceptKeyPressed.bind(eventListener),
+                eventListener.handlePartialAcceptKeyPressed.bind(eventListener),
                 eventListener.handleCancelKeyPressed.bind(eventListener)
             ),
             DocumentChangesListener(

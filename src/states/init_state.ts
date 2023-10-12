@@ -9,7 +9,11 @@ class InitState implements EventHandler {
 
     handleSettingChanged(settings: Settings): void {}
 
-    handleAcceptonKeyPressed(): boolean {
+    handleAcceptKeyPressed(): boolean {
+        return false;
+    }
+
+    handlePartialAcceptKeyPressed(): boolean {
         return false;
     }
 

@@ -2,7 +2,7 @@
 This plugin adds a copilot-like auto-completion to Obsidian.
 It uses the OpenAI API or Azure OpenAi API to generate text based on the `n` characters before and after your cursor.
 It will show the suggested completion in transparent text next to your cursor. 
-You can then press Tab to insert the suggestion. Additionally, you can press Escape or move the cursor to ignore the suggestion.
+You can then press Tab to insert the entire suggestion, or the right arrow key to insert part of the suggestion. Additionally, you can press Escape or move the cursor to ignore the suggestion.
 
 ![demo](assets/demo.gif)
 
@@ -12,7 +12,8 @@ If it does, it will queue a prediction request.
 The plugin will cancel the prediction request if you move the cursor, change the document, or press escape.
 Prediction requests will be queued for a certain time to prevent excessive API calls.
 Once the prediction request is made, the plugin will show the suggestion in transparent text.
-You can accept it by pressing the Tab key or using the `Obsidian Copilot: Accept` quick action. 
+You can accept the entire suggestion by pressing the Tab key or using the `Obsidian Copilot: Accept` quick action.
+You can accept part of the suggestion by continually pressing the right arrow key to insert the next suggested word.
 If you press escape, move the cursor or change the document, the suggestion will be canceled.
 
 Sometimes, you may force a prediction request at a particular location in the document.

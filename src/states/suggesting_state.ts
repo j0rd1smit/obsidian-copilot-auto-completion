@@ -28,6 +28,7 @@ class SuggestingState extends State {
             documentChanges.hasCursorMoved() ||
             documentChanges.hasUserTyped() ||
             documentChanges.hasUserDeleted() ||
+            documentChanges.hasUserUndone() ||
             documentChanges.isTextAdded()
         ) {
             this.clearPrediction();
@@ -39,13 +40,32 @@ class SuggestingState extends State {
         this.context.transitionTo(new IdleState(this.context));
     }
 
-    handleAcceptonKeyPressed(): boolean {
+    handleAcceptKeyPressed(): boolean {
         this.accept();
         return true;
     }
     private accept() {
         this.context.insertCurrentSuggestion(this.suggestion);
         this.context.transitionTo(new IdleState(this.context));
+    }
+
+    handlePartialAcceptKeyPressed(): boolean {
+        this.acceptPartial();
+        return true;
+    }
+    private acceptPartial() {
+        if (this.suggestion.includes(" ")) {
+            const part = this.suggestion.split(" ")[0] + " ";
+            this.context.insertCurrentSuggestion(part);
+            this.context.transitionTo(
+                SuggestingState.withSuggestion(
+                    this.context,
+                    this.suggestion.substring(part.length)
+                )
+            );
+        } else {
+            this.accept();
+        }
     }
 
     handleCancelKeyPressed(): boolean {
