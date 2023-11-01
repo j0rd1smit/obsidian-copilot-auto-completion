@@ -29,6 +29,10 @@ jobs:
       run: |
         npm install
         npm run build
-        npm run tests
 
     - uses: pre-commit/action@v2.0.3
+
+    - name: Test
+      id: test
+      run: |
+        npm run tests

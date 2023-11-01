@@ -26,6 +26,11 @@ jobs:
         npm run build
         npm run tests
 
+    - name: Test
+      id: test
+      run: |
+        npm run tests
+
     - name: Bundle
       id: bundle
       run: |
