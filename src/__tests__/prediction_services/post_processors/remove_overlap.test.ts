@@ -77,3 +77,16 @@ Some advantages are:
     expect(removeOverlapFromCompletion(prefix, suffix, completion)).toEqual(expected);
 });
 
+test('scenario with empty line before it', () => {
+    const prefix = `The dead ReLU problem can have due to a wide variety of reasons, such as:
+- `;
+    const completion = `
+- Improper weight initialization
+- Large learning rates
+- Unbalanced data`;
+    const suffix = ``;
+    const expected = `Improper weight initialization
+- Large learning rates
+- Unbalanced data`;
+    expect(removeOverlapFromCompletion(prefix, suffix, completion)).toEqual(expected);
+});

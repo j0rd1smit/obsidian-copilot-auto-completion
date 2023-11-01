@@ -9,10 +9,8 @@ class RemoveOverlap implements PostProcessor {
         completion: string,
         context: Context
     ): string {
-        const prefixCompletionOverlap: string = findWordOverlap(prefix, completion);
-        const suffixCompletionOverlap: string = findWordOverlap(completion, suffix);
-        completion = completion.replace(prefixCompletionOverlap, "");
-        completion = completion.replace(suffixCompletionOverlap, "");
+        completion = removeWordOverlapPrefix(prefix, completion);
+        completion = removeWordOverlapSuffix(completion, suffix);
         completion = removeWhiteSpaceOverlapPrefix(suffix, completion);
         completion = removeWhiteSpaceOverlapSuffix(completion, suffix);
 
@@ -40,22 +38,36 @@ function removeWhiteSpaceOverlapSuffix(completion: string, suffix: string): stri
     return completion;
 }
 
+function removeWordOverlapPrefix(prefix: string, completion: string): string {
+    const rightTrimmed = completion.trimStart();
 
-
-function findWordOverlap(left: string, right: string): string {
-    right = right.trimStart();
-
-    const startIdxOfEachWord = startLocationOfEachWord(left);
+    const startIdxOfEachWord = startLocationOfEachWord(prefix);
 
     while (startIdxOfEachWord.length > 0) {
         const idx = startIdxOfEachWord.pop();
-        const leftSubstring = left.slice(idx);
-        if (right.startsWith(leftSubstring)) {
-            return leftSubstring;
+        const leftSubstring = prefix.slice(idx);
+        if (rightTrimmed.startsWith(leftSubstring)) {
+            return rightTrimmed.replace(leftSubstring, "");
         }
     }
 
-    return "";
+    return completion;
+}
+
+function removeWordOverlapSuffix(completion: string, suffix: string): string {
+    const suffixTrimmed = suffix.trimStart();
+
+    const startIdxOfEachWord = startLocationOfEachWord(completion);
+
+    while (startIdxOfEachWord.length > 0) {
+        const idx = startIdxOfEachWord.pop();
+        const suffixSubstring = completion.slice(idx);
+        if (suffixTrimmed.startsWith(suffixSubstring)) {
+            return completion.replace(suffixSubstring, "");
+        }
+    }
+
+    return completion;
 }
 
 function startLocationOfEachWord(text: string): number[] {
@@ -76,8 +88,5 @@ function startLocationOfEachWord(text: string): number[] {
 function isWhiteSpaceChar(char: string|undefined): boolean {
     return char !== undefined && char.match(/\s/) !== null;
 }
-
-
-
 
 export default RemoveOverlap;

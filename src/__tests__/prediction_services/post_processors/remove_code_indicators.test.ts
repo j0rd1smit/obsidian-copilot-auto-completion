@@ -66,4 +66,3 @@ test('fibonacci scenario test', () => {
     expect(removeCodeIndicators(completion, Context.CodeBlock)).toEqual(expected);
 });
 
-
