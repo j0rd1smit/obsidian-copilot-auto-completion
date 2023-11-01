@@ -66,7 +66,7 @@ class ChatGPTWithReasoning implements PredictionService {
             )
         );
 
-        const postProcessors: PostProcessor[] = [new RemoveOverlap()];
+        const postProcessors: PostProcessor[] = [];
         if (settings.removeDuplicateMathBlockIndicator) {
             postProcessors.push(new RemoveMathIndicators());
         }

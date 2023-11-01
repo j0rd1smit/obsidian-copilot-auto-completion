@@ -9,11 +9,8 @@ class RemoveOverlap implements PostProcessor {
         completion: string,
         context: Context
     ): string {
-        const prefixLastLine: string = prefix.split('\n').slice(-1)[0];
-        const suffixFirstLine: string = suffix.split('\n')[0];
-
-        const prefixCompletionOverlap: string = findWordOverlap(prefixLastLine, completion);
-        const suffixCompletionOverlap: string = findWordOverlap(completion, suffixFirstLine);
+        const prefixCompletionOverlap: string = findWordOverlap(prefix, completion);
+        const suffixCompletionOverlap: string = findWordOverlap(completion, suffix);
         completion = completion.replace(prefixCompletionOverlap, "");
         completion = completion.replace(suffixCompletionOverlap, "");
         completion = removeWhiteSpaceOverlapPrefix(suffix, completion);
@@ -77,7 +74,7 @@ function startLocationOfEachWord(text: string): number[] {
 }
 
 function isWhiteSpaceChar(char: string|undefined): boolean {
-    return char !== undefined && char.match(/[ \t]/) !== null;
+    return char !== undefined && char.match(/\s/) !== null;
 }
 
 
