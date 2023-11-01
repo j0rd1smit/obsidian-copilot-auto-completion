@@ -5,58 +5,75 @@ import Context from "../../../context_detection";
 
 
 const noOverWithPrefixData = [
-    ["Hello ", "General Kenobi", "there. "],
-    ["Hello", "World", ""],
-    ["abc", "", "efg"],
-    ["", "abc", "efg"],
-    ["", "", "efg"],
+    ["Hello ", "there. "],
+    ["Hello my name is bob",  ""],
+    ["Hello my name ",  "is bob"],
+    ["abc", "efg"],
+    ["", "efg"],
 ];
 test.each(noOverWithPrefixData)(
-    `noOverWithPrefix('%s', '%s', '%s')`,
-    (prefix, suffix, result) => {
-        const postProcessor = new RemoveOverlap();
-        const result_post_processed = postProcessor.process(prefix, suffix, result, Context.Text);
-        expect(result_post_processed).toEqual(result);
+    `noOverWithPrefixShouldKeepCompletionUnchanged('%s',  '%s')`,
+    (prefix, completion) => {
+        const suffix = "";
+        expect(removeOverlapFromCompletion(prefix, suffix, completion)).toEqual(completion);
     }
 );
 
+function removeOverlapFromCompletion(prefix: string, suffix: string, completion: string) {
+    const postProcessor = new RemoveOverlap();
+    return  postProcessor.process(prefix, suffix, completion, Context.Text);
+}
+
 const noOverWithSuffixData = [
-    ["Hello", "there. ", "General Kenobi"],
-    ["Hello", "", "World"],
-    ["abc", "efg", ""],
-    ["", "efg", "abc"],
+    ["Hello ", "there."],
+    ["General ", "Kenobi"],
+    ["abc", "efg"],
+    ["", "efg"],
+    ["abc", ""],
 ];
 test.each(noOverWithSuffixData)(
-    `noOverWithSuffix('%s', '%s', '%s')`,
-    (prefix, suffix, result) => {
-        const postProcessor = new RemoveOverlap();
-        const result_post_processed = postProcessor.process(prefix, suffix, result, Context.Text);
-        expect(result_post_processed).toEqual(result);
+    `noOverWithSuffixShouldKeepCompletionUnchanged('%s', '%s')`,
+    (completion, suffix) => {
+        const prefix = "";
+        expect(removeOverlapFromCompletion(prefix, suffix, completion)).toEqual(completion);
     }
 );
 
 const overWithPrefixData = [
-    ["prefix", "suffix", "prefix result ", " result "],
-    ["Hello", "", "Hello there.", " there."],
+    ["Hello there general ", "general Kenobi", "Kenobi"],
+    ["My name is ", "is Bob!", "Bob!"],
+    ["- this is an important ", "this is an important bullet point.", "bullet point."],
+    ["    - this is an important", "this is an important nested bullet point.", " nested bullet point."],
+    ["- [ ] this is an important", "this is an important task.", " task."],
 ];
 test.each(overWithPrefixData)(
-    `overWithPrefix('%s', '%s', '%s', '%s')`,
-    (prefix, suffix, result, expected) => {
-        const postProcessor = new RemoveOverlap();
-        const result_post_processed = postProcessor.process(prefix, suffix, result, Context.Text);
-        expect(result_post_processed).toEqual(expected);
+    `overWithPrefixIsRemoved('%s', '%s', '%s', '%s')`,
+    (prefix, completion, expected) => {
+         const suffix = "";
+        expect(removeOverlapFromCompletion(prefix, suffix, completion)).toEqual(expected);
     }
 );
 
-const overWithSuffixData = [
-    ["prefix", "suffix", " result suffix", " result "],
-    ["Hello ", "there", "Hello there", ""],
+const overWithSuffixIsRemovedData = [
+    ["Hello there general ", "general Kenobi", "Hello there "],
+    ["My name is ", " is Bob!", "My name"],
 ]
-test.each(overWithSuffixData)(
-    `overWithSuffix('%s', '%s', '%s', '%s')`,
-    (prefix, suffix, result, expected) => {
-        const postProcessor = new RemoveOverlap();
-        const result_post_processed = postProcessor.process(prefix, suffix, result, Context.Text);
-        expect(result_post_processed).toEqual(expected);
+test.each(overWithSuffixIsRemovedData)(
+    `overWithSuffixIsRemoved('%s', '%s', '%s',)`,
+    (completion, suffix, expected) => {
+        const prefix = "";
+        expect(removeOverlapFromCompletion(prefix, suffix, completion)).toEqual(expected);
     }
 );
+
+test('scenario bullet point', () => {
+    const prefix = `
+Some advantages are:
+- For queries `;
+    const completion = `- For queries involving filtering on these columns, bitmap encoding allows for efficient and fast retrieval of relevant data.`;
+    const suffix = `
+- It can also speed up queries that involve filtering on these columns.`;
+    const expected = `involving filtering on these columns, bitmap encoding allows for efficient and fast retrieval of relevant data.`;
+    expect(removeOverlapFromCompletion(prefix, suffix, completion)).toEqual(expected);
+});
+

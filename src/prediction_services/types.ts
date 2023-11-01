@@ -11,7 +11,7 @@ export interface PostProcessor {
     process(
         prefix: string,
         suffix: string,
-        result: string,
+        completion: string,
         context: Context
     ): string;
 }
