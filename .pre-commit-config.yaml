@@ -25,3 +25,12 @@ repos:
   - id: eslint
     files: \.[jt]sx?$
     types: [file]
+- repo: local
+  hooks:
+  - id: keep-version-in-sync
+    name: keep-version-in-sync
+    language: node
+    pass_filenames: false
+    entry: npm run version
+
+
