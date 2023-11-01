@@ -8,8 +8,6 @@ class RemoveCodeIndicators implements PostProcessor {
         completion: string,
         context: Context
     ): string {
-        console.log(context)
-
         if (context === Context.CodeBlock) {
             completion = completion.replace(/```[a-zA-z]+[ \t]*\n?/g, "");
             completion = completion.replace(/\n?```[ \t]*\n?/g, "");
