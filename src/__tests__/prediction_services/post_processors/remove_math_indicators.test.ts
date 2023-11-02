@@ -40,15 +40,3 @@ test.each(doNothingIfNotMathContextData)(
         expect(removeMathIndicators(completion, context)).toEqual(completion);
     }
 );
-
-
-test('scenario test', () => {
-    const completion = `
-`;
-    const expected = `
-`;
-
-    expect(removeMathIndicators(completion, Context.MathBlock)).toEqual(expected);
-});
-
-
