@@ -73,6 +73,8 @@ class ChatGPTWithReasoning implements PredictionService {
         if (settings.removeDuplicateCodeBlockIndicator) {
             postProcessors.push(new RemoveCodeIndicators());
         }
+        // Remove overlap must be last since RemoveMathIndicators and RemoveCodeIndicators
+        // Can create new overlapping whitespace which RemoveOverlap can remove.
         postProcessors.push(new RemoveOverlap());
 
         let client: ApiClient;
