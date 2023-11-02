@@ -21,4 +21,4 @@ def softmax(x, dim=-1):
 
 ## Calculating the log of the softmax
 
-Calculating the log of the softmax can be numerically unstable so it is better to use the [log-softmax](00%20Permanent%20notes/Deep%20learning/log-softmax.md) approach.
+Calculating the log of the softmax can be numerically unstable so it is better to use the log-softmax approach.
