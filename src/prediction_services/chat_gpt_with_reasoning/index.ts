@@ -19,8 +19,6 @@ import DataViewRemover from "../pre_processors/data_view_remover";
 import LengthLimiter from "../pre_processors/length_limiter";
 import OpenAIApiClient from "../api_clients/OpenAIApiClient";
 import AzureOAIClient from "../api_clients/AzureOAIClient";
-import RemoveWhiteSpacing from "../post_processors/remove_white_spacing";
-import RemoveDuplicateDashes from "../post_processors/remove_dashes_spacing";
 import RemoveOverlap from "../post_processors/remove_overlap";
 
 class ChatGPTWithReasoning implements PredictionService {
@@ -68,15 +66,16 @@ class ChatGPTWithReasoning implements PredictionService {
             )
         );
 
-        const postProcessors: PostProcessor[] = [new RemoveOverlap(),new RemoveDuplicateDashes()];
+        const postProcessors: PostProcessor[] = [];
         if (settings.removeDuplicateMathBlockIndicator) {
             postProcessors.push(new RemoveMathIndicators());
         }
         if (settings.removeDuplicateCodeBlockIndicator) {
             postProcessors.push(new RemoveCodeIndicators());
         }
-        // TODO make this configurable
-        postProcessors.push(new RemoveWhiteSpacing());
+        // Remove overlap must be last since RemoveMathIndicators and RemoveCodeIndicators
+        // Can create new overlapping whitespace which RemoveOverlap can remove.
+        postProcessors.push(new RemoveOverlap());
 
         let client: ApiClient;
         if (settings.apiProvider === "openai") {

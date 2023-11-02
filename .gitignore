@@ -20,3 +20,17 @@ data.json
 
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
+
+# demo vault
+demo_vault/.obsidian/plugins/copilot-auto-completion/styles.css
+demo_vault/.obsidian/plugins/copilot-auto-completion/main.js
+demo_vault/.obsidian/plugins/copilot-auto-completion/manifest.json
+demo_vault/.obsidian/plugins/copilot-auto-completion/data.json
+demo_vault/.obsidian/app.json
+demo_vault/.obsidian/appearance.json
+demo_vault/.obsidian/core-plugins.json
+demo_vault/.obsidian/core-plugins-migration.json
+demo_vault/.obsidian/hotkeys.json
+demo_vault/.obsidian/workspace.json
+
+

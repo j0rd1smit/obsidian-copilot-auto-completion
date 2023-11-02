@@ -31,3 +31,8 @@ jobs:
         npm run build
 
     - uses: pre-commit/action@v2.0.3
+
+    - name: Test
+      id: test
+      run: |
+        npm run tests

@@ -5,14 +5,15 @@ class RemoveMathIndicators implements PostProcessor {
     process(
         prefix: string,
         suffix: string,
-        result: string,
+        completion: string,
         context: Context
     ): string {
         if (context === Context.MathBlock) {
-            result = result.replace(/\$/g, "");
+            completion = completion.replace(/\n?\$\$\n?/g, "");
+            completion = completion.replace(/\$/g, "");
         }
 
-        return result;
+        return completion;
     }
 }
 

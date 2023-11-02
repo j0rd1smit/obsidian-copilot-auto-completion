@@ -5,14 +5,17 @@ class RemoveCodeIndicators implements PostProcessor {
     process(
         prefix: string,
         suffix: string,
-        result: string,
+        completion: string,
         context: Context
     ): string {
         if (context === Context.CodeBlock) {
-            result = result.replace(/(```[a-zA-z]+)|(```)|`/g, "");
+            completion = completion.replace(/```[a-zA-z]+[ \t]*\n?/g, "");
+            completion = completion.replace(/\n?```[ \t]*\n?/g, "");
+            completion = completion.replace(/`/g, "");
         }
 
-        return result;
+
+        return completion;
     }
 }
 
