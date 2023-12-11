@@ -43,7 +43,7 @@ export function checkForErrors(settings: Settings) {
         errors.set("openAIApiSettings.key", "The API key cannot be empty!");
     }
 
-    const openaiModelOptions = ["gpt-3.5-turbo"];
+    const openaiModelOptions = ["gpt-3.5-turbo", "gpt-4-1106-preview"];
     if (
         settings.apiProvider === "openai" &&
         !openaiModelOptions.contains(settings.openAIApiSettings.model)

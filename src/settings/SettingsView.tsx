@@ -135,12 +135,12 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                             "The openai model that will be queried. At the moment only gpt-3.5-turbo is supported."
                         }
                         value={settings.openAIApiSettings.model}
-                        setValue={(_: string) => {}}
+                        setValue={(value: string) => updateSettings({ openAIApiSettings: { ...settings.openAIApiSettings, model: value } })}
                         options={{
                             "gpt-3.5-turbo": "gpt-3.5-turbo",
+                            "gpt-4-1106-preview": "gpt-4-1106-preview",
                         }}
                         errorMessage={errors.get("openAIApiSettings.model")}
-                        disabled
                     />
 
                     <ConnectivityCheck key={"openai"} settings={settings} />
