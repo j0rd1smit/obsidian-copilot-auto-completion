@@ -74,7 +74,6 @@ class OpenAIApiClient implements ApiClient {
         if (!this.url) {
             errors.push("OpenAI API url is not set");
         }
-
         if (errors.length > 0) {
             // api check is not possible without passing previous checks so return early
             return errors;

@@ -129,17 +129,19 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                             })
                         }
                     />
-                    <DropDownSettingItem
+                    <TextSettingItem
                         name={"Model"}
-                        description={
-                            "The openai model that will be queried. At the moment only gpt-3.5-turbo is supported."
-                        }
+                        description={"The OpenAI model that will be queried."}
+                        placeholder="gpt-3.5-turbo"
                         value={settings.openAIApiSettings.model}
-                        setValue={(value: string) => updateSettings({ openAIApiSettings: { ...settings.openAIApiSettings, model: value } })}
-                        options={{
-                            "gpt-3.5-turbo": "gpt-3.5-turbo",
-                            "gpt-4-1106-preview": "gpt-4-1106-preview",
-                        }}
+                        setValue={(value: string) =>
+                            updateSettings({
+                                openAIApiSettings: {
+                                    ...settings.openAIApiSettings,
+                                    model: value,
+                                }
+                            })
+                        }
                         errorMessage={errors.get("openAIApiSettings.model")}
                     />
 
