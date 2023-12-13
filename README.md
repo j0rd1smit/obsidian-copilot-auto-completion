@@ -264,6 +264,26 @@ To develop the plugin locally, you can follow the following steps:
 You can now make changes to the plugin and see them reflected in the Obsidian app.
 Feel free to make a pull request if your changes are helpful for others.
 
+## Make a release
+To make a release, you can follow the following steps.
+1. make sure you update the version number in the `package.json` file.
+2. Then run the following commands to sync the version number in all the files.
+    ```bash
+    npm run version
+    ```
+3. commit these changes to the master branch.
+4. make sure you have the latest version of the master branch.
+    ```bash
+    git checkout master
+    git pull
+    ```
+5. make a release using the following commands.
+    ```bash
+    git tag -a X.X.X -m "Your release message"
+    git push origin X.X.X
+    ```
+
+This will automatically trigger the GitHub action to build the plugin and upload it to the release.
 
 ## Disclaimer
 This plugin serves as a connection to the API provider.
