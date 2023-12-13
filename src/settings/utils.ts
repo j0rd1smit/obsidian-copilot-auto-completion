@@ -43,14 +43,11 @@ export function checkForErrors(settings: Settings) {
         errors.set("openAIApiSettings.key", "The API key cannot be empty!");
     }
 
-    const openaiModelOptions = ["gpt-3.5-turbo"];
     if (
         settings.apiProvider === "openai" &&
-        !openaiModelOptions.contains(settings.openAIApiSettings.model)
+        settings.openAIApiSettings.model.length === 0
     ) {
-        const options = openaiModelOptions.join(", ");
-        const message = `The model '${settings.openAIApiSettings.model}' is invalid! Select one of the following: ${options}`;
-        errors.set("openAIApiSettings.model", message);
+        errors.set("openAIApiSettings.model", "The model name cannot be empty!");
     }
 
     if (

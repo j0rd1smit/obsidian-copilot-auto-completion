@@ -74,10 +74,6 @@ class OpenAIApiClient implements ApiClient {
         if (!this.url) {
             errors.push("OpenAI API url is not set");
         }
-        if (this.model !== "gpt-3.5-turbo") {
-            errors.push("Only gpt-3.5-turbo model is supported");
-        }
-
         if (errors.length > 0) {
             // api check is not possible without passing previous checks so return early
             return errors;
