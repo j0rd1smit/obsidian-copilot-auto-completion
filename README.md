@@ -269,6 +269,7 @@ To make a release, you can follow the following steps.
 1. make sure you update the version number in the `package.json` file.
 2. Then run the following commands to sync the version number in all the files.
     ```bash
+    npm install 
     npm run version
     ```
 3. commit these changes to the master branch.
