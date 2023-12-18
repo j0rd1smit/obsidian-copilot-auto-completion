@@ -280,8 +280,8 @@ To make a release, you can follow the following steps.
     ```
 5. make a release using the following commands.
     ```bash
-    git tag -a X.X.X -m "Your release message"
-    git push origin X.X.X
+    git tag -a $(jq -r '.version' package.json) -m "Your release message"
+    git push origin $(jq -r '.version' package.json)
     ```
 
 This will automatically trigger the GitHub action to build the plugin and upload it to the release.
