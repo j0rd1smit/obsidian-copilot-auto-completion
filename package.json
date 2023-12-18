@@ -1,6 +1,6 @@
 {
     "name": "obsidian-copilot",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "Adds a highly configurable copilot-like auto-completion to Obsidian using the ChatGPT API.",
     "main": "main.js",
     "scripts": {
