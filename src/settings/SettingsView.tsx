@@ -105,13 +105,19 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                     <TextSettingItem
                         name={"OpenAI API URL"}
                         description={
-                            "The URL used in the requests. For the openai API this is fixed."
+                            "The URL used in the requests."
                         }
                         placeholder={"Your API URL..."}
                         value={settings.openAIApiSettings.url}
                         errorMessage={errors.get("openAIApiSettings.url")}
-                        disabled
-                        setValue={(_: string) => {}}
+                        setValue={(value: string) =>
+                            updateSettings({
+                                openAIApiSettings: {
+                                    ...settings.openAIApiSettings,
+                                    url: value,
+                                },
+                            })
+                        }
                     />
                     <TextSettingItem
                         name={"OpenAI API key"}
