@@ -8,8 +8,7 @@ import {EditorView} from "@codemirror/view";
 import RenderSuggestionPlugin from "./render_plugin/render_surgestion_plugin";
 import {InlineSuggestionState} from "./render_plugin/states";
 import CompletionKeyWatcher from "./render_plugin/completion_key_watcher";
-import {hasSameAttributes} from "./settings/utils";
-import {Settings} from "./settings/settings";
+import {Settings, pluginDataSchema} from "./settings/settings";
 
 export default class CopilotPlugin extends Plugin {
     async onload() {
@@ -144,32 +143,14 @@ export default class CopilotPlugin extends Plugin {
     }
 
     private async loadSettings(): Promise<Settings> {
-        const data = Object.assign(
-            {},
-            {settings: DEFAULT_SETTINGS},
-            await this.loadData()
-        );
-        const settings = data.settings;
-        if (!hasSameAttributes(settings, DEFAULT_SETTINGS)) {
+        const dataOnDisk = await this.loadData();
+        let settings: Settings;
+        try {
+            settings = pluginDataSchema.parse(dataOnDisk).settings;
+        } catch (error) {
             new Notice("Copilot: Could not load settings, reverting to default settings");
-            const azureOAIApiSettings = {
-                ...settings.azureOAIApiSettings,
-            };
-            const openAIApiSettings = {
-                ...DEFAULT_SETTINGS.openAIApiSettings,
-                key: settings.openAIApiSettings.key,
-            };
-
-            const defaultSettings: Settings = {
-                ...DEFAULT_SETTINGS,
-                apiProvider: settings.apiProvider,
-                azureOAIApiSettings,
-                openAIApiSettings,
-                advancedMode: settings.advancedMode,
-            };
-            return defaultSettings;
+            settings = DEFAULT_SETTINGS;
         }
-
         return settings;
     }
 

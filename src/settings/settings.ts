@@ -87,7 +87,7 @@ export const settingsSchema = z.object({
     removeDuplicateCodeBlockIndicator: z.boolean()
 }).strict();
 
-export const storedDataSchema = z.object({
+export const pluginDataSchema = z.object({
     settings: settingsSchema
 }).strict();
 
@@ -96,4 +96,5 @@ export type Settings = z.infer<typeof settingsSchema>;
 export type FewShotExample = z.infer<typeof fewShotExampleSchema>;
 export type ModelOptions = z.infer<typeof modelOptionsSchema>;
 export type Trigger = z.infer<typeof triggerSchema>;
-export type StoredData = z.infer<typeof storedDataSchema>;
+export type PluginData = z.infer<typeof pluginDataSchema>;
+
