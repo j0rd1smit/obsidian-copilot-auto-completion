@@ -31,13 +31,6 @@ export interface ChatMessage {
     role: "user" | "assistant" | "system";
 }
 
-export interface ModelOptions {
-    temperature: number;
-    top_p: number;
-    frequency_penalty: number;
-    presence_penalty: number;
-    max_tokens: number;
-}
 
 export interface UserMessageFormattingInputs {
     prefix: string;
