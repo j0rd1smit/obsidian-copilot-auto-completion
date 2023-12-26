@@ -10,6 +10,7 @@ interface IProps {
     setValues(value: Trigger[]): void;
 
     errorMessage?: string;
+    errorMessages: Map<string, string>;
 }
 
 function TriggerSettings(props: IProps): React.JSX.Element {
@@ -53,7 +54,7 @@ function TriggerSettings(props: IProps): React.JSX.Element {
                     <div className="setting-item-description">
                         {description}
                     </div>
-                    {errorMessage !== undefined && (
+                    {props.errorMessages.get("triggerWords") !== undefined && (
                         <div className="setting-item-description ">
                             <span className={"mod-warning"}>
                                 {errorMessage}
@@ -91,6 +92,20 @@ function TriggerSettings(props: IProps): React.JSX.Element {
                     className="setting-list-item-copilot-auto-completion"
                     key={`setting-list-item-${name.replace(" ", "-")}-${index}`}
                 >
+                    {(props.errorMessages.get(`triggers.${index}.value`) !== undefined || props.errorMessages.get(`triggers.${index}.type`) !== undefined) &&  (
+                                <div className="setting-item-description" style={{ width: "100%", textAlign: "left" }}>
+                                    {props.errorMessages.get(`triggers.${index}.value`) !== undefined && (
+                                        <span className={"mod-warning"}>
+                                            {props.errorMessages.get(`triggers.${index}.value`)}
+                                        </span>
+                                    )}
+                                    {props.errorMessages.get(`triggers.${index}.type`) !== undefined && (
+                                        <span className={"mod-warning"}>
+                                            {props.errorMessages.get(`triggers.${index}.type`)}
+                                        </span>
+                                    )}
+                                </div>
+                            )}
                     <div className="setting-item-info">
                         <div className="setting-item-control">
                             <select

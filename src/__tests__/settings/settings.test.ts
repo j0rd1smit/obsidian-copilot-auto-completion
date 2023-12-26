@@ -9,6 +9,7 @@ import {
 } from "../../settings/settings";
 import {TypeOf} from 'zod';
 import {cloneDeep} from "lodash";
+import Context from "../../context_detection";
 
 
 
@@ -57,7 +58,7 @@ describe('openAIApiSettingsSchema', () => {
 describe('triggerSchema', () => {
     type TriggerSchemaType = TypeOf<typeof triggerSchema>;
     const baseData: TriggerSchemaType = {type: 'string', value: 'example'};
-    const propertiesNames = Object.keys(triggerSchema.shape) as Array<keyof TriggerSchemaType>;
+    const propertiesNames = ["type", "value"] as Array<keyof TriggerSchemaType>
 
     test.each(propertiesNames)('should throw an error if %s is missing', (property) => {
         const dataWithoutProperty = cloneDeep(baseData);
@@ -71,7 +72,7 @@ describe('triggerSchema', () => {
     });
 
     test('successful parse type regex', () => {
-        const validData = {type: 'regex', value: '\\d+'}; // A valid regex for digits
+        const validData = {type: 'regex', value: '\\d+$'}; // A valid regex for digits
         expect(triggerSchema.parse(validData)).toEqual(validData);
     });
 
@@ -82,6 +83,11 @@ describe('triggerSchema', () => {
 
     test('throw error undefined fields', () => {
         const invalidData = {type: 'string', value: 'example', extraField: 'extra'};
+        expect(() => triggerSchema.parse(invalidData)).toThrow();
+    });
+
+    test('throw error if regex does not end with $', () => {
+        const invalidData = {type: 'regex', value: '\\d+'};
         expect(() => triggerSchema.parse(invalidData)).toThrow();
     });
 });
@@ -176,11 +182,12 @@ describe('modelOptionsSchema', () => {
 describe('fewShotExampleSchema', () => {
     type FewShotExampleSchemaType = TypeOf<typeof fewShotExampleSchema>;
     const baseData: FewShotExampleSchemaType = {
-        context: 'abc',
+        context: 'Text',
         input: 'def',
         answer: 'ghi',
     };
     const propertiesNames = Object.keys(fewShotExampleSchema.shape) as Array<keyof FewShotExampleSchemaType>;
+    const validContexts = ['Text', 'Heading', 'BlockQuotes', 'UnorderedList', 'NumberedList', 'CodeBlock', 'MathBlock', 'TaskList'];
 
     test.each(propertiesNames)('should throw an error if %s is missing', (property) => {
         const dataWithoutProperty = cloneDeep(baseData);
@@ -188,12 +195,17 @@ describe('fewShotExampleSchema', () => {
         expect(() => fewShotExampleSchema.parse(dataWithoutProperty)).toThrow();
     });
 
+    test.each(validContexts)('should validate successfully with context set to %s', (context) => {
+        const validData = {...baseData, context};
+        expect(fewShotExampleSchema.parse(validData)).toEqual(validData);
+    });
+
     test('should validate successfully with all properties meeting minimum length', () => {
         expect(fewShotExampleSchema.parse(baseData)).toEqual(baseData);
     });
 
-    test('should throw an error if context is less than 3 characters', () => {
-        const invalidData = {...baseData, context: 'ab'};
+    test('should throw an error if context is invalid', () => {
+        const invalidData = {...baseData, context: 'invalidContext'};
         expect(() => fewShotExampleSchema.parse(invalidData)).toThrow();
     });
 
@@ -226,7 +238,7 @@ describe('settingsSchema', () => {
         presence_penalty: 0.2,
         max_tokens: 150
     });
-    const validFewShotExample = fewShotExampleSchema.parse({context: 'abc', input: 'def', answer: 'ghi'});
+    const validFewShotExample = fewShotExampleSchema.parse({context: Context.Text, input: 'def', answer: 'ghi'});
 
     const baseValidData: SettingsType = {
         enabled: true,

@@ -12,7 +12,15 @@ import FewShotExampleSettings from "./components/FewShotExampleSettings";
 import ConnectivityCheck from "./components/ConnectivityCheck";
 import DropDownSettingItem from "./components/DropDownSettingItem";
 import { Notice } from "obsidian";
-import {Settings} from "./settings";
+import {
+    MAX_DELAY, MAX_FREQUENCY_PENALTY,
+    MAX_MAX_CHAR_LIMIT,
+    MAX_MAX_TOKENS, MAX_PRESENCE_PENALTY, MAX_TEMPERATURE, MAX_TOP_P,
+    MIN_DELAY, MIN_FREQUENCY_PENALTY,
+    MIN_MAX_CHAR_LIMIT,
+    MIN_MAX_TOKENS, MIN_PRESENCE_PENALTY, MIN_TEMPERATURE, MIN_TOP_P,
+    Settings
+} from "./settings";
 
 interface IProps {
     onSettingsChanged(settings: Settings): void;
@@ -64,7 +72,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                     <TextSettingItem
                         name={"Azure OAI API URL"}
                         description={
-                            "The azure openai services API URL used in the requests."
+                            "The Azure OpenAI services API URL is used in the requests."
                         }
                         placeholder={"Your API URL..."}
                         value={settings.azureOAIApiSettings.url}
@@ -81,7 +89,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                     <TextSettingItem
                         name={"Azure API key"}
                         description={
-                            "The azure openai services API key used in the requests."
+                            "The Azure OpenAI services API key used in the requests."
                         }
                         placeholder={"Your API key..."}
                         password
@@ -138,7 +146,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                     />
                     <TextSettingItem
                         name={"Model"}
-                        description={"The OpenAI model that will be queried."}
+                        description={"The value of the model parameter in the request body."}
                         placeholder="gpt-3.5-turbo"
                         value={settings.openAIApiSettings.model}
                         setValue={(value: string) =>
@@ -172,7 +180,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
             <DropDownSettingItem
                 name={"API provider"}
                 description={
-                    "The plugin support multiple API providers. Depending on the provider different settings are required."
+                    "The plugin supports multiple API providers. Each provider might require different settings."
                 }
                 value={settings.apiProvider}
                 setValue={(value: string) => {
@@ -195,7 +203,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
             <SliderSettingsItem
                 name={"Temperature"}
                 description={
-                    "Controls randomness. Lower temperatures result in more repetitive and deterministic responses. Higher temperatures will result in more unexpected or creative responses."
+                    "This parameter affects randomness in the sampling. Lower values result in more repetitive and deterministic responses. Higher temperatures will result in more unexpected or creative responses."
                 }
                 value={settings.modelOptions.temperature}
                 errorMessage={errors.get("modelOptions.temperature")}
@@ -207,14 +215,14 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                         },
                     })
                 }
-                min={0}
-                max={1}
+                min={MIN_TEMPERATURE}
+                max={MAX_TEMPERATURE}
                 step={0.05}
             />
             <SliderSettingsItem
                 name={"TopP"}
                 description={
-                    "Like the temperature. Lowering Top P will limit the model’s token selection to likelier tokens. Increasing Top P expand the models token selection with lower likelihood tokens."
+                    "Like the temperature parameter, the Top P parameter affects the randomness in sampling. Lowering the value will limit the model's token selection to likelier tokens while increasing the value expands the model's token selection with lower likelihood tokens."
                 }
                 value={settings.modelOptions.top_p}
                 errorMessage={errors.get("modelOptions.top_p")}
@@ -226,14 +234,14 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                         },
                     })
                 }
-                min={0}
-                max={1}
+                min={MIN_TOP_P}
+                max={MAX_TOP_P}
                 step={0.05}
             />
             <SliderSettingsItem
                 name={"Frequency Penalty"}
                 description={
-                    "Reduce the chance of repeating a token proportionally based on how often it has appeared in the text so far. This decreases the likelihood of repeating the exact same text in a response."
+                    "This parameter reduces the chance of repeating a token proportionally based on how often it has appeared in the text so far. This decreases the likelihood of repeating the exact same text in a response."
                 }
                 value={settings.modelOptions.frequency_penalty}
                 errorMessage={errors.get("modelOptions.frequency_penalty")}
@@ -245,14 +253,14 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                         },
                     })
                 }
-                min={0}
-                max={1}
+                min={MIN_FREQUENCY_PENALTY}
+                max={MAX_FREQUENCY_PENALTY}
                 step={0.05}
             />
             <SliderSettingsItem
                 name={"Presence Penalty"}
                 description={
-                    "Reduce the chance of repeating any token that has appeared in the text so far. This increases the likelihood of introducing new topics in a response."
+                    "This parameter reduces the chance of repeating any token that has appeared in the text so far. This increases the likelihood of introducing new topics in a response."
                 }
                 value={settings.modelOptions.presence_penalty}
                 errorMessage={errors.get("modelOptions.presence_penalty")}
@@ -264,14 +272,14 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                         },
                     })
                 }
-                min={0}
-                max={1}
+                min={MIN_PRESENCE_PENALTY}
+                max={MAX_PRESENCE_PENALTY}
                 step={0.05}
             />
             <SliderSettingsItem
                 name={"Max Tokens"}
                 description={
-                    "The maximum number of tokens the model is allowed to generate. This includes the chain of thought tokens before the answer."
+                    "This parameter changes the maximum number of tokens the model is allowed to generate. This includes the chain of thought tokens before the answer."
                 }
                 value={settings.modelOptions.max_tokens}
                 errorMessage={errors.get("modelOptions.max_tokens")}
@@ -283,8 +291,8 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                         },
                     })
                 }
-                min={200}
-                max={3000}
+                min={MIN_MAX_TOKENS}
+                max={MAX_MAX_TOKENS}
                 step={10}
             />
 
@@ -292,7 +300,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
             <CheckBoxSettingItem
                 name={"Don't include dataviews"}
                 description={
-                    "Dataview(js) blocks can be quite long, while not providing much value to the AI. Is this setting is enabled, dataview blocks will be removed prompt to reduce the number of tokens. This could save you some money in the long run."
+                    "Dataview(js) blocks can be quite long while not providing much value to the AI. If this setting is enabled, data view blocks will be removed promptly to reduce the number of tokens. This could save you some money in the long run."
                 }
                 enabled={settings.dontIncludeDataviews}
                 setEnabled={(value) =>
@@ -302,30 +310,30 @@ export default function SettingsView(props: IProps): React.JSX.Element {
             <SliderSettingsItem
                 name={"Maximum Prefix Length"}
                 description={
-                    "The maximum number of characters that will be included in the prefix. Larger value will increase the context for the completion, but it can also increase the cost or push you over the token limit."
+                    "The maximum number of characters that will be included in the prefix. A larger value will increase the context for the completion, but it can also increase the cost or push you over the token limit."
                 }
                 value={settings.maxPrefixCharLimit}
                 errorMessage={errors.get("maxPrefixCharLimit")}
                 setValue={(value: number) =>
                     updateSettings({ maxPrefixCharLimit: value })
                 }
-                min={100}
-                max={10_000}
+                min={MIN_MAX_CHAR_LIMIT}
+                max={MAX_MAX_CHAR_LIMIT}
                 step={100}
                 suffix={" chars"}
             />
             <SliderSettingsItem
                 name={"Maximum Suffix Length"}
                 description={
-                    "The maximum number of characters that will be included in the suffix. Larger value will increase the context for the completion, but it can also increase the cost or push you over the token limit."
+                    "The maximum number of characters that will be included in the suffix. A larger value will increase the context for the completion, but it can also increase the cost or push you over the token limit."
                 }
                 value={settings.maxSuffixCharLimit}
                 errorMessage={errors.get("maxSuffixCharLimit")}
                 setValue={(value: number) =>
                     updateSettings({ maxSuffixCharLimit: value })
                 }
-                min={100}
-                max={10_000}
+                min={MIN_MAX_CHAR_LIMIT}
+                max={MAX_MAX_CHAR_LIMIT}
                 step={100}
                 suffix={" chars"}
             />
@@ -360,8 +368,8 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 value={settings.delay}
                 errorMessage={errors.get("delay")}
                 setValue={(value: number) => updateSettings({ delay: value })}
-                min={0}
-                max={5000}
+                min={MIN_DELAY}
+                max={MAX_DELAY}
                 step={100}
                 suffix={"ms"}
             />
@@ -373,13 +381,14 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 triggers={settings.triggers}
                 setValues={(triggers) => updateSettings({ triggers })}
                 errorMessage={errors.get("triggerWords")}
+                errorMessages={errors}
             />
 
             <h2>Danger zone</h2>
             <SettingsItem
                 name={"Factory Reset"}
                 description={
-                    "Messed-up the settings? No worries, press this button! After that the plugin will go back to the default settings. The url and api key will remain unchanged."
+                    "Messed-up the settings? No worries, press this button! After that, the plugin will go back to the default settings. The URL and API key will remain unchanged."
                 }
             >
                 <button
@@ -392,7 +401,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
             <CheckBoxSettingItem
                 name={"Advanced mode"}
                 description={
-                    "If you are familiar with prompt engineering, you can enable this setting to view the prompts generation and few shot examples settings. Disable this button will not reset your changes, use the factory reset button for that."
+                    "If you are familiar with prompt engineering, you can enable this setting to view the prompt generation and a few shot example settings. Turn off this button. It will not reset your changes; use the factory reset button for that."
                 }
                 enabled={settings.advancedMode}
                 setEnabled={(value) => updateSettings({ advancedMode: value })}
@@ -419,7 +428,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                     <SettingsItem
                         name={"System Message"}
                         description={
-                            "This is the system message that give the models all the context and instructions it needs to complete the answer generation tasks. You can edit this message to your liking. If you edit the chain of thought formatting, make sure to update the extract regex and examples accordingly."
+                            "This system message gives the models all the context and instructions they need to complete the answer generation tasks. You can edit this message to your liking. If you edit the chain of thought formatting, make sure to update the extract regex and examples accordingly."
                         }
                         display={"block"}
                         errorMessage={errors.get("systemMessage")}
@@ -440,7 +449,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                     <SettingsItem
                         name={"User Message template"}
                         description={
-                            "This template defines how the prefix and suffix are formatted to create the user message. You have access to two variable: {{prefix}} and {{suffix}}. If you edit this make sure to update the examples accordingly."
+                           "This template defines how the prefix and suffix are formatted to create the user message. You have access to two variables: {{prefix}} and {{suffix}}. If you edit this, make sure to update the examples accordingly."
                         }
                         display={"block"}
                         errorMessage={errors.get("userMessageTemplate")}
@@ -466,7 +475,8 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                         setFewShotExamples={(value) =>
                             updateSettings({ fewShotExamples: value })
                         }
-                        errorMessage={errors.get("fewShotExamples")}
+                        errorMessages={errors}
+
                     />
                 </>
             )}
