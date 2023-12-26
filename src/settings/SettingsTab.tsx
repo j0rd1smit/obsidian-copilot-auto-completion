@@ -43,7 +43,7 @@ export interface Trigger {
     value: string;
 }
 
-export interface Settings {
+export interface SettingsTab {
     // General settings
     readonly enabled: boolean;
     readonly advancedMode: boolean;
@@ -74,7 +74,7 @@ export interface Settings {
     readonly removeDuplicateCodeBlockIndicator: boolean;
 }
 
-export const DEFAULT_SETTINGS: Settings = {
+export const DEFAULT_SETTINGS: SettingsTab = {
     // General settings
     enabled: true,
     advancedMode: false,
@@ -162,21 +162,21 @@ ANSWER: here you write the text that should be at the location of <mask/>
 };
 
 export interface SettingsObserver {
-    handleSettingChanged(settings: Settings): void;
+    handleSettingChanged(settings: SettingsTab): void;
 }
 
-type SaveSettings = (settings: Settings) => Promise<void>;
+type SaveSettings = (settings: SettingsTab) => Promise<void>;
 
 export class SettingTab extends PluginSettingTab {
-    public settings: Settings = DEFAULT_SETTINGS;
-    private updatedSettings: Settings | undefined = undefined;
+    public settings: SettingsTab = DEFAULT_SETTINGS;
+    private updatedSettings: SettingsTab | undefined = undefined;
     private observers: SettingsObserver[] = [];
     private root: Root | undefined = undefined;
     private saveSettings: SaveSettings;
 
     public static addSettingsTab(
         plugin: Plugin,
-        settings: Settings,
+        settings: SettingsTab,
         saveSettings: SaveSettings
     ): SettingTab {
         const settingsTab = new SettingTab(plugin, settings, saveSettings);
@@ -187,7 +187,7 @@ export class SettingTab extends PluginSettingTab {
 
     public constructor(
         private plugin: Plugin,
-        settings: Settings,
+        settings: SettingsTab,
         saveSettings: SaveSettings
     ) {
         super(plugin.app, plugin);

@@ -1,5 +1,5 @@
 import { DocumentChanges } from "../render_plugin/document_changes_listener";
-import { Settings } from "../settings/settings";
+import { SettingsTab } from "../settings/SettingsTab";
 import { EventHandler } from "./types";
 
 class InitState implements EventHandler {
@@ -7,7 +7,7 @@ class InitState implements EventHandler {
         documentChanges: DocumentChanges
     ): Promise<void> {}
 
-    handleSettingChanged(settings: Settings): void {}
+    handleSettingChanged(settings: SettingsTab): void {}
 
     handleAcceptKeyPressed(): boolean {
         return false;

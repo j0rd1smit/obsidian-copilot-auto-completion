@@ -1,4 +1,4 @@
-import {Settings, SettingsObserver} from "./settings/settings";
+import {SettingsTab, SettingsObserver} from "./settings/SettingsTab";
 import StatusBar from "./status_bar";
 import {DocumentChanges} from "./render_plugin/document_changes_listener";
 import {cancelSuggestion, insertSuggestion, updateSuggestion,} from "./render_plugin/states";
@@ -24,10 +24,10 @@ class EventListener implements EventHandler, SettingsObserver {
     private statusBar: StatusBar;
     private context: Context = Context.Text;
     predictionService: PredictionService;
-    settings: Settings;
+    settings: SettingsTab;
 
     public static fromSettings(
-        settings: Settings,
+        settings: SettingsTab,
         statusBar: StatusBar
     ): EventListener {
         const predictionService = createPredictionService(settings);
@@ -49,7 +49,7 @@ class EventListener implements EventHandler, SettingsObserver {
     }
 
     private constructor(
-        settings: Settings,
+        settings: SettingsTab,
         statusBar: StatusBar,
         predictionService: PredictionService
     ) {
@@ -116,7 +116,7 @@ class EventListener implements EventHandler, SettingsObserver {
         }
     }
 
-    handleSettingChanged(settings: Settings): void {
+    handleSettingChanged(settings: SettingsTab): void {
         const fromDisabledToEnabled = !this.settings.enabled && settings.enabled;
         const fromEnabledToDisabled = this.settings.enabled && !settings.enabled;
 
@@ -185,7 +185,7 @@ class EventListener implements EventHandler, SettingsObserver {
     }
 }
 
-function createPredictionService(settings: Settings) {
+function createPredictionService(settings: SettingsTab) {
     return ChatGPTWithReasoning.fromSettings(settings);
 }
 

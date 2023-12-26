@@ -1,8 +1,8 @@
-import { Settings } from "./settings";
+import { SettingsTab } from "./SettingsTab";
 import { FewShotExample } from "../prediction_services/types";
 import Context from "../context_detection";
 
-export function checkForErrors(settings: Settings) {
+export function checkForErrors(settings: SettingsTab) {
     const errors = new Map<string, string>();
 
     const apiProviderOptions = ["azure", "openai"];

@@ -1,6 +1,6 @@
 import {Editor, MarkdownView, Notice, Plugin} from "obsidian";
 
-import {DEFAULT_SETTINGS, Settings, SettingTab} from "./settings/settings";
+import {DEFAULT_SETTINGS, SettingsTab, SettingTab} from "./settings/SettingsTab";
 import EventListener from "./event_listener";
 import StatusBar from "./status_bar";
 import DocumentChangesListener from "./render_plugin/document_changes_listener";
@@ -137,12 +137,12 @@ export default class CopilotPlugin extends Plugin {
 
     }
 
-    private async saveSettings(settings: Settings): Promise<void> {
+    private async saveSettings(settings: SettingsTab): Promise<void> {
         const data = {settings: settings};
         await this.saveData(data);
     }
 
-    private async loadSettings(): Promise<Settings> {
+    private async loadSettings(): Promise<SettingsTab> {
         const data = Object.assign(
             {},
             {settings: DEFAULT_SETTINGS},
@@ -159,7 +159,7 @@ export default class CopilotPlugin extends Plugin {
                 key: settings.openAIApiSettings.key,
             };
 
-            const defaultSettings: Settings = {
+            const defaultSettings: SettingsTab = {
                 ...DEFAULT_SETTINGS,
                 apiProvider: settings.apiProvider,
                 azureOAIApiSettings,

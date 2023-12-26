@@ -1,4 +1,4 @@
-import { Settings } from "../../settings/settings";
+import { SettingsTab } from "../../settings/SettingsTab";
 import {
     ApiClient,
     ChatMessage,
@@ -50,7 +50,7 @@ class ChatGPTWithReasoning implements PredictionService {
         this.fewShotExamples = fewShotExamples;
     }
 
-    public static fromSettings(settings: Settings): PredictionService {
+    public static fromSettings(settings: SettingsTab): PredictionService {
         const formatter = Handlebars.compile<UserMessageFormattingInputs>(
             settings.userMessageTemplate,
             { noEscape: true, strict: true }

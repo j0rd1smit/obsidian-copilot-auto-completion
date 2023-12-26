@@ -2,12 +2,12 @@ import * as React from "react";
 import SettingsItem from "./SettingsItem";
 import { useState } from "react";
 import { Notice } from "obsidian";
-import { Settings } from "../settings";
+import { SettingsTab } from "../SettingsTab";
 import AzureOAIClient from "../../prediction_services/api_clients/AzureOAIClient";
 import OpenAIApiClient from "../../prediction_services/api_clients/OpenAIApiClient";
 
 interface IProps {
-    settings: Settings;
+    settings: SettingsTab;
 }
 
 enum Status {

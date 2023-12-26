@@ -1,8 +1,8 @@
-import { Settings } from "../settings/settings";
+import { SettingsTab } from "../settings/SettingsTab";
 import { DocumentChanges } from "../render_plugin/document_changes_listener";
 
 export interface EventHandler {
-    handleSettingChanged(settings: Settings): void;
+    handleSettingChanged(settings: SettingsTab): void;
 
     handleDocumentChange(documentChanges: DocumentChanges): Promise<void>;
 

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DEFAULT_SETTINGS, Settings } from "./settings";
+import { DEFAULT_SETTINGS, SettingsTab } from "./SettingsTab";
 import TextSettingItem from "./components/TextSettingItem";
 import { useState } from "react";
 import { checkForErrors } from "./utils";
@@ -14,21 +14,21 @@ import DropDownSettingItem from "./components/DropDownSettingItem";
 import { Notice } from "obsidian";
 
 interface IProps {
-    onSettingsChanged(settings: Settings): void;
+    onSettingsChanged(settings: SettingsTab): void;
 
-    settings: Settings;
+    settings: SettingsTab;
 }
 
 export default function SettingsView(props: IProps): React.JSX.Element {
-    const [settings, _setSettings] = useState<Settings>(props.settings);
+    const [settings, _setSettings] = useState<SettingsTab>(props.settings);
     const errors = checkForErrors(settings);
 
     React.useEffect(() => {
         _setSettings(props.settings);
     }, [props.settings]);
 
-    const updateSettings = (update: Partial<Settings>) => {
-        _setSettings((settings: Settings) => {
+    const updateSettings = (update: Partial<SettingsTab>) => {
+        _setSettings((settings: SettingsTab) => {
             const newSettings = { ...settings, ...update };
             props.onSettingsChanged(newSettings);
             return newSettings;
@@ -43,7 +43,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
             key: settings.openAIApiSettings.key,
         };
 
-        const newSettings: Settings = {
+        const newSettings: SettingsTab = {
             ...DEFAULT_SETTINGS,
             apiProvider: settings.apiProvider,
             azureOAIApiSettings,
