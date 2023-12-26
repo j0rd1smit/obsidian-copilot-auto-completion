@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DEFAULT_SETTINGS, SettingsTab } from "./SettingsTab";
+import { DEFAULT_SETTINGS} from "./SettingsTab";
 import TextSettingItem from "./components/TextSettingItem";
 import { useState } from "react";
 import { checkForErrors } from "./utils";
@@ -12,23 +12,24 @@ import FewShotExampleSettings from "./components/FewShotExampleSettings";
 import ConnectivityCheck from "./components/ConnectivityCheck";
 import DropDownSettingItem from "./components/DropDownSettingItem";
 import { Notice } from "obsidian";
+import {Settings} from "./settings";
 
 interface IProps {
-    onSettingsChanged(settings: SettingsTab): void;
+    onSettingsChanged(settings: Settings): void;
 
-    settings: SettingsTab;
+    settings: Settings;
 }
 
 export default function SettingsView(props: IProps): React.JSX.Element {
-    const [settings, _setSettings] = useState<SettingsTab>(props.settings);
+    const [settings, _setSettings] = useState<Settings>(props.settings);
     const errors = checkForErrors(settings);
 
     React.useEffect(() => {
         _setSettings(props.settings);
     }, [props.settings]);
 
-    const updateSettings = (update: Partial<SettingsTab>) => {
-        _setSettings((settings: SettingsTab) => {
+    const updateSettings = (update: Partial<Settings>) => {
+        _setSettings((settings: Settings) => {
             const newSettings = { ...settings, ...update };
             props.onSettingsChanged(newSettings);
             return newSettings;
@@ -43,7 +44,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
             key: settings.openAIApiSettings.key,
         };
 
-        const newSettings: SettingsTab = {
+        const newSettings: Settings = {
             ...DEFAULT_SETTINGS,
             apiProvider: settings.apiProvider,
             azureOAIApiSettings,

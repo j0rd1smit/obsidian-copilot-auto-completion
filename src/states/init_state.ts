@@ -1,13 +1,13 @@
 import { DocumentChanges } from "../render_plugin/document_changes_listener";
-import { SettingsTab } from "../settings/SettingsTab";
 import { EventHandler } from "./types";
+import {Settings} from "../settings/settings";
 
 class InitState implements EventHandler {
     async handleDocumentChange(
         documentChanges: DocumentChanges
     ): Promise<void> {}
 
-    handleSettingChanged(settings: SettingsTab): void {}
+    handleSettingChanged(settings: Settings): void {}
 
     handleAcceptKeyPressed(): boolean {
         return false;

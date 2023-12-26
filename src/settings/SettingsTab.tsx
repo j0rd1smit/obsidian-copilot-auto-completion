@@ -2,7 +2,6 @@ import {Plugin, PluginSettingTab} from "obsidian";
 import {createRoot, Root} from "react-dom/client";
 import SettingsView from "./SettingsView";
 import * as React from "react";
-import {FewShotExample, ModelOptions} from "../prediction_services/types";
 import block_qoute_example from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/block_qoute_example";
 import codeblock_function_completion
     from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/codeblock_function_completion";
@@ -26,55 +25,11 @@ import math_block_multi_line
     from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/math_block_multi_line";
 import header_example_relu
     from "../prediction_services/chat_gpt_with_reasoning/few_shot_examples/header_example_relu";
+import {Settings} from "./settings";
 
-export interface AzureOAIApiSettings {
-    key: string;
-    url: string;
-}
 
-export interface OpenAiApiSettings {
-    key: string;
-    url: string;
-    model: string;
-}
 
-export interface Trigger {
-    type: "regex" | "string";
-    value: string;
-}
-
-export interface SettingsTab {
-    // General settings
-    readonly enabled: boolean;
-    readonly advancedMode: boolean;
-    readonly apiProvider: "azure" | "openai";
-    // API settings
-    readonly azureOAIApiSettings: AzureOAIApiSettings;
-    readonly openAIApiSettings: OpenAiApiSettings;
-
-    // Trigger settings
-    readonly triggers: Trigger[];
-    readonly delay: number;
-    // Request settings
-    readonly modelOptions: ModelOptions;
-
-    // Prompt settings
-    readonly systemMessage: string;
-    readonly userMessageTemplate: string;
-    readonly chainOfThoughRemovalRegex: string;
-    readonly fewShotExamples: FewShotExample[];
-
-    // Preprocessing settings
-    readonly dontIncludeDataviews: boolean;
-    readonly maxPrefixCharLimit: number;
-    readonly maxSuffixCharLimit: number;
-
-    // Postprocessing settings
-    readonly removeDuplicateMathBlockIndicator: boolean;
-    readonly removeDuplicateCodeBlockIndicator: boolean;
-}
-
-export const DEFAULT_SETTINGS: SettingsTab = {
+export const DEFAULT_SETTINGS: Settings = {
     // General settings
     enabled: true,
     advancedMode: false,
@@ -162,21 +117,21 @@ ANSWER: here you write the text that should be at the location of <mask/>
 };
 
 export interface SettingsObserver {
-    handleSettingChanged(settings: SettingsTab): void;
+    handleSettingChanged(settings: Settings): void;
 }
 
-type SaveSettings = (settings: SettingsTab) => Promise<void>;
+type SaveSettings = (settings: Settings) => Promise<void>;
 
 export class SettingTab extends PluginSettingTab {
-    public settings: SettingsTab = DEFAULT_SETTINGS;
-    private updatedSettings: SettingsTab | undefined = undefined;
+    public settings: Settings = DEFAULT_SETTINGS;
+    private updatedSettings: Settings | undefined = undefined;
     private observers: SettingsObserver[] = [];
     private root: Root | undefined = undefined;
     private saveSettings: SaveSettings;
 
     public static addSettingsTab(
         plugin: Plugin,
-        settings: SettingsTab,
+        settings: Settings,
         saveSettings: SaveSettings
     ): SettingTab {
         const settingsTab = new SettingTab(plugin, settings, saveSettings);
@@ -187,7 +142,7 @@ export class SettingTab extends PluginSettingTab {
 
     public constructor(
         private plugin: Plugin,
-        settings: SettingsTab,
+        settings: Settings,
         saveSettings: SaveSettings
     ) {
         super(plugin.app, plugin);

@@ -1,5 +1,6 @@
 import * as React from "react";
-import {Trigger} from "../SettingsTab";
+import {Trigger} from "../settings";
+
 
 interface IProps {
     name: string;

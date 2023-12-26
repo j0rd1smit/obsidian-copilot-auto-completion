@@ -1,9 +1,10 @@
 import * as React from "react";
 
-import { FewShotExample } from "../../prediction_services/types";
+
 import Context from "../../context_detection";
 import { Notice } from "obsidian";
 import { isEveryContextPresent } from "../utils";
+import {FewShotExample} from "../settings";
 
 interface IProps {
     name: string;

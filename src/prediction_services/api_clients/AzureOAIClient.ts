@@ -1,6 +1,6 @@
 import {ApiClient, ChatMessage, ModelOptions} from "../types";
-import {SettingsTab} from "../../settings/SettingsTab";
 import {requestUrl} from "obsidian";
+import {Settings} from "../../settings/settings";
 
 class AzureOAIClient implements ApiClient {
     private readonly apiKey: string;
@@ -13,7 +13,7 @@ class AzureOAIClient implements ApiClient {
         this.modelOptions = modelOptions;
     }
 
-    static fromSettings(settings: SettingsTab): ApiClient {
+    static fromSettings(settings: Settings): ApiClient {
         return new AzureOAIClient(
             settings.azureOAIApiSettings.key,
             settings.azureOAIApiSettings.url,

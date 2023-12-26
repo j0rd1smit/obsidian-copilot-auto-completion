@@ -1,6 +1,6 @@
 import {Editor, MarkdownView, Notice, Plugin} from "obsidian";
 
-import {DEFAULT_SETTINGS, SettingsTab, SettingTab} from "./settings/SettingsTab";
+import {DEFAULT_SETTINGS, SettingTab} from "./settings/SettingsTab";
 import EventListener from "./event_listener";
 import StatusBar from "./status_bar";
 import DocumentChangesListener from "./render_plugin/document_changes_listener";
@@ -9,6 +9,7 @@ import RenderSuggestionPlugin from "./render_plugin/render_surgestion_plugin";
 import {InlineSuggestionState} from "./render_plugin/states";
 import CompletionKeyWatcher from "./render_plugin/completion_key_watcher";
 import {hasSameAttributes} from "./settings/utils";
+import {Settings} from "./settings/settings";
 
 export default class CopilotPlugin extends Plugin {
     async onload() {
@@ -137,12 +138,12 @@ export default class CopilotPlugin extends Plugin {
 
     }
 
-    private async saveSettings(settings: SettingsTab): Promise<void> {
+    private async saveSettings(settings: Settings): Promise<void> {
         const data = {settings: settings};
         await this.saveData(data);
     }
 
-    private async loadSettings(): Promise<SettingsTab> {
+    private async loadSettings(): Promise<Settings> {
         const data = Object.assign(
             {},
             {settings: DEFAULT_SETTINGS},
@@ -159,7 +160,7 @@ export default class CopilotPlugin extends Plugin {
                 key: settings.openAIApiSettings.key,
             };
 
-            const defaultSettings: SettingsTab = {
+            const defaultSettings: Settings = {
                 ...DEFAULT_SETTINGS,
                 apiProvider: settings.apiProvider,
                 azureOAIApiSettings,

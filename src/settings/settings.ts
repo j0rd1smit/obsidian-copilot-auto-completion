@@ -68,4 +68,7 @@ export const storedDataSchema = z.object({
 
 
 export type Settings = z.infer<typeof settingsSchema>;
+export type FewShotExample = z.infer<typeof fewShotExampleSchema>;
+export type ModelOptions = z.infer<typeof modelOptionsSchema>;
+export type Trigger = z.infer<typeof triggerSchema>;
 export type StoredData = z.infer<typeof storedDataSchema>;

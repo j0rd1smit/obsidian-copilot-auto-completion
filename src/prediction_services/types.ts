@@ -48,12 +48,6 @@ export type UserMessageFormatter = (
     inputs: UserMessageFormattingInputs
 ) => string;
 
-export interface FewShotExample {
-    context: Context;
-    input: string;
-    answer: string;
-}
-
 export interface ApiClient {
     queryChatModel(messages: ChatMessage[]): Promise<string>;
     checkIfConfiguredCorrectly(): Promise<string[]>;

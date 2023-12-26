@@ -1,8 +1,6 @@
-import { SettingsTab } from "../../settings/SettingsTab";
 import {
     ApiClient,
     ChatMessage,
-    FewShotExample,
     PostProcessor,
     PredictionService,
     PreProcessor,
@@ -20,6 +18,7 @@ import LengthLimiter from "../pre_processors/length_limiter";
 import OpenAIApiClient from "../api_clients/OpenAIApiClient";
 import AzureOAIClient from "../api_clients/AzureOAIClient";
 import RemoveOverlap from "../post_processors/remove_overlap";
+import {Settings, FewShotExample} from "../../settings/settings";
 
 class ChatGPTWithReasoning implements PredictionService {
     private readonly client: ApiClient;
@@ -50,7 +49,7 @@ class ChatGPTWithReasoning implements PredictionService {
         this.fewShotExamples = fewShotExamples;
     }
 
-    public static fromSettings(settings: SettingsTab): PredictionService {
+    public static fromSettings(settings: Settings): PredictionService {
         const formatter = Handlebars.compile<UserMessageFormattingInputs>(
             settings.userMessageTemplate,
             { noEscape: true, strict: true }

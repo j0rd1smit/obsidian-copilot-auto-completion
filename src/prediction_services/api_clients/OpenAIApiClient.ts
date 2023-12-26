@@ -1,6 +1,6 @@
 import {ApiClient, ChatMessage, ModelOptions} from "../types";
-import {SettingsTab} from "../../settings/SettingsTab";
 import {requestUrl} from "obsidian";
+import {Settings} from "../../settings/settings";
 
 class OpenAIApiClient implements ApiClient {
     private readonly apiKey: string;
@@ -8,7 +8,7 @@ class OpenAIApiClient implements ApiClient {
     private readonly modelOptions: ModelOptions;
     private readonly model: string;
 
-    static fromSettings(settings: SettingsTab): OpenAIApiClient {
+    static fromSettings(settings: Settings): OpenAIApiClient {
         return new OpenAIApiClient(
             settings.openAIApiSettings.key,
             settings.openAIApiSettings.url,
