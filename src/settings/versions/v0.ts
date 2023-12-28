@@ -55,7 +55,6 @@ export const settingsSchema = z.object({
 }).strict();
 
 export const pluginDataSchema = z.object({
-    version: z.literal("0").optional().default("0"),
     settings: settingsSchema,
 }).strict();
 
@@ -147,10 +146,9 @@ ANSWER: here you write the text that should be at the location of <mask/>
 };
 
 export const DEFAULT_PLUGIN_DATA: PluginData = {
-    version: "0",
     settings: DEFAULT_SETTINGS,
 }
 
-export type Settings = z.infer<typeof settingsSchema>;
+export type Settings = z.input<typeof settingsSchema>;
 export type Trigger = z.infer<typeof triggerSchema>;
 export type PluginData = z.infer<typeof pluginDataSchema>;

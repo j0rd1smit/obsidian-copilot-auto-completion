@@ -44,6 +44,7 @@ export const triggerSchema = z.object({
 
 
 export const settingsSchema = z.object({
+    version: z.literal("1"),
     enabled: z.boolean(),
     advancedMode: z.boolean(),
     apiProvider: z.enum(['azure', 'openai']),
@@ -71,6 +72,8 @@ export const pluginDataSchema = z.object({
 export type Settings = z.infer<typeof settingsSchema>;
 
 export const DEFAULT_SETTINGS: Settings = {
+    version: "1",
+
     // General settings
     enabled: true,
     advancedMode: false,

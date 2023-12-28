@@ -66,6 +66,7 @@ describe('settingsSchema', () => {
     const validFewShotExample = fewShotExampleSchema.parse({context: Context.Text, input: 'def', answer: 'ghi'});
 
     const baseValidData: SettingsType = {
+        version: '1',
         enabled: true,
         advancedMode: false,
         apiProvider: 'azure',

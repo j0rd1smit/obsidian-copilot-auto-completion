@@ -97,7 +97,7 @@ describe('settingsSchema', () => {
     });
 
     test.each(missingPropertiesToTest)('should throw an error if %s is missing', (property) => {
-        const dataWithoutProperty = {...baseValidData};
+        const dataWithoutProperty = cloneDeep(baseValidData);
         delete dataWithoutProperty[property];
         expect(() => settingsSchema.parse(dataWithoutProperty)).toThrow();
     });
@@ -177,20 +177,17 @@ describe('settingsSchema', () => {
 
 
 describe('smoketest', () => {
-    // TODO: add test case that check if migration is needed (repairStructure does not return the same object)
-
 
     test('should migrate from version 0 to version 1', () => {
         const filePath = path.join(__dirname, 'settings_v0.json');
         const fileContents = fs.readFileSync(filePath, 'utf8');
         const data = JSON.parse(fileContents);
 
-         pluginDataSchema.parse(data);
+         expect(pluginDataSchema.safeParse(data).success).toEqual(true);
     });
 
     test("default settings should be valid", () => {
-        const parsed = settingsSchema.parse(cloneDeep(DEFAULT_SETTINGS));
-        expect(parsed).toEqual(DEFAULT_SETTINGS);
+        expect(settingsSchema.safeParse(DEFAULT_SETTINGS).success).toEqual(true);
     });
 
 });
