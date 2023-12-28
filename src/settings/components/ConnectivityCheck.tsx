@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Notice } from "obsidian";
 import AzureOAIClient from "../../prediction_services/api_clients/AzureOAIClient";
 import OpenAIApiClient from "../../prediction_services/api_clients/OpenAIApiClient";
-import {Settings} from "../settings";
+import {Settings} from "../versions";
 
 interface IProps {
     settings: Settings;

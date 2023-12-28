@@ -1,4 +1,4 @@
-import {FewShotExample} from "../../../settings/settings";
+import {FewShotExample} from "../../../settings/versions";
 import Context from "../../../context_detection";
 
 const messages: FewShotExample = {

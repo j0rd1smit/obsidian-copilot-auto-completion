@@ -45,3 +45,11 @@ export interface ApiClient {
     queryChatModel(messages: ChatMessage[]): Promise<string>;
     checkIfConfiguredCorrectly(): Promise<string[]>;
 }
+
+export interface ModelOptions {
+    temperature: number;
+    top_p: number;
+    frequency_penalty: number;
+    presence_penalty: number;
+    max_tokens: number;
+}

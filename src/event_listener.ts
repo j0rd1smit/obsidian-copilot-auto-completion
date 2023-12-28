@@ -15,7 +15,7 @@ import ChatGPTWithReasoning from "./prediction_services/chat_gpt_with_reasoning"
 import {checkForErrors} from "./settings/utils";
 import {Notice} from "obsidian";
 import Context from "./context_detection";
-import {Settings} from "./settings/settings";
+import {Settings} from "./settings/versions";
 import {SettingsObserver} from "./settings/SettingsTab";
 
 class EventListener implements EventHandler, SettingsObserver {

@@ -1,6 +1,8 @@
-import {ApiClient, ChatMessage} from "../types";
+import {ApiClient, ChatMessage, ModelOptions} from "../types";
 import {requestUrl} from "obsidian";
-import {Settings, ModelOptions} from "../../settings/settings";
+import {Settings} from "../../settings/versions";
+
+
 
 class OpenAIApiClient implements ApiClient {
     private readonly apiKey: string;

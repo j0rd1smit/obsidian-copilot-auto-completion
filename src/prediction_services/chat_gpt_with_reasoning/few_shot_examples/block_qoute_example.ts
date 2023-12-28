@@ -1,5 +1,6 @@
 import Context from "../../../context_detection";
-import {FewShotExample} from "../../../settings/settings";
+import {FewShotExample} from "../../../settings/versions";
+
 
 const example: FewShotExample = {
     context: Context.BlockQuotes,

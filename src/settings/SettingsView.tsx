@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DEFAULT_SETTINGS} from "./SettingsTab";
+
 import TextSettingItem from "./components/TextSettingItem";
 import { useState } from "react";
 import { checkForErrors } from "./utils";
@@ -19,8 +19,9 @@ import {
     MIN_DELAY, MIN_FREQUENCY_PENALTY,
     MIN_MAX_CHAR_LIMIT,
     MIN_MAX_TOKENS, MIN_PRESENCE_PENALTY, MIN_TEMPERATURE, MIN_TOP_P,
-    Settings
-} from "./settings";
+    Settings,
+    DEFAULT_SETTINGS
+} from "./versions"
 
 interface IProps {
     onSettingsChanged(settings: Settings): void;

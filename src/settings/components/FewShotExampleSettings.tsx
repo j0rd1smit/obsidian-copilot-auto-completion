@@ -3,7 +3,7 @@ import * as React from "react";
 
 import Context from "../../context_detection";
 import { Notice } from "obsidian";
-import {FewShotExample} from "../settings";
+import {FewShotExample} from "../versions";
 
 interface IProps {
     name: string;

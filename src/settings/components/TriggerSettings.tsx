@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Trigger} from "../settings";
+import {Trigger} from "../versions";
 
 
 interface IProps {

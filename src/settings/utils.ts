@@ -1,4 +1,4 @@
-import {Settings, settingsSchema} from "./settings";
+import {Settings, settingsSchema} from "./versions";
 import { z } from 'zod';
 
 export function checkForErrors(settings: Settings) {
