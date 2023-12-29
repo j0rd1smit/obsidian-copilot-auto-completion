@@ -1,13 +1,16 @@
 import {describe, expect, test} from "@jest/globals";
 import {TypeOf} from "zod";
-import {triggerSchema, settingsSchema} from "../../../settings/versions/v1";
+import {DEFAULT_SETTINGS, pluginDataSchema, settingsSchema, triggerSchema} from "../../../settings/versions/v1";
 import {cloneDeep} from "lodash";
 import {
-    azureOAIApiSettingsSchema, fewShotExampleSchema,
+    azureOAIApiSettingsSchema,
+    fewShotExampleSchema,
     modelOptionsSchema,
     openAIApiSettingsSchema
 } from "../../../settings/versions/shared";
 import Context from "../../../context_detection";
+import * as fs from 'fs';
+import * as path from 'path';
 
 describe('triggerSchema', () => {
     type TriggerSchemaType = TypeOf<typeof triggerSchema>;
@@ -168,5 +171,25 @@ describe('settingsSchema', () => {
     test('should throw an error if maxSuffixCharLimit is more than 10000', () => {
         const dataWithInvalidMaxPrefix = {...baseValidData, maxSuffixCharLimit: 10001};
         expect(() => settingsSchema.parse(dataWithInvalidMaxPrefix)).toThrow();
+    });
+});
+
+describe('smoketest', () => {
+
+    test('frozen v1 json is still parsable', () => {
+        const filePath = path.join(__dirname, 'settings_v1.json');
+        const fileContents = fs.readFileSync(filePath, 'utf8');
+        const data = JSON.parse(fileContents);
+
+        const result = pluginDataSchema.safeParse(data);
+        if (!result.success) {
+            console.error(result.error);
+        }
+
+        expect(result.success).toEqual(true);
+    });
+
+    test("default settings should be valid", () => {
+        expect(settingsSchema.safeParse(DEFAULT_SETTINGS).success).toEqual(true);
     });
 });

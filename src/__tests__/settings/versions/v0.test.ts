@@ -6,7 +6,8 @@ import {DEFAULT_SETTINGS, pluginDataSchema, settingsSchema, triggerSchema} from 
 
 import Context from "../../../context_detection";
 import {
-    azureOAIApiSettingsSchema, fewShotExampleSchema,
+    azureOAIApiSettingsSchema,
+    fewShotExampleSchema,
     modelOptionsSchema,
     openAIApiSettingsSchema
 } from "../../../settings/versions/shared";
@@ -178,12 +179,17 @@ describe('settingsSchema', () => {
 
 describe('smoketest', () => {
 
-    test('should migrate from version 0 to version 1', () => {
+    test('frozen v0 json is still parsable', () => {
         const filePath = path.join(__dirname, 'settings_v0.json');
         const fileContents = fs.readFileSync(filePath, 'utf8');
         const data = JSON.parse(fileContents);
 
-         expect(pluginDataSchema.safeParse(data).success).toEqual(true);
+        const result = pluginDataSchema.safeParse(data);
+        if (!result.success) {
+            console.error(result.error);
+        }
+
+        expect(result.success).toEqual(true);
     });
 
     test("default settings should be valid", () => {

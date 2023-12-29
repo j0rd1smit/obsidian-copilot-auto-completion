@@ -4,6 +4,7 @@ import * as path from 'path';
 import {isSettingsV0, isSettingsV1, migrateFromV0ToV1} from "../../../settings/versions/migration";
 import {DEFAULT_SETTINGS as DEFAULT_SETTINGS_V0, Settings as SettingsV0, Trigger} from "../../../settings/versions/v0";
 import {settingsSchema as settingsSchemaV1} from "../../../settings/versions/v1";
+import {cloneDeep} from "lodash";
 
 
 test('Verify settings_v0.json is a valid SettingV0', () => {
@@ -30,7 +31,7 @@ test('Verify settings_v0.json can be migrated to SettingV1', () => {
 
 test('Verify migration from v0 to v1 fixes regex not ending with $ issue.', () => {
     const triggers: Trigger[] = [{"type": "regex", "value": "" }, {"type": "regex", "value": "fnjanf"}];
-    const settingsV0: SettingsV0 = {...DEFAULT_SETTINGS_V0, triggers: triggers};
+    const settingsV0: SettingsV0 = {...cloneDeep(DEFAULT_SETTINGS_V0), triggers: triggers};
 
     const settingsV1 = migrateFromV0ToV1(settingsV0);
 
@@ -44,8 +45,7 @@ test('Verify migration from v0 to v1 fixes regex not ending with $ issue.', () =
 
 
 test('Verify migration from v0 to v1 changes the version to v1', () => {
-    const triggers: Trigger[] = [{"type": "regex", "value": "" }, {"type": "regex", "value": "fnjanf"}];
-    const settingsV0: SettingsV0 = {...DEFAULT_SETTINGS_V0, triggers: triggers};
+    const settingsV0: SettingsV0 = cloneDeep(DEFAULT_SETTINGS_V0);
 
     const settingsV1 = migrateFromV0ToV1(settingsV0);
 

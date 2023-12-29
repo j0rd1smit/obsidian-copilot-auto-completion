@@ -65,7 +65,6 @@ export const settingsSchema = z.object({
 }).strict();
 
 export const pluginDataSchema = z.object({
-    version: z.literal("1"),
     settings: settingsSchema,
 }).strict();
 
