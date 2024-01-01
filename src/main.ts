@@ -1,5 +1,4 @@
 import {Editor, MarkdownView, Notice, Plugin} from "obsidian";
-
 import {SettingTab} from "./settings/SettingsTab";
 import EventListener from "./event_listener";
 import StatusBar from "./status_bar";
@@ -8,8 +7,9 @@ import {EditorView} from "@codemirror/view";
 import RenderSuggestionPlugin from "./render_plugin/render_surgestion_plugin";
 import {InlineSuggestionState} from "./render_plugin/states";
 import CompletionKeyWatcher from "./render_plugin/completion_key_watcher";
-import {Settings, pluginDataSchema, DEFAULT_SETTINGS, repairStructure, DEFAULT_PLUGIN_DATA} from "./settings/versions";
-import {ZodError} from "zod";
+import {DEFAULT_SETTINGS, Settings} from "./settings/versions";
+import {deserializeSettings, serializeSettings} from "./settings/utils";
+
 
 export default class CopilotPlugin extends Plugin {
     async onload() {
@@ -139,18 +139,15 @@ export default class CopilotPlugin extends Plugin {
     }
 
     private async saveSettings(settings: Settings): Promise<void> {
-        const data = {settings: settings};
+        const data = serializeSettings(settings);
         await this.saveData(data);
     }
 
     private async loadSettings(): Promise<Settings> {
         const data = await this.loadData();
         try {
-           return repairStructure(pluginDataSchema, DEFAULT_PLUGIN_DATA, data).settings;
+            return deserializeSettings(data);
         } catch (error) {
-            if (error instanceof ZodError) {
-                return data.settings;
-            }
             new Notice("Copilot: Could not load settings, reverting to default settings");
             return DEFAULT_SETTINGS
         }
@@ -159,3 +156,5 @@ export default class CopilotPlugin extends Plugin {
     onunload() {
     }
 }
+
+

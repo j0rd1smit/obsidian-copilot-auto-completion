@@ -1,5 +1,4 @@
-import {z, ZodError, ZodType} from "zod";
-import {merge, omit} from "lodash";
+import {z} from "zod";
 
 export const MIN_DELAY = 0;
 export const MAX_DELAY = 2000;
@@ -50,26 +49,4 @@ export const fewShotExampleSchema = z.object({
     answer: z.string().min(3, {message: "The Answer must be at least 3 characters long"}),
 }).strict();
 
-export function repairStructure<T extends ZodType>(
-    schema: T,
-    defaultValue: z.infer<T>,
-    value: object
-): ReturnType<T["parse"]> {
-    value = merge({}, defaultValue, value);
-    try {
-        // 1st attempt to parse the value
-        return schema.parse(value);
-    } catch (error) {
-        if (!(error instanceof ZodError)) {
-            throw error;
-        }
-        // @ts-ignore
-        const unrecognizedKeys = error.issues.filter(issue => issue.code === 'unrecognized_keys').flatMap(issue => issue.keys);
-        value = omit(value, unrecognizedKeys);
-        // 2nd attempt with unrecognized keys removed
-        return schema.parse(value);
-    }
-}
-
 export type FewShotExample = z.infer<typeof fewShotExampleSchema>;
-

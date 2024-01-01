@@ -1,8 +1,9 @@
-import {Plugin, PluginSettingTab} from "obsidian";
+import {Notice, Plugin, PluginSettingTab} from "obsidian";
 import {createRoot, Root} from "react-dom/client";
 import SettingsView from "./SettingsView";
 import * as React from "react";
 import {DEFAULT_SETTINGS, Settings} from "./versions";
+import {checkForErrors} from "./utils";
 
 
 export interface SettingsObserver {
@@ -77,7 +78,13 @@ export class SettingTab extends PluginSettingTab {
         if (this.updatedSettings) {
             this.settings = this.updatedSettings;
             this.updatedSettings = undefined;
-            this.saveSettings(this.settings).then(() => this.updateObservers());
+
+            const errors = checkForErrors(this.settings);
+            if (errors.size > 0) {
+                new Notice("Copilot: Cannot save your setting while there are errors");
+            } else {
+                this.saveSettings(this.settings).then(() => this.updateObservers());
+            }
         }
         if (this.root) {
             this.root.unmount();

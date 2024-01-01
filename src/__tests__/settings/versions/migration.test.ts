@@ -51,3 +51,5 @@ test('Verify migration from v0 to v1 changes the version to v1', () => {
 
     expect(settingsV1.version).toEqual("1");
 });
+
+// TODO: test case that invalid regexes are removed

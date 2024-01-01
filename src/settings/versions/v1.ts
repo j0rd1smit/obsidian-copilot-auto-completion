@@ -26,6 +26,7 @@ import header_example_relu
 import {MAX_DELAY, MAX_MAX_CHAR_LIMIT, MIN_DELAY, MIN_MAX_CHAR_LIMIT} from "./shared";
 import {z} from "zod";
 import {azureOAIApiSettingsSchema, fewShotExampleSchema, modelOptionsSchema, openAIApiSettingsSchema} from "./shared";
+import {isRegexValid} from "../utils";
 
 export const triggerSchema = z.object({
     type: z.enum(['string', 'regex']),
@@ -36,6 +37,13 @@ export const triggerSchema = z.object({
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message: "Regex triggers must end with a $.",
+                path: ["value"],
+            });
+        }
+        if (!isRegexValid(trigger.value)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: `Invalid regex: "${trigger.value}"`,
                 path: ["value"],
             });
         }

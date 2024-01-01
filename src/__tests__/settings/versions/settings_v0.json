@@ -71,7 +71,7 @@
       },
       {
         "type": "regex",
-        "value": "```\\s*)?"
+        "value": "```[a-zA-Z0-9]*(\\\\n\\\\s*)?"
       },
       {
         "type": "regex",
