@@ -5,6 +5,7 @@ import {isSettingsV0, isSettingsV1, migrateFromV0ToV1} from "../../../settings/v
 import {DEFAULT_SETTINGS as DEFAULT_SETTINGS_V0, Settings as SettingsV0, Trigger} from "../../../settings/versions/v0";
 import {settingsSchema as settingsSchemaV1} from "../../../settings/versions/v1";
 import {cloneDeep} from "lodash";
+import {isRegexValid, parseWithSchema} from "../../../settings/utils";
 
 
 test('Verify settings_v0.json is a valid SettingV0', () => {
@@ -23,9 +24,9 @@ test('Verify settings_v0.json can be migrated to SettingV1', () => {
     expect(isSettingsV1(rawSettingV0)).toEqual(false);
 
     const rawSettingV1 = migrateFromV0ToV1(rawSettingV0);
-    const result = settingsSchemaV1.safeParse(rawSettingV1);
+    const result = parseWithSchema(settingsSchemaV1, rawSettingV1);
 
-    expect(result.success).toEqual(true);
+    expect(result.isOk()).toEqual(true);
 });
 
 
@@ -52,4 +53,16 @@ test('Verify migration from v0 to v1 changes the version to v1', () => {
     expect(settingsV1.version).toEqual("1");
 });
 
-// TODO: test case that invalid regexes are removed
+test('Verify migration from v0 to v1 fixes removes invalid regex', () => {
+    const triggers: Trigger[] = [{"type": "regex", "value": "[" }];
+    const settingsV0: SettingsV0 = {...cloneDeep(DEFAULT_SETTINGS_V0), triggers: triggers};
+
+    const settingsV1 = migrateFromV0ToV1(settingsV0);
+
+    settingsV0.triggers.forEach((trigger: any) => {
+        expect(isRegexValid(trigger.value)).toEqual(false);
+    });
+    settingsV1.triggers.forEach((trigger: any) => {
+        expect(isRegexValid(trigger.value)).toEqual(true);
+    });
+});

@@ -5,7 +5,8 @@
         "node": true
     },
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "neverthrow"
     ],
     "extends": [
         "eslint:recommended",

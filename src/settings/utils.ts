@@ -1,121 +1,160 @@
 import {DEFAULT_SETTINGS, PluginData, Settings, settingsSchema} from "./versions";
-import {z, ZodError, ZodType} from 'zod';
-import {cloneDeep, merge, omit} from "lodash";
+import {z, ZodError, ZodType, ZodIssueCode} from 'zod';
+import {cloneDeep, get, has, set, unset} from "lodash";
 import {isSettingsV0, isSettingsV1, migrateFromV0ToV1} from "./versions/migration";
+import {err, ok, Result} from "neverthrow";
 
+
+
+
+type JSONObject = Record<string, any>;
 
 export function checkForErrors(settings: Settings) {
     const errors = new Map<string, string>();
+    const parsingResult = parseWithSchema(settingsSchema, settings);
 
-    try {
-        settingsSchema.parse(settings);
-    } catch (error) {
-        if (!(error instanceof z.ZodError)) {
-            throw error;
-        }
-        // Transform ZodError into a Map for compatibility with UI.
-        for (const issue of error.issues) {
+    if (parsingResult.isOk()) {
+        return errors;
+    }
+
+    if (parsingResult.error instanceof ZodError) {
+        for (const issue of parsingResult.error.issues) {
             errors.set(issue.path.join('.'), issue.message);
         }
+    } else {
+        throw parsingResult.error;
     }
 
     return errors;
 }
 
+
 export function fixStructureAndValueErrors<T extends ZodType>(
     schema: T,
+    value: any|null|undefined,
     defaultValue: z.infer<T>,
-    value: any
-): ReturnType<T["parse"]> {
-    const mergedValue = merge({}, defaultValue, value);
-    try {
-        // 1st attempt to parse the value
-        return schema.parse(mergedValue);
-    } catch (error) {
-        if (!(error instanceof ZodError)) {
-            throw error;
-        }
-        const unrecognizedKeys = error.issues
-            .filter(issue => issue.code === 'unrecognized_keys')
+): Result<ReturnType<T["parse"]>, Error> {
+    if (value === null || value === undefined) {
+        value = {};
+    }
+    let result = parseWithSchema(schema, value);
+
+    if (result.isErr()) {
+        value = addMissingKeys(value, result.error, defaultValue);
+        value = removeUnrecognizedKeys(value, result.error);
+        result = parseWithSchema(schema, value);
+    }
+
+    if (result.isErr() && value !== null && value !== undefined) {
+        value = replaceValuesWithErrorsByDefaultValue(value, result.error, defaultValue);
+        result = parseWithSchema(schema, value);
+    }
+
+    return result;
+}
+
+export function parseWithSchema<T extends ZodType>(
+    schema: T,
+    value: JSONObject | null | undefined
+): Result<ReturnType<T["parse"]>, ZodError> {
+    const parsingResult = schema.safeParse(value);
+    return parsingResult.success ? ok(parsingResult.data) : err(parsingResult.error);
+}
+
+function addMissingKeys<T extends object>(value: JSONObject, error: ZodError, defaultValue: T): JSONObject {
+    const invalidTypeIssues = error.issues.filter(issue => issue.code === ZodIssueCode.invalid_type);
+    const errorPaths = invalidTypeIssues
+        .map(issue => issue.path)
+        .map(path => reduceArrayPathToFirstObjectPath(path))
+        .map(path => path.join('.'));
+
+    return replaceValueWithDefaultValue(value, errorPaths, defaultValue);
+}
+
+function replaceValueWithDefaultValue<V, T>(
+    value: any,
+    paths: string[],
+    defaultValue: T,
+): V {
+    const result = cloneDeep(value) as any;
+    paths.forEach(path => {
+        const originalValue = has(defaultValue, path) ? get(defaultValue, path) : undefined;
+        set(result, path, originalValue);
+    });
+
+    return result;
+}
+
+
+function removeUnrecognizedKeys(value: JSONObject | null | undefined, error: ZodError): JSONObject {
+    if (typeof value !== 'object' || value === null || value === undefined) {
+        return {};
+    }
+    // Zod unrecognized_keys issues consist of two parts:
+    // - path to the nested object where the unrecognized key was found
+    // - the key itself which is unrecognized
+    const unrecognizedPaths = error.issues
+
+        .filter(issue => issue.code === ZodIssueCode.unrecognized_keys)
+        // Array path will be handled separately by the value replacement function
+        .filter(issue => !isAnArrayPath(issue.path))
+        .flatMap(issue => {
             // @ts-ignore
-            .flatMap(issue => issue.keys);
+            const keys = issue.keys;
+            return keys.map(key => [...issue.path, key].join('.'));
+        });
 
-        let fixedValues = omit(mergedValue, unrecognizedKeys);
-        fixedValues = fixValueErrors(schema, defaultValue, fixedValues);
-
-        // 2nd attempt with unrecognized keys removed
-        return schema.parse(fixedValues);
-    }
+    unrecognizedPaths.forEach(path => {
+        unset(value, path);
+    });
+    return value;
 }
 
-function fixValueErrors<T>(
-    schema: ZodType<T>,
-    originalSettings: T,
-    currentSettings: any,
+
+function replaceValuesWithErrorsByDefaultValue<T>(
+    value: JSONObject,
+    error: ZodError,
+    defaultValue: T
 ): T {
-    const parsingResult = schema.safeParse(currentSettings);
+    const errorPaths = error.issues
+        .map(issue => issue.path)
+        .map(path => reduceArrayPathToFirstObjectPath(path))
+        .map(path => path.join('.'));
 
-    if (parsingResult.success) {
-        return currentSettings;
-    }
-
-    if (typeof currentSettings !== 'object' || currentSettings === null) {
-        throw new Error('currentSettings must be an object.');
-    }
-
-    // Use reduce to apply corrections to each error
-    const fixedSettings = parsingResult.error.errors.reduce((acc, err) => {
-        return applyOriginalValueAtPath(acc, originalSettings, err.path);
-    }, cloneDeep(currentSettings));
-
-    return fixedSettings;
+    return replaceValueWithDefaultValue(value, errorPaths, defaultValue);
 }
 
-
-function applyOriginalValueAtPath(fixedSettings, originalSettings, path) {
-    let currentFixedNode = fixedSettings;
-    let currentOriginalNode = originalSettings;
-
-    for (let i = 0; i < path.length - 1; i++) {
-        const key = path[i];
-        if (currentFixedNode[key] !== undefined && currentOriginalNode[key] !== undefined) {
-            currentFixedNode = currentFixedNode[key];
-            currentOriginalNode = currentOriginalNode[key];
-        } else {
-            // Invalid path handling
-            console.error('Invalid path encountered in applyOriginalValueAtPath');
-            return fixedSettings;
+function reduceArrayPathToFirstObjectPath(path: (string | number)[]): (string | number)[] {
+    const result: (string | number)[] = [];
+    for (const key of path) {
+        if (typeof key === 'number') {
+            break;
         }
+        result.push(key);
     }
 
-    const lastKey = path[path.length - 1];
-    if (typeof lastKey === 'string' || typeof lastKey === 'number') {
-        currentFixedNode[lastKey] = currentOriginalNode[lastKey];
-    } else {
-        console.error('Invalid key type encountered in applyOriginalValueAtPath');
-    }
-
-    return fixedSettings;
+    return result;
 }
 
-
+function isAnArrayPath(path: (string | number)[]): boolean {
+    return path.some(key => typeof key === 'number');
+}
 
 export function serializeSettings(settings: Settings): PluginData {
     return {settings: settings};
 }
 
-export function deserializeSettings(data: any): Settings {
+export function deserializeSettings(data: JSONObject): Result<Settings, Error> {
     let settings = data.settings;
     if (isSettingsV0(settings)) {
         settings = migrateFromV0ToV1(settings);
     }
     if (!isSettingsV1(settings)) {
-        settings = fixStructureAndValueErrors(settingsSchema, DEFAULT_SETTINGS, settings);
+        return fixStructureAndValueErrors(settingsSchema, DEFAULT_SETTINGS, settings);
     }
 
-    return settingsSchema.parse(settings);
+    return parseWithSchema(settingsSchema, settings);
 }
-
 
 export function isRegexValid(value: string): boolean {
     try {

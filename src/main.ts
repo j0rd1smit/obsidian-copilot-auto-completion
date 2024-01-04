@@ -145,10 +145,12 @@ export default class CopilotPlugin extends Plugin {
 
     private async loadSettings(): Promise<Settings> {
         const data = await this.loadData();
-        try {
-            return deserializeSettings(data);
-        } catch (error) {
+        const result = deserializeSettings(data);
+        if (result.isOk()) {
+            return result.value;
+        } else {
             new Notice("Copilot: Could not load settings, reverting to default settings");
+            console.error(result.error);
             return DEFAULT_SETTINGS
         }
     }
