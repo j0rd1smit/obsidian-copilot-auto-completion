@@ -30,7 +30,7 @@ import {isRegexValid} from "../utils";
 
 export const triggerSchema = z.object({
     type: z.enum(['string', 'regex']),
-    value: z.string(),
+    value: z.string().min(1, {message: "Trigger value must be at least 1 character long"})
 }).strict().superRefine((trigger, ctx) => {
     if (trigger.type === "regex") {
         if (!trigger.value.endsWith("$")) {

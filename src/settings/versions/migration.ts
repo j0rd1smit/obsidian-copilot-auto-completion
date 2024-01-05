@@ -15,7 +15,10 @@ export function migrateFromV0ToV1(settings: SettingsV0): SettingsV1 {
         }
     });
 
-    updatedSettings.triggers = updatedSettings.triggers.filter((trigger: Trigger) => trigger.type !== 'regex' || isRegexValid(trigger.value));
+    updatedSettings.triggers = updatedSettings
+        .triggers
+        .filter((trigger: Trigger) => trigger.value.length > 0)
+        .filter((trigger: Trigger) => trigger.type !== 'regex' || isRegexValid(trigger.value));
 
     // Add the 'version' property with the value '1'
     updatedSettings.version = '1';

@@ -66,3 +66,15 @@ test('Verify migration from v0 to v1 fixes removes invalid regex', () => {
         expect(isRegexValid(trigger.value)).toEqual(true);
     });
 });
+
+test('Verify migration from v0 to v1 fixes removes triggers with empty values', () => {
+    const triggers: Trigger[] = [{"type": "regex", "value": ""}, {"type": "regex", "value": "[A-Z]+$" }, {"type": "string", "value": "" }, {"type": "string", "value": "something something" }];
+    const settingsV0: SettingsV0 = {...cloneDeep(DEFAULT_SETTINGS_V0), triggers: triggers};
+
+    const settingsV1 = migrateFromV0ToV1(settingsV0);
+
+
+    settingsV1.triggers.forEach((trigger: any) => {
+        expect(trigger.value.length).toBeGreaterThan(0);
+    });
+});

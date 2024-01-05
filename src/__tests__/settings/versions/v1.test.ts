@@ -48,6 +48,11 @@ describe('triggerSchema', () => {
         const invalidData = {type: 'regex', value: '\\d+'};
         expect(() => triggerSchema.parse(invalidData)).toThrow();
     });
+
+    test("throw error if value is empty", () => {
+        const invalidData = {type: 'string', value: ''};
+        expect(() => triggerSchema.parse(invalidData)).toThrow();
+    })
 });
 
 describe('settingsSchema', () => {
