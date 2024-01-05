@@ -266,21 +266,22 @@ Feel free to make a pull request if your changes are helpful for others.
 
 ## Make a release
 To make a release, you can follow the following steps.
-1. make sure you update the version number in the `package.json` file.
+1. Make sure you update the version number in the `package.json` file.
 2. Then run the following commands to sync the version number in all the files.
     ```bash
     npm install 
     npm run version
     ```
-3. commit these changes to the master branch.
-4. make sure you have the latest version of the master branch.
+3. Add a changelog entry to the `CHANGELOG.md` file.
+4. Commit these changes to the master branch.
+5. Make sure you have the latest version of the master branch.
     ```bash
     git checkout master
     git pull
     ```
-5. make a release using the following commands.
-    ```bash
-    git tag -a $(jq -r '.version' package.json) -m "Your release message"
+6. Make a release using the following commands.
+      ```bash
+    git tag -a $(jq -r '.version' package.json) -m "Release $(jq -r '.version' package.json)"
     git push origin $(jq -r '.version' package.json)
     ```
 

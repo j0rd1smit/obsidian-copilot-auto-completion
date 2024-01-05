@@ -75,8 +75,9 @@ class PredictingState extends State {
                 SuggestingState.withSuggestion(this.context, prediction)
             );
         } catch (error) {
+            console.error(error);
             new Notice(
-                `Something went wrong cannot make prediction. Please check your settings.`
+                `Something went wrong cannot make a prediction. Full error is available in the dev console. Please check your settings. `
             );
             this.context.transitionTo(new IdleState(this.context));
             return;
