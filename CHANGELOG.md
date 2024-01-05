@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.7
+- If a prediction fails, the full exception is now logged to the console. Allowing users to investigate the issue further.
+
 ## 1.0.6
 - Make the api base url for openai configurable for local models in the settings.
 
