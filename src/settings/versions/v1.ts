@@ -122,7 +122,7 @@ export const DEFAULT_SETTINGS: Settings = {
         {type: "regex", value: "\\s*(-|[0-9]+\\.) \\[.\\]\\s+$"},
     ],
 
-    delay: 1000,
+    delay: 500,
     // Request settings
     modelOptions: {
         temperature: 1,
@@ -159,8 +159,8 @@ ANSWER: here you write the text that should be at the location of <mask/>
     chainOfThoughRemovalRegex: `(.|\\n)*ANSWER:`,
     // Preprocessing settings
     dontIncludeDataviews: true,
-    maxPrefixCharLimit: 2000,
-    maxSuffixCharLimit: 2000,
+    maxPrefixCharLimit: 4000,
+    maxSuffixCharLimit: 4000,
     // Postprocessing settings
     removeDuplicateMathBlockIndicator: true,
     removeDuplicateCodeBlockIndicator: true,
