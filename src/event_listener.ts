@@ -143,40 +143,7 @@ class EventListener implements EventHandler, SettingsObserver {
 
     handleSettingChanged(settings: Settings): void {
         this.settings = settings;
-
         this.state.handleSettingChanged(settings);
-
-        // const fromDisabledToEnabled = !this.settings.enabled && settings.enabled;
-        // const fromEnabledToDisabled = this.settings.enabled && !settings.enabled;
-        //
-        //
-        //
-        // const settingErrors = checkForErrors(settings);
-        //
-        //
-        // // TODO refactor this
-        // if (!settings.enabled) {
-        //     if (fromDisabledToEnabled) {
-        //         new Notice("Copilot is disabled.");
-        //     }
-        //
-        //     this.transitionTo(new DisabledState(this));
-        // } else if (settingErrors.size > 0) {
-        //     new Notice(
-        //         `There are ${settingErrors.size} errors in your settings. Please before enable Copilot.`
-        //     );
-        //     this.transitionTo(new DisabledState(this));
-        // } else {
-        //     if (fromEnabledToDisabled) {
-        //         new Notice("Copilot is enabled.");
-        //     }
-        //     this.predictionService = createPredictionService(settings);
-        //     this.transitionTo(new IdleState(this));
-        // }
-        //
-        // if (this.isCurrentFilePathIgnored() && !(this.state instanceof FileSpecificDisabledState)) {
-        //     this.transitionTo(new FileSpecificDisabledState(this));
-        // }
     }
 
     async handleDocumentChange(
