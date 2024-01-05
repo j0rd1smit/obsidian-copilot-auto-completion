@@ -2,7 +2,7 @@ import * as React from "react";
 
 interface IProps {
     name: string;
-    description: string;
+    description: string | React.ReactNode;
     errorMessage?: string;
     children: React.ReactNode;
     display?: "block" | "inline-block" | "flex";

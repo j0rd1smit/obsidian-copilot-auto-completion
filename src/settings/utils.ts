@@ -3,7 +3,7 @@ import {z, ZodError, ZodType, ZodIssueCode} from 'zod';
 import {cloneDeep, get, has, set, unset} from "lodash";
 import {isSettingsV0, isSettingsV1, migrateFromV0ToV1} from "./versions/migration";
 import {err, ok, Result} from "neverthrow";
-
+import * as mm from "micromatch";
 
 
 
@@ -160,6 +160,15 @@ export function isRegexValid(value: string): boolean {
     try {
         const regex = new RegExp(value);
         regex.test("");
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+export function isValidIgnorePattern(value: string): boolean {
+    try {
+        mm.isMatch("", value);
         return true;
     } catch (e) {
         return false;

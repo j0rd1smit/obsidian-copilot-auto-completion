@@ -176,7 +176,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                     "If disabled, nothing will trigger the extension or can result in an API call."
                 }
                 enabled={settings.enabled}
-                setEnabled={(value) => updateSettings({ enabled: value })}
+                setEnabled={(value) => updateSettings({enabled: value})}
             />
             <DropDownSettingItem
                 name={"API provider"}
@@ -186,7 +186,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 value={settings.apiProvider}
                 setValue={(value: string) => {
                     if (value === "openai" || value === "azure") {
-                        updateSettings({ apiProvider: value });
+                        updateSettings({apiProvider: value});
                     }
                 }}
                 options={{
@@ -305,7 +305,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 }
                 enabled={settings.dontIncludeDataviews}
                 setEnabled={(value) =>
-                    updateSettings({ dontIncludeDataviews: value })
+                    updateSettings({dontIncludeDataviews: value})
                 }
             />
             <SliderSettingsItem
@@ -316,7 +316,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 value={settings.maxPrefixCharLimit}
                 errorMessage={errors.get("maxPrefixCharLimit")}
                 setValue={(value: number) =>
-                    updateSettings({ maxPrefixCharLimit: value })
+                    updateSettings({maxPrefixCharLimit: value})
                 }
                 min={MIN_MAX_CHAR_LIMIT}
                 max={MAX_MAX_CHAR_LIMIT}
@@ -331,7 +331,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 value={settings.maxSuffixCharLimit}
                 errorMessage={errors.get("maxSuffixCharLimit")}
                 setValue={(value: number) =>
-                    updateSettings({ maxSuffixCharLimit: value })
+                    updateSettings({maxSuffixCharLimit: value})
                 }
                 min={MIN_MAX_CHAR_LIMIT}
                 max={MAX_MAX_CHAR_LIMIT}
@@ -346,7 +346,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 }
                 enabled={settings.removeDuplicateMathBlockIndicator}
                 setEnabled={(value) =>
-                    updateSettings({ removeDuplicateMathBlockIndicator: value })
+                    updateSettings({removeDuplicateMathBlockIndicator: value})
                 }
             />
             <CheckBoxSettingItem
@@ -356,7 +356,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 }
                 enabled={settings.removeDuplicateCodeBlockIndicator}
                 setEnabled={(value) =>
-                    updateSettings({ removeDuplicateCodeBlockIndicator: value })
+                    updateSettings({removeDuplicateCodeBlockIndicator: value})
                 }
             />
 
@@ -368,7 +368,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 }
                 value={settings.delay}
                 errorMessage={errors.get("delay")}
-                setValue={(value: number) => updateSettings({ delay: value })}
+                setValue={(value: number) => updateSettings({delay: value})}
                 min={MIN_DELAY}
                 max={MAX_DELAY}
                 step={100}
@@ -380,10 +380,49 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                     "Completions will be triggered if the text before the matches any of these words or characters. This can either be a direct string match or a regex match. When using a regex, make sure to include the end of line character ($)."
                 }
                 triggers={settings.triggers}
-                setValues={(triggers) => updateSettings({ triggers })}
+                setValues={(triggers) => updateSettings({triggers})}
                 errorMessage={errors.get("triggerWords")}
                 errorMessages={errors}
             />
+            <h2>Privacy</h2>
+            <SettingsItem
+                name={"Ignored files"}
+                description={
+                    <div>
+                        <p>This field enables you to specify files and directories that the plugin should ignore. When
+                            you open any of these files, the plugin will automatically disable itself and display a
+                            'disabled' status in the bottom menu. Enter one pattern per line. These patterns function
+                            similar to glob patterns. Here are some frequently used patterns:</p>
+                        <ul>
+                            <li><code>path/to/folder/**</code>: This pattern ignores all files and sub folders within this folder.</li>
+                            <li><code>"**/secret/**"</code>: This pattern ignores any file located inside a 'secret' directory,
+                                regardless of its location in the path.
+                            </li>
+                            <li><code>!path/to/folder/example.md</code>: This pattern explicitly undoes an ignore,
+                                making this file noticeable to the plugin.
+                            </li>
+                            <li><code>**/*Python*.md</code>: This pattern ignores any file with 'Python' in its name,
+                                irrespective of its location.
+                            </li>
+                        </ul>
+                    </div>
+
+                }
+                display={"block"}
+                errorMessage={errors.get("ignoredFilePatterns")}
+            >
+                <textarea
+                    className="setting-item-text-area-copilot-auto-completion"
+                    rows={10}
+                    placeholder="Your system message..."
+                    value={settings.ignoredFilePatterns}
+                    onChange={(e) =>
+                        updateSettings({
+                            ignoredFilePatterns: e.target.value
+                        })
+                    }
+                />
+            </SettingsItem>
 
             <h2>Danger zone</h2>
             <SettingsItem
@@ -405,7 +444,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                     "If you are familiar with prompt engineering, you can enable this setting to view the prompt generation and a few shot example settings. Turn off this button. It will not reset your changes; use the factory reset button for that."
                 }
                 enabled={settings.advancedMode}
-                setEnabled={(value) => updateSettings({ advancedMode: value })}
+                setEnabled={(value) => updateSettings({advancedMode: value})}
             />
 
             {settings.advancedMode && (
@@ -450,7 +489,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                     <SettingsItem
                         name={"User Message template"}
                         description={
-                           "This template defines how the prefix and suffix are formatted to create the user message. You have access to two variables: {{prefix}} and {{suffix}}. If you edit this, make sure to update the examples accordingly."
+                            "This template defines how the prefix and suffix are formatted to create the user message. You have access to two variables: {{prefix}} and {{suffix}}. If you edit this, make sure to update the examples accordingly."
                         }
                         display={"block"}
                         errorMessage={errors.get("userMessageTemplate")}
@@ -474,7 +513,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                             "The model uses these examples to learn the expected answer format. Not all examples are sent at the same time. We only send the relevant examples, given the current cursor location. For example, the CodeBlock examples are only sent if the cursor is in a code block. If no special context is detected, we send the Text examples. Each context has a default of 2 examples, but you can add or remove examples if there is at least one per context. You can add more examples, but this will increase the inference costs."
                         }
                         setFewShotExamples={(value) =>
-                            updateSettings({ fewShotExamples: value })
+                            updateSettings({fewShotExamples: value})
                         }
                         errorMessages={errors}
 

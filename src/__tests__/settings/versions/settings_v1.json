@@ -170,6 +170,7 @@
         "maxPrefixCharLimit": 2000,
         "maxSuffixCharLimit": 2000,
         "removeDuplicateMathBlockIndicator": true,
-        "removeDuplicateCodeBlockIndicator": true
+        "removeDuplicateCodeBlockIndicator": true,
+        "ignoredFilePatterns": ""
     }
 }

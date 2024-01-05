@@ -6,26 +6,28 @@ import State from "./states/state";
 import {EventHandler} from "./states/types";
 import InitState from "./states/init_state";
 import IdleState from "./states/idle_state";
-import QueuedState from "./states/queued_state";
-import DisabledState from "./states/disabled_state";
-import PredictingState from "./states/predicting_state";
 import SuggestingState from "./states/suggesting_state";
 import {PredictionService} from "./prediction_services/types";
 import ChatGPTWithReasoning from "./prediction_services/chat_gpt_with_reasoning";
 import {checkForErrors} from "./settings/utils";
-import {Notice} from "obsidian";
 import Context from "./context_detection";
 import {Settings} from "./settings/versions";
 import {SettingsObserver} from "./settings/SettingsTab";
+import {isMatchBetweenPathAndPatterns} from "./utils";
+import DisabledManualState from "./states/disabled_manual_state";
+import DisabledInvalidSettingsState from "./states/disabled_invalid_settings_state";
+import DisabledFileSpecificState from "./states/disabled_file_specific_state";
+
 
 class EventListener implements EventHandler, SettingsObserver {
     private view: EditorView | null = null;
 
     private state: EventHandler = new InitState();
     private statusBar: StatusBar;
-    private context: Context = Context.Text;
+    context: Context = Context.Text;
     predictionService: PredictionService;
     settings: Settings;
+    private currentFilePath: string | null = null;
 
     public static fromSettings(
         settings: Settings,
@@ -40,10 +42,12 @@ class EventListener implements EventHandler, SettingsObserver {
         );
 
         const settingErrors = checkForErrors(settings);
-        if (settings.enabled && settingErrors.size === 0) {
+        if (settings.enabled) {
             eventListener.transitionTo(new IdleState(eventListener));
-        } else {
-            eventListener.transitionTo(new DisabledState(eventListener));
+        } else if (settingErrors.size > 0) {
+            eventListener.transitionTo(new DisabledInvalidSettingsState(eventListener));
+        } else if (!settings.enabled) {
+            eventListener.transitionTo(new DisabledManualState(eventListener));
         }
 
         return eventListener;
@@ -73,6 +77,22 @@ class EventListener implements EventHandler, SettingsObserver {
 
     public onViewUpdate(view: EditorView): void {
         this.view = view;
+
+
+    }
+
+    public handleFilePathChange(path: string): void {
+        this.currentFilePath = path;
+        this.state.handleFilePathChange(path);
+
+    }
+
+    public isCurrentFilePathIgnored(): boolean {
+        if (this.currentFilePath === null) {
+            return false;
+        }
+        const patterns = this.settings.ignoredFilePatterns.split("\n");
+        return isMatchBetweenPathAndPatterns(this.currentFilePath, patterns);
     }
 
     setSuggestion(suggestion: string): void {
@@ -101,47 +121,62 @@ class EventListener implements EventHandler, SettingsObserver {
         this.updateStatusBarText();
     }
 
-    private updateStatusBarText(): void {
-         const prefix = "Copilot:";
+    transitionToDisabledFileSpecificState(): void {
+        this.transitionTo(new DisabledFileSpecificState(this));
+    }
 
-         if (this.state instanceof IdleState) {
-            this.statusBar.updateText(`${prefix} Idle`);
-        } else if (this.state instanceof QueuedState) {
-            this.statusBar.updateText(`${prefix} Queued`);
-        } else if (this.state instanceof DisabledState) {
-            this.statusBar.updateText(`${prefix} Disabled`);
-        } else if (this.state instanceof PredictingState) {
-            this.statusBar.updateText(`${prefix} Predicting for ${this.context}`);
-        } else if (this.state instanceof SuggestingState) {
-            this.statusBar.updateText(`${prefix} Suggesting for ${this.context}`);
-        }
+    transitionToDisabledManualState(): void {
+        this.transitionTo(new DisabledManualState(this));
+    }
+
+    transitionToDisabledInvalidSettingsState(): void {
+        this.transitionTo(new DisabledInvalidSettingsState(this));
+    }
+
+
+    private updateStatusBarText(): void {
+        this.statusBar.updateText(this.getStatusBarText());
+    }
+    getStatusBarText(): string {
+        return `Copilot: ${this.state.getStatusBarText()}`;
     }
 
     handleSettingChanged(settings: Settings): void {
-        const fromDisabledToEnabled = !this.settings.enabled && settings.enabled;
-        const fromEnabledToDisabled = this.settings.enabled && !settings.enabled;
+        this.settings = settings;
 
+        this.state.handleSettingChanged(settings);
 
-        const settingErrors = checkForErrors(settings);
-        if (!settings.enabled) {
-            if (fromDisabledToEnabled) {
-                new Notice("Copilot is disabled.");
-            }
-
-            this.transitionTo(new DisabledState(this));
-        } else if (settingErrors.size > 0) {
-            new Notice(
-                `There are ${settingErrors.size} errors in your settings. Please before enable Copilot.`
-            );
-            this.transitionTo(new DisabledState(this));
-        } else {
-            if (fromEnabledToDisabled) {
-                new Notice("Copilot is enabled.");
-            }
-            this.predictionService = createPredictionService(settings);
-            this.transitionTo(new IdleState(this));
-        }
-         this.settings = settings;
+        // const fromDisabledToEnabled = !this.settings.enabled && settings.enabled;
+        // const fromEnabledToDisabled = this.settings.enabled && !settings.enabled;
+        //
+        //
+        //
+        // const settingErrors = checkForErrors(settings);
+        //
+        //
+        // // TODO refactor this
+        // if (!settings.enabled) {
+        //     if (fromDisabledToEnabled) {
+        //         new Notice("Copilot is disabled.");
+        //     }
+        //
+        //     this.transitionTo(new DisabledState(this));
+        // } else if (settingErrors.size > 0) {
+        //     new Notice(
+        //         `There are ${settingErrors.size} errors in your settings. Please before enable Copilot.`
+        //     );
+        //     this.transitionTo(new DisabledState(this));
+        // } else {
+        //     if (fromEnabledToDisabled) {
+        //         new Notice("Copilot is enabled.");
+        //     }
+        //     this.predictionService = createPredictionService(settings);
+        //     this.transitionTo(new IdleState(this));
+        // }
+        //
+        // if (this.isCurrentFilePathIgnored() && !(this.state instanceof FileSpecificDisabledState)) {
+        //     this.transitionTo(new FileSpecificDisabledState(this));
+        // }
     }
 
     async handleDocumentChange(
@@ -179,10 +214,16 @@ class EventListener implements EventHandler, SettingsObserver {
             if (trigger.type === "regex" && documentChanges.getPrefix().match(trigger.value)) {
                 return true;
             }
-
-
         }
         return false;
+    }
+
+    public isDisabled(): boolean {
+        return this.state instanceof DisabledManualState || this.state instanceof DisabledInvalidSettingsState || this.state instanceof DisabledFileSpecificState;
+    }
+
+    public isIdle(): boolean {
+        return this.state instanceof IdleState;
     }
 }
 

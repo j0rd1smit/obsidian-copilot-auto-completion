@@ -3,7 +3,7 @@ import { DocumentChanges } from "../render_plugin/document_changes_listener";
 import {Settings} from "../settings/versions";
 
 
-export interface EventHandler {
+export interface EventHandler  {
     handleSettingChanged(settings: Settings): void;
 
     handleDocumentChange(documentChanges: DocumentChanges): Promise<void>;
@@ -16,4 +16,9 @@ export interface EventHandler {
 
     handlePredictCommand(prefix: string, suffix: string): void;
     handleAcceptCommand(): void;
+
+    getStatusBarText(): string;
+
+    handleFilePathChange(path: string): void;
+
 }

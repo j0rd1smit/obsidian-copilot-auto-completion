@@ -90,6 +90,7 @@ describe('settingsSchema', () => {
         dontIncludeDataviews: true,
         maxPrefixCharLimit: 1000,
         maxSuffixCharLimit: 1000,
+        ignoredFilePatterns: '',
         removeDuplicateMathBlockIndicator: true,
         removeDuplicateCodeBlockIndicator: true
     };

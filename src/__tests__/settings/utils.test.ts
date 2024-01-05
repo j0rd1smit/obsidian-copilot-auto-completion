@@ -290,4 +290,3 @@ describe("deserializeSettings", () => {
         expect(result.isOk()).toBe(true);
     });
 });
-

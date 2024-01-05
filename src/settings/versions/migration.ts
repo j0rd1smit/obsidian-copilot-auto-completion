@@ -5,7 +5,7 @@ import {isRegexValid} from "../utils";
 
 export function migrateFromV0ToV1(settings: SettingsV0): SettingsV1 {
     // eslint-disable  @typescript-eslint/no-explicit-any
-    const updatedSettings = cloneDeep(settings) as any;
+    const updatedSettings: any = cloneDeep(settings);
 
     updatedSettings.triggers.forEach((trigger: Trigger) => {
         // Check if the trigger type is 'regex' and if its value does not end with '$'
@@ -26,6 +26,8 @@ export function migrateFromV0ToV1(settings: SettingsV0): SettingsV1 {
     if (!isRegexValid(updatedSettings.chainOfThoughRemovalRegex)) {
         updatedSettings.chainOfThoughRemovalRegex = DEFAULT_SETTINGS_V1.chainOfThoughRemovalRegex;
     }
+
+    updatedSettings.ignoredFilePatterns = "";
 
     // Parsing the updated settings to ensure they match the SettingsV1 schema
     return settingsSchemaV1.parse(updatedSettings);
