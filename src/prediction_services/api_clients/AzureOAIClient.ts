@@ -1,6 +1,8 @@
 import {ApiClient, ChatMessage, ModelOptions} from "../types";
-import {Settings} from "../../settings/settings";
 import {requestUrl} from "obsidian";
+import {Settings} from "../../settings/versions";
+
+
 
 class AzureOAIClient implements ApiClient {
     private readonly apiKey: string;

@@ -22,7 +22,7 @@ export default function SettingsItem({
 
                 <div className="setting-item-description">{description}</div>
                 {errorMessage !== undefined && (
-                    <div className="setting-item-description ">
+                    <div className="setting-item-description">
                         <span className={"mod-warning"}>{errorMessage}</span>
                     </div>
                 )}

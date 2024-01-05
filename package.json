@@ -21,17 +21,21 @@
         "@typescript-eslint/parser": "5.29.0",
         "builtin-modules": "3.3.0",
         "esbuild": "0.17.3",
-        "obsidian": "latest",
-        "prettier": "^2.8.8",
-        "tslib": "2.4.0",
+        "eslint-plugin-neverthrow": "^1.1.4",
         "jest": "^29.7.0",
         "jest-environment-jsdom": "^29.7.0",
+        "obsidian": "latest",
+        "prettier": "^2.8.8",
         "ts-jest": "^29.1.1",
+        "tslib": "2.4.0",
         "typescript": "4.7.4"
     },
     "dependencies": {
         "handlebars": "^4.7.7",
+        "lodash": "^4.17.21",
+        "neverthrow": "^6.1.0",
         "react": "^18.2.0",
-        "react-dom": "^18.2.0"
+        "react-dom": "^18.2.0",
+        "zod": "^3.22.4"
     }
 }

@@ -2,9 +2,9 @@ import * as React from "react";
 import SettingsItem from "./SettingsItem";
 import { useState } from "react";
 import { Notice } from "obsidian";
-import { Settings } from "../settings";
 import AzureOAIClient from "../../prediction_services/api_clients/AzureOAIClient";
 import OpenAIApiClient from "../../prediction_services/api_clients/OpenAIApiClient";
+import {Settings} from "../versions";
 
 interface IProps {
     settings: Settings;

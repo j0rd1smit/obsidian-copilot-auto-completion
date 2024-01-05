@@ -1,5 +1,7 @@
-import { Settings } from "../settings/settings";
+
 import { DocumentChanges } from "../render_plugin/document_changes_listener";
+import {Settings} from "../settings/versions";
+
 
 export interface EventHandler {
     handleSettingChanged(settings: Settings): void;
