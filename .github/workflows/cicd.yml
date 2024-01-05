@@ -36,3 +36,14 @@ jobs:
       id: test
       run: |
         npm run tests
+
+    - name: Check changelog
+      run: |
+        VERSION=$(jq -r '.version' package.json)  
+        CHANGELOG=$(sed -n -e "/## $VERSION/,/## /p" CHANGELOG.md | sed "/## /d")  
+        if [ -z "$CHANGELOG" ]; then  
+          echo "Error: No release notes found for this version ($VERSION) in CHANGELOG.md"  
+          exit 1  
+        fi  
+
+
