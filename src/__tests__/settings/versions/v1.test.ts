@@ -177,6 +177,11 @@ describe('settingsSchema', () => {
         const dataWithInvalidMaxPrefix = {...baseValidData, maxSuffixCharLimit: 10001};
         expect(() => settingsSchema.parse(dataWithInvalidMaxPrefix)).toThrow();
     });
+
+    test("should throw an error if chainOfThoughtRemovalRegex is an invalid regex", () => {
+        const dataWithInvalidMaxPrefix = {...baseValidData, chainOfThoughRemovalRegex: '[A-Z'};
+        expect(() => settingsSchema.parse(dataWithInvalidMaxPrefix)).toThrow();
+    });
 });
 
 describe('smoketest', () => {
