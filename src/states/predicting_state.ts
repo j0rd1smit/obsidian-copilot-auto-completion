@@ -83,6 +83,10 @@ class PredictingState extends State {
             return;
         }
     }
+
+    getStatusBarText(): string {
+        return `Predicting for ${this.context.context}`;
+    }
 }
 
 export default PredictingState;

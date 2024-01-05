@@ -24,6 +24,14 @@ class InitState implements EventHandler {
     handlePredictCommand(): void {}
 
     handleAcceptCommand(): void {}
+
+    getStatusBarText(): string {
+        return "Initializing...";
+    }
+
+    handleFilePathChange(path: string): void {
+
+    }
 }
 
 export default InitState;

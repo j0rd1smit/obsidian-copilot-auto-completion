@@ -42,6 +42,7 @@ export default class CopilotPlugin extends Plugin {
 
         this.app.workspace.onLayoutReady(() => {
             const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+
             if (view) {
                 // @ts-expect-error, not typed
                 const editorView = view.editor.cm as EditorView;
@@ -53,6 +54,7 @@ export default class CopilotPlugin extends Plugin {
                 // @ts-expect-error, not typed
                 const editorView = leaf.view.editor.cm as EditorView;
                 eventListener.onViewUpdate(editorView);
+                eventListener.handleFilePathChange(leaf.view.file.path);
             }
         });
         this.addCommand({
@@ -65,7 +67,6 @@ export default class CopilotPlugin extends Plugin {
             ) => {
                 if (checking) {
                     return (
-                        settingsTab.settings.enabled &&
                         eventListener.isSuggesting()
                     );
                 }
@@ -85,7 +86,7 @@ export default class CopilotPlugin extends Plugin {
                 view: MarkdownView
             ) => {
                 if (checking) {
-                    return settingsTab.settings.enabled;
+                    return eventListener.isIdle();
                 }
 
                 // @ts-expect-error, not typed

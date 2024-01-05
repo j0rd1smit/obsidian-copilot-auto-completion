@@ -1,3 +1,5 @@
+import * as mm from "micromatch";
+
 export function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -20,4 +22,19 @@ export function generateRandomString(n: number): string {
     return result;
 }
 
+export function isMatchBetweenPathAndPatterns(
+    path: string,
+    patterns: string[],
+): boolean {
+    patterns = patterns
+        .map(p => p.trim())
+        .filter((p) => p.length > 0);
+    if (patterns.length === 0) {
+        return false;
+    }
 
+    const exclusionPatterns = patterns.filter((p) => p.startsWith('!')).map(p => p.slice(1));
+    const inclusionPatterns = patterns.filter((p) => !p.startsWith('!'));
+
+    return mm.some(path, inclusionPatterns) && !mm.some(path, exclusionPatterns);
+}

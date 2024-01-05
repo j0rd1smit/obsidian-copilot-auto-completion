@@ -48,6 +48,11 @@ describe('triggerSchema', () => {
         const invalidData = {type: 'regex', value: '\\d+'};
         expect(() => triggerSchema.parse(invalidData)).toThrow();
     });
+
+    test("throw error if value is empty", () => {
+        const invalidData = {type: 'string', value: ''};
+        expect(() => triggerSchema.parse(invalidData)).toThrow();
+    })
 });
 
 describe('settingsSchema', () => {
@@ -85,6 +90,7 @@ describe('settingsSchema', () => {
         dontIncludeDataviews: true,
         maxPrefixCharLimit: 1000,
         maxSuffixCharLimit: 1000,
+        ignoredFilePatterns: '',
         removeDuplicateMathBlockIndicator: true,
         removeDuplicateCodeBlockIndicator: true
     };
@@ -170,6 +176,11 @@ describe('settingsSchema', () => {
 
     test('should throw an error if maxSuffixCharLimit is more than 10000', () => {
         const dataWithInvalidMaxPrefix = {...baseValidData, maxSuffixCharLimit: 10001};
+        expect(() => settingsSchema.parse(dataWithInvalidMaxPrefix)).toThrow();
+    });
+
+    test("should throw an error if chainOfThoughtRemovalRegex is an invalid regex", () => {
+        const dataWithInvalidMaxPrefix = {...baseValidData, chainOfThoughRemovalRegex: '[A-Z'};
         expect(() => settingsSchema.parse(dataWithInvalidMaxPrefix)).toThrow();
     });
 });

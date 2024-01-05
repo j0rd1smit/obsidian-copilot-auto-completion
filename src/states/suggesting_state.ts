@@ -76,6 +76,10 @@ class SuggestingState extends State {
     handleAcceptCommand() {
         this.accept();
     }
+
+    getStatusBarText(): string {
+        return `Suggesting for ${this.context.context}`;
+    }
 }
 
 export default SuggestingState;

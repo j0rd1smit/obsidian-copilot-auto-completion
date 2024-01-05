@@ -1,6 +1,6 @@
 export type {FewShotExample} from "./shared";
 export {DEFAULT_SETTINGS, settingsSchema, pluginDataSchema} from "./v1";
-export type {Settings, Trigger, PluginData} from "./v0";
+export type {Settings, Trigger, PluginData} from "./v1";
 export {
     MAX_DELAY, MAX_FREQUENCY_PENALTY,
     MAX_MAX_CHAR_LIMIT,

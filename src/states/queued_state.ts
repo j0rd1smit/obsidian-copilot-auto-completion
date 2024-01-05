@@ -83,6 +83,10 @@ class QueuedState extends State {
             this.timer = null;
         }
     }
+
+    getStatusBarText(): string {
+        return `Queued (${this.context.settings.delay} ms)`;
+    }
 }
 
 export default QueuedState;

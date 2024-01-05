@@ -23,8 +23,6 @@ class IdleState extends State {
         }
     }
 
-
-
     handlePredictCommand(prefix: string, suffix: string): void {
         this.context.transitionTo(
             PredictingState.createAndStartPredicting(
@@ -33,6 +31,10 @@ class IdleState extends State {
                 suffix
             )
         );
+    }
+
+    getStatusBarText(): string {
+        return "Idle";
     }
 }
 

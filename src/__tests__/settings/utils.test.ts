@@ -289,5 +289,14 @@ describe("deserializeSettings", () => {
         const result = deserializeSettings({});
         expect(result.isOk()).toBe(true);
     });
-});
 
+    test("should be able to parse null", () => {
+        const result = deserializeSettings(null);
+        expect(result.isOk()).toBe(true);
+    });
+
+    test("should be able to parse undefined", () => {
+        const result = deserializeSettings(undefined);
+        expect(result.isOk()).toBe(true);
+    });
+});

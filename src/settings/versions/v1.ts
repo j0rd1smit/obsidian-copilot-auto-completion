@@ -26,11 +26,11 @@ import header_example_relu
 import {MAX_DELAY, MAX_MAX_CHAR_LIMIT, MIN_DELAY, MIN_MAX_CHAR_LIMIT} from "./shared";
 import {z} from "zod";
 import {azureOAIApiSettingsSchema, fewShotExampleSchema, modelOptionsSchema, openAIApiSettingsSchema} from "./shared";
-import {isRegexValid} from "../utils";
+import {isRegexValid, isValidIgnorePattern} from "../utils";
 
 export const triggerSchema = z.object({
     type: z.enum(['string', 'regex']),
-    value: z.string(),
+    value: z.string().min(1, {message: "Trigger value must be at least 1 character long"})
 }).strict().superRefine((trigger, ctx) => {
     if (trigger.type === "regex") {
         if (!trigger.value.endsWith("$")) {
@@ -64,19 +64,24 @@ export const settingsSchema = z.object({
     systemMessage: z.string().min(3, {message: "System message must be at least 3 characters long"}),
     fewShotExamples: z.array(fewShotExampleSchema),
     userMessageTemplate: z.string().min(3, {message: "User message template must be at least 3 characters long"}),
-    chainOfThoughRemovalRegex: z.string(),
+    chainOfThoughRemovalRegex: z.string().refine((regex) => isRegexValid(regex), {message: "Invalid regex"}),
     dontIncludeDataviews: z.boolean(),
     maxPrefixCharLimit: z.number().int().min(MIN_MAX_CHAR_LIMIT, {message: `Max prefix char limit must be at least ${MIN_MAX_CHAR_LIMIT}`}).max(MAX_MAX_CHAR_LIMIT, {message: `Max prefix char limit must be at most ${MAX_MAX_CHAR_LIMIT}`}),
     maxSuffixCharLimit: z.number().int().min(MIN_MAX_CHAR_LIMIT, {message: `Max prefix char limit must be at least ${MIN_MAX_CHAR_LIMIT}`}).max(MAX_MAX_CHAR_LIMIT, {message: `Max prefix char limit must be at most ${MAX_MAX_CHAR_LIMIT}`}),
     removeDuplicateMathBlockIndicator: z.boolean(),
-    removeDuplicateCodeBlockIndicator: z.boolean()
+    removeDuplicateCodeBlockIndicator: z.boolean(),
+    ignoredFilePatterns: z.string().refine((value) => value
+        .split("\n")
+        .filter(s => s.trim().length > 0)
+        .filter(s => !isValidIgnorePattern(s)).length === 0,
+        {message: "Invalid ignore pattern"}
+    )
 }).strict();
 
 export const pluginDataSchema = z.object({
     settings: settingsSchema,
 }).strict();
 
-export type Settings = z.infer<typeof settingsSchema>;
 
 export const DEFAULT_SETTINGS: Settings = {
     version: "1",
@@ -164,4 +169,9 @@ ANSWER: here you write the text that should be at the location of <mask/>
     // Postprocessing settings
     removeDuplicateMathBlockIndicator: true,
     removeDuplicateCodeBlockIndicator: true,
+    ignoredFilePatterns: "**/secret/**\n",
 };
+
+export type Settings = z.input<typeof settingsSchema>;
+export type Trigger = z.infer<typeof triggerSchema>;
+export type PluginData = z.infer<typeof pluginDataSchema>;
