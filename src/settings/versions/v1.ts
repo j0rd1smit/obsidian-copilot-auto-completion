@@ -139,10 +139,11 @@ export const DEFAULT_SETTINGS: Settings = {
     // Prompt settings
     systemMessage: `Your job is to predict the most logical text that should be written at the location of the <mask/>.
 Your answer can be either code, a single word, or multiple sentences.
-Your answer must be in the same language as the text that is already there.
 Your response must have the following format:
-THOUGHT: here you explain your reasoning of what could be at the location of <mask/>
-ANSWER: here you write the text that should be at the location of <mask/>
+THOUGHT: here, you explain your reasoning of what could be at the location of <mask/>
+ANSWER: here, you write the text that should be at the location of <mask/>
+You are not allowed to have any overlapping text directly surrounding the <mask/>.  
+Your answer must be in the same language as the text directly surrounding the <mask/>.
 `,
     fewShotExamples: [
         block_qoute_example,
