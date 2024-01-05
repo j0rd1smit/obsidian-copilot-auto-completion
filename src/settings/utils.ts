@@ -144,8 +144,14 @@ export function serializeSettings(settings: Settings): PluginData {
     return {settings: settings};
 }
 
-export function deserializeSettings(data: JSONObject): Result<Settings, Error> {
-    let settings = data.settings;
+export function deserializeSettings(data: JSONObject|null|undefined): Result<Settings, Error> {
+    let settings: any;
+    if (data === null || data === undefined || !data.hasOwnProperty("settings")) {
+        settings = {};
+    } else  {
+        settings = data.settings;
+    }
+
     if (isSettingsV0(settings)) {
         settings = migrateFromV0ToV1(settings);
     }
