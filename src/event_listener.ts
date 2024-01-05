@@ -15,8 +15,8 @@ import {Settings} from "./settings/versions";
 import {SettingsObserver} from "./settings/SettingsTab";
 import {isMatchBetweenPathAndPatterns} from "./utils";
 import DisabledManualState from "./states/disabled_manual_state";
-import DisabledInvalidSettingsState from "./states/disabled_invalid_settings_state";
 import DisabledFileSpecificState from "./states/disabled_file_specific_state";
+import DisabledInvalidSettingsState from "./states/disabled_invalid_settings_state";
 
 
 class EventListener implements EventHandler, SettingsObserver {
