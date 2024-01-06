@@ -110,7 +110,7 @@ class SuggestingState extends State {
             const updatedPrefix = this.prefix + acceptedPart;
 
             this.context.insertCurrentSuggestion(acceptedPart);
-            this.addPartialSuggestionCaches(nextWord, remainingSuggestion);
+            this.addPartialSuggestionCaches(acceptedPart, remainingSuggestion);
             this.context.transitionToSuggestingState(remainingSuggestion, updatedPrefix, this.suffix);
         } else {
             this.accept();
