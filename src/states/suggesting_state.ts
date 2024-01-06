@@ -20,7 +20,20 @@ class SuggestingState extends State {
     async handleDocumentChange(
         documentChanges: DocumentChanges
     ): Promise<void> {
+
         if (!documentChanges.isDocInFocus()) {
+            return;
+        }
+
+        const currentPrefix = documentChanges.getPrefix();
+        const currentSuffix = documentChanges.getSuffix();
+        const suggestion = this.context.getCachedSuggestionFor(currentPrefix, currentSuffix);
+        if (
+            documentChanges.getPrefix() !== this.prefix
+            && documentChanges.getSuffix() !== this.suffix
+            && suggestion !== undefined
+        ) {
+            this.context.transitionToSuggestingState(suggestion, currentPrefix, currentSuffix);
             return;
         }
 
@@ -29,29 +42,20 @@ class SuggestingState extends State {
             return
         }
 
-        if (
-            documentChanges.hasCursorMoved()
-            || documentChanges.hasUserDeleted()
-            || documentChanges.hasUserTyped()
-            || documentChanges.hasUserUndone()
-        ) {
+        if (documentChanges.getPrefix() !== this.prefix || documentChanges.getSuffix() !== this.suffix) {
+            this.clearPrediction();
+            return
+        }
 
-            if (this.context.hasCachedSuggestionsFor(documentChanges.getPrefix(), documentChanges.getSuffix())) {
-                const suggestion = this.context.getCachedSuggestionFor(documentChanges.getPrefix(), documentChanges.getSuffix());
-                if (suggestion !== undefined) {
-                    this.context.transitionToSuggestingState(suggestion, documentChanges.getPrefix(), documentChanges.getSuffix());
-                }
-            } else {
-                this.clearPrediction();
-                return
-            }
+        if (this.suggestion.trim() === "") {
+            this.clearPrediction();
+            return;
         }
     }
 
     hasUserAddedPartOfSuggestion(documentChanges: DocumentChanges): boolean {
         const addedPrefixText = documentChanges.getAddedPrefixText();
         const addedSuffixText = documentChanges.getAddedSuffixText();
-
 
         return addedPrefixText !== undefined
             && addedSuffixText !== undefined
@@ -68,14 +72,14 @@ class SuggestingState extends State {
 
         const startIdx = addedPrefixText.length;
         const endIdx = this.suggestion.length - addedSuffixText.length
-        const suggestion = this.suggestion.substring(startIdx, endIdx);
-        if (suggestion.trim() === "") {
+        const remainingSuggestion = this.suggestion.substring(startIdx, endIdx);
+
+        if (remainingSuggestion.trim() === "") {
             this.clearPrediction();
         } else {
-            this.context.transitionToSuggestingState(suggestion, documentChanges.getPrefix(), documentChanges.getSuffix());
+            this.context.transitionToSuggestingState(remainingSuggestion, documentChanges.getPrefix(), documentChanges.getSuffix());
         }
     }
-
 
     private clearPrediction(): void {
         this.context.cancelSuggestion();
@@ -90,23 +94,36 @@ class SuggestingState extends State {
     private accept() {
         this.context.insertCurrentSuggestion(this.suggestion);
         this.context.transitionTo(new IdleState(this.context));
+        this.addPartialSuggestionCaches(this.suggestion);
     }
 
     handlePartialAcceptKeyPressed(): boolean {
-        this.acceptPartial();
+        this.acceptNextWord();
         return true;
     }
 
-    private acceptPartial() {
+    private acceptNextWord() {
         const nextWord = this.getNextWord();
         if (nextWord !== undefined) {
-            const part = nextWord + " ";
-            const updatedSuggestion = this.suggestion.substring(part.length);
-            const updatedPrefix = this.prefix + part;
-            this.context.insertCurrentSuggestion(part);
-            this.context.transitionToSuggestingState(updatedSuggestion, updatedPrefix, this.suffix);
+            const acceptedPart = nextWord + " ";
+            const remainingSuggestion = this.suggestion.substring(acceptedPart.length);
+            const updatedPrefix = this.prefix + acceptedPart;
+
+            this.context.insertCurrentSuggestion(acceptedPart);
+            this.addPartialSuggestionCaches(nextWord, remainingSuggestion);
+            this.context.transitionToSuggestingState(remainingSuggestion, updatedPrefix, this.suffix);
         } else {
             this.accept();
+        }
+    }
+
+    private addPartialSuggestionCaches(acceptSuggestion: string, remainingSuggestion = "") {
+        // store the sub-suggestions in the cache
+        // so that we can have partial suggestions if the user edits a part
+        for (let i = 0; i < acceptSuggestion.length; i++) {
+            const prefix = this.prefix + acceptSuggestion.substring(0, i);
+            const suggestion = acceptSuggestion.substring(i) + remainingSuggestion;
+            this.context.addSuggestionToCache(prefix, this.suffix, suggestion);
         }
     }
 

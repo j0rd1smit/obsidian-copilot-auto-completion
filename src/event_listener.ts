@@ -22,6 +22,7 @@ import DisabledInvalidSettingsState from "./states/disabled_invalid_settings_sta
 
 const FIVE_MINUTES_IN_MS = 1000 * 60 * 5;
 const MAX_N_ITEMS_IN_CACHE = 5000;
+const PRECENTAGE_OF_TO_KEEP_IN_CACHE = 0.25;
 
 class EventListener implements EventHandler, SettingsObserver {
     private view: EditorView | null = null;
@@ -142,7 +143,7 @@ class EventListener implements EventHandler, SettingsObserver {
             return;
         }
 
-        this.suggestionCache.set(JSON.stringify({prefix, suffix}), suggestion);
+        this.suggestionCache.set(this.getCacheKey(prefix, suffix), suggestion);
         updateSuggestion(this.view, suggestion);
         this.transitionTo(new SuggestingState(this, suggestion, prefix, suffix));
     }
@@ -210,30 +211,26 @@ class EventListener implements EventHandler, SettingsObserver {
     }
 
     public hasCachedSuggestionsFor(prefix: string, suffix: string): boolean {
-        return this.suggestionCache.has(JSON.stringify({prefix, suffix}));
+        return this.suggestionCache.has(this.getCacheKey(prefix, suffix));
     }
 
     public getCachedSuggestionFor(prefix: string, suffix: string): string | undefined {
-        return this.suggestionCache.get(JSON.stringify({prefix, suffix}));
+        return this.suggestionCache.get(this.getCacheKey(prefix, suffix));
+    }
+
+    private getCacheKey(prefix: string, suffix: string): string {
+        const nCharsToKeepPrefix = Math.floor(prefix.length * PRECENTAGE_OF_TO_KEEP_IN_CACHE);
+        const nCharsToKeepSuffix = Math.floor(suffix.length * PRECENTAGE_OF_TO_KEEP_IN_CACHE);
+
+        return `${prefix.substring(prefix.length - nCharsToKeepPrefix)}<mask/>${suffix.substring(0, nCharsToKeepSuffix)}`
     }
 
     public clearSuggestionsCache(): void {
         this.suggestionCache.clear();
     }
-
-    public fillSuggestionCache(prefix: string, suffix: string, suggestion: string): void {
-        // We do this in reverse since the cache is a LRU cache.
-        // We prefer to keep the start of the suggestion in the cache over the end.
-        for (let i = suggestion.length - 1; i >= 0; i--) {
-            const acceptedChars = suggestion.substring(0, i);
-            const remainingChars = suggestion.substring(i);
-
-            if (acceptedChars.trim().length === 0) {
-                continue;
-            }
-
-            this.suggestionCache.set(JSON.stringify({prefix: prefix + acceptedChars, suffix}), remainingChars);
-        }
+    
+    public addSuggestionToCache(prefix: string, suffix: string, suggestions: string): void {
+        this.suggestionCache.set(this.getCacheKey(prefix, suffix), suggestions);
     }
 
 

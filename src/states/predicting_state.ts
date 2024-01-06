@@ -70,7 +70,6 @@ class PredictingState extends State {
                 this.context.transitionTo(new IdleState(this.context));
                 return;
             }
-            this.context.fillSuggestionCache(this.prefix, this.suffix, prediction);
             this.context.transitionToSuggestingState(prediction, this.prefix, this.suffix);
         } catch (error) {
             console.error(error);
