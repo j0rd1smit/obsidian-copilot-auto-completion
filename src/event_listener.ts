@@ -15,9 +15,9 @@ import {Settings} from "./settings/versions";
 import {SettingsObserver} from "./settings/SettingsTab";
 import {isMatchBetweenPathAndPatterns} from "./utils";
 import DisabledManualState from "./states/disabled_manual_state";
-import DisabledInvalidSettingsState from "./states/disabled_invalid_settings_state";
 import DisabledFileSpecificState from "./states/disabled_file_specific_state";
 import {LRUCache} from "lru-cache";
+import DisabledInvalidSettingsState from "./states/disabled_invalid_settings_state";
 
 
 const FIVE_MINUTES_IN_MS = 1000 * 60 * 5;
@@ -216,11 +216,7 @@ class EventListener implements EventHandler, SettingsObserver {
     public getCachedSuggestionFor(prefix: string, suffix: string): string | undefined {
         return this.suggestionCache.get(JSON.stringify({prefix, suffix}));
     }
-
-    public removeCachedSuggestionFor(prefix: string, suffix: string): void {
-        this.suggestionCache.delete(JSON.stringify({prefix, suffix}));
-    }
-
+    
     public clearSuggestionsCache(): void {
         this.suggestionCache.clear();
     }
