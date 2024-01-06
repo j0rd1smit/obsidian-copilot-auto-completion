@@ -33,6 +33,7 @@
     "dependencies": {
         "handlebars": "^4.7.7",
         "lodash": "^4.17.21",
+        "lru-cache": "^10.1.0",
         "micromatch": "^4.0.5",
         "neverthrow": "^6.1.0",
         "react": "^18.2.0",

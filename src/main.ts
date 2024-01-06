@@ -32,8 +32,7 @@ export default class CopilotPlugin extends Plugin {
             CompletionKeyWatcher(
                 eventListener.handleAcceptKeyPressed.bind(eventListener),
                 eventListener.handlePartialAcceptKeyPressed.bind(eventListener),
-                eventListener.handlePartialUndoKeyPressed.bind(eventListener),
-                eventListener.handleCancelKeyPressed.bind(eventListener)
+                eventListener.handleCancelKeyPressed.bind(eventListener),
             ),
             DocumentChangesListener(
                 eventListener.handleDocumentChange.bind(eventListener)
@@ -47,14 +46,14 @@ export default class CopilotPlugin extends Plugin {
             if (view) {
                 // @ts-expect-error, not typed
                 const editorView = view.editor.cm as EditorView;
-                eventListener.onViewUpdate(editorView, view.editor);
+                eventListener.onViewUpdate(editorView);
             }
         });
         this.app.workspace.on("active-leaf-change", (leaf) => {
             if (leaf?.view instanceof MarkdownView) {
                 // @ts-expect-error, not typed
                 const editorView = leaf.view.editor.cm as EditorView;
-                eventListener.onViewUpdate(editorView, leaf.view.editor);
+                eventListener.onViewUpdate(editorView);
                 eventListener.handleFilePathChange(leaf.view.file.path);
             }
         });

@@ -17,12 +17,14 @@ import {isMatchBetweenPathAndPatterns} from "./utils";
 import DisabledManualState from "./states/disabled_manual_state";
 import DisabledInvalidSettingsState from "./states/disabled_invalid_settings_state";
 import DisabledFileSpecificState from "./states/disabled_file_specific_state";
-import {Editor} from "obsidian";
+import {LRUCache} from "lru-cache";
 
+
+const FIVE_MINUTES_IN_MS = 1000 * 60 * 5;
+const MAX_N_ITEMS_IN_CACHE = 5000;
 
 class EventListener implements EventHandler, SettingsObserver {
     private view: EditorView | null = null;
-    private editor: Editor | null = null;
 
     private state: EventHandler = new InitState();
     private statusBar: StatusBar;
@@ -30,6 +32,7 @@ class EventListener implements EventHandler, SettingsObserver {
     predictionService: PredictionService;
     settings: Settings;
     private currentFilePath: string | null = null;
+    private suggestionCache = new LRUCache<string, string>({max: MAX_N_ITEMS_IN_CACHE, ttl: FIVE_MINUTES_IN_MS});
 
     public static fromSettings(
         settings: Settings,
@@ -77,9 +80,8 @@ class EventListener implements EventHandler, SettingsObserver {
         return this.state instanceof SuggestingState;
     }
 
-    public onViewUpdate(view: EditorView, editor: Editor): void {
+    public onViewUpdate(view: EditorView): void {
         this.view = view;
-        this.editor = editor;
     }
 
     public handleFilePathChange(path: string): void {
@@ -96,25 +98,11 @@ class EventListener implements EventHandler, SettingsObserver {
         return isMatchBetweenPathAndPatterns(this.currentFilePath, patterns);
     }
 
-    setSuggestion(suggestion: string): void {
-        if (this.view === null) {
-            return;
-        }
-        updateSuggestion(this.view, suggestion);
-    }
-
     insertCurrentSuggestion(suggestion: string): void {
         if (this.view === null) {
             return;
         }
         insertSuggestion(this.view, suggestion);
-    }
-
-    public undoLastInsert(): void {
-        if (this.view === null) {
-            return;
-        }
-        this.editor?.undo();
     }
 
     cancelSuggestion(): void {
@@ -141,10 +129,29 @@ class EventListener implements EventHandler, SettingsObserver {
         this.transitionTo(new DisabledInvalidSettingsState(this));
     }
 
+    transitionToSuggestingState(
+        suggestion: string,
+        prefix: string,
+        suffix: string,
+    ): void {
+        if (this.view === null) {
+            return;
+        }
+        if (suggestion.trim().length === 0) {
+            this.transitionTo(new IdleState(this));
+            return;
+        }
+
+        this.suggestionCache.set(JSON.stringify({prefix, suffix}), suggestion);
+        updateSuggestion(this.view, suggestion);
+        this.transitionTo(new SuggestingState(this, suggestion, prefix, suffix));
+    }
+
 
     private updateStatusBarText(): void {
         this.statusBar.updateText(this.getStatusBarText());
     }
+
     getStatusBarText(): string {
         return `Copilot: ${this.state.getStatusBarText()}`;
     }
@@ -168,10 +175,6 @@ class EventListener implements EventHandler, SettingsObserver {
         return this.state.handlePartialAcceptKeyPressed();
     }
 
-    handlePartialUndoKeyPressed(): boolean {
-        return this.state.handlePartialUndoKeyPressed();
-    }
-
     handleCancelKeyPressed(): boolean {
         return this.state.handleCancelKeyPressed();
     }
@@ -183,6 +186,7 @@ class EventListener implements EventHandler, SettingsObserver {
     handleAcceptCommand(): void {
         this.state.handleAcceptCommand();
     }
+
     containsTriggerCharacters(
         documentChanges: DocumentChanges
     ): boolean {
@@ -204,6 +208,39 @@ class EventListener implements EventHandler, SettingsObserver {
     public isIdle(): boolean {
         return this.state instanceof IdleState;
     }
+
+    public hasCachedSuggestionsFor(prefix: string, suffix: string): boolean {
+        return this.suggestionCache.has(JSON.stringify({prefix, suffix}));
+    }
+
+    public getCachedSuggestionFor(prefix: string, suffix: string): string | undefined {
+        return this.suggestionCache.get(JSON.stringify({prefix, suffix}));
+    }
+
+    public removeCachedSuggestionFor(prefix: string, suffix: string): void {
+        this.suggestionCache.delete(JSON.stringify({prefix, suffix}));
+    }
+
+    public clearSuggestionsCache(): void {
+        this.suggestionCache.clear();
+    }
+
+    public fillSuggestionCache(prefix: string, suffix: string, suggestion: string): void {
+        // We do this in reverse since the cache is a LRU cache.
+        // We prefer to keep the start of the suggestion in the cache over the end.
+        for (let i = suggestion.length - 1; i >= 0; i--) {
+            const acceptedChars = suggestion.substring(0, i);
+            const remainingChars = suggestion.substring(i);
+
+            if (acceptedChars.trim().length === 0) {
+                continue;
+            }
+
+            this.suggestionCache.set(JSON.stringify({prefix: prefix + acceptedChars, suffix}), remainingChars);
+        }
+    }
+
+
 }
 
 function createPredictionService(settings: Settings) {

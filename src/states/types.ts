@@ -3,7 +3,7 @@ import { DocumentChanges } from "../render_plugin/document_changes_listener";
 import {Settings} from "../settings/versions";
 
 
-export interface EventHandler  {
+export interface EventHandler {
     handleSettingChanged(settings: Settings): void;
 
     handleDocumentChange(documentChanges: DocumentChanges): Promise<void>;
@@ -11,7 +11,6 @@ export interface EventHandler  {
     handleAcceptKeyPressed(): boolean;
 
     handlePartialAcceptKeyPressed(): boolean;
-    handlePartialUndoKeyPressed(): boolean;
 
     handleCancelKeyPressed(): boolean;
 

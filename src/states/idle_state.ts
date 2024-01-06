@@ -7,12 +7,22 @@ class IdleState extends State {
     async handleDocumentChange(
         documentChanges: DocumentChanges
     ): Promise<void> {
+        if (!documentChanges.isDocInFocus()) {
+            return;
+        }
+
+        if (this.context.hasCachedSuggestionsFor(documentChanges.getPrefix(), documentChanges.getSuffix())) {
+            const suggestion = this.context.getCachedSuggestionFor(documentChanges.getPrefix(), documentChanges.getSuffix());
+            if (suggestion !== undefined) {
+                this.context.transitionToSuggestingState(suggestion, documentChanges.getPrefix(), documentChanges.getSuffix());
+                return;
+            }
+        }
+
         if (
-            documentChanges.isDocInFocus() &&
-            documentChanges.hasUserTyped() &&
+            documentChanges.hasDocChanged() &&
             this.context.containsTriggerCharacters(documentChanges)
         ) {
-
             this.context.transitionTo(
                 QueuedState.createAndStartTimer(
                     this.context,

@@ -17,10 +17,6 @@ class InitState implements EventHandler {
         return false;
     }
 
-    handlePartialUndoKeyPressed(): boolean {
-        return false;
-    }
-
     handleCancelKeyPressed(): boolean {
         return false;
     }

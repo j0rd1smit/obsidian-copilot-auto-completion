@@ -2,7 +2,6 @@ import State from "./state";
 import { DocumentChanges } from "../render_plugin/document_changes_listener";
 import EventListener from "../event_listener";
 import IdleState from "./idle_state";
-import SuggestingState from "./suggesting_state";
 import { Notice } from "obsidian";
 import Context from "../context_detection";
 
@@ -71,14 +70,14 @@ class PredictingState extends State {
                 this.context.transitionTo(new IdleState(this.context));
                 return;
             }
-            this.context.transitionTo(
-                SuggestingState.withSuggestion(this.context, prediction)
-            );
+            this.context.fillSuggestionCache(this.prefix, this.suffix, prediction);
+            this.context.transitionToSuggestingState(prediction, this.prefix, this.suffix);
         } catch (error) {
             console.error(error);
             new Notice(
                 `Something went wrong cannot make a prediction. Full error is available in the dev console. Please check your settings. `
             );
+
             this.context.transitionTo(new IdleState(this.context));
             return;
         }

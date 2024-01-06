@@ -5,32 +5,23 @@ import IdleState from "./idle_state";
 
 class SuggestingState extends State {
     private readonly suggestion: string;
+    private readonly prefix: string;
+    private readonly suffix: string;
 
 
-    private constructor(context: EventListener, suggestion: string) {
+    constructor(context: EventListener, suggestion: string, prefix: string, suffix: string) {
         super(context);
         this.suggestion = suggestion;
+        this.prefix = prefix;
+        this.suffix = suffix;
     }
 
-    static withSuggestion(
-        context: EventListener,
-        suggestion: string,
-    ): SuggestingState {
-        const state = new SuggestingState(context, suggestion);
-        context.setSuggestion(suggestion);
-        return state;
-    }
 
     async handleDocumentChange(
         documentChanges: DocumentChanges
     ): Promise<void> {
         if (!documentChanges.isDocInFocus()) {
             return;
-        }
-        if (documentChanges.hasUserUndone()) {
-            // TOOD check cache
-            this.clearPrediction();
-            return
         }
 
         if (documentChanges.hasUserTyped() && this.hasUserAddedPartOfSuggestion(documentChanges)) {
@@ -42,9 +33,18 @@ class SuggestingState extends State {
             documentChanges.hasCursorMoved()
             || documentChanges.hasUserDeleted()
             || documentChanges.hasUserTyped()
+            || documentChanges.hasUserUndone()
         ) {
-            this.clearPrediction();
-            return
+
+            if (this.context.hasCachedSuggestionsFor(documentChanges.getPrefix(), documentChanges.getSuffix())) {
+                const suggestion = this.context.getCachedSuggestionFor(documentChanges.getPrefix(), documentChanges.getSuffix());
+                if (suggestion !== undefined) {
+                    this.context.transitionToSuggestingState(suggestion, documentChanges.getPrefix(), documentChanges.getSuffix());
+                }
+            } else {
+                this.clearPrediction();
+                return
+            }
         }
     }
 
@@ -69,7 +69,11 @@ class SuggestingState extends State {
         const startIdx = addedPrefixText.length;
         const endIdx = this.suggestion.length - addedSuffixText.length
         const suggestion = this.suggestion.substring(startIdx, endIdx);
-        this.updateSurroundingText(suggestion);
+        if (suggestion.trim() === "") {
+            this.clearPrediction();
+        } else {
+            this.context.transitionToSuggestingState(suggestion, documentChanges.getPrefix(), documentChanges.getSuffix());
+        }
     }
 
 
@@ -98,8 +102,9 @@ class SuggestingState extends State {
         if (nextWord !== undefined) {
             const part = nextWord + " ";
             const updatedSuggestion = this.suggestion.substring(part.length);
+            const updatedPrefix = this.prefix + part;
             this.context.insertCurrentSuggestion(part);
-            this.updateSurroundingText(updatedSuggestion);
+            this.context.transitionToSuggestingState(updatedSuggestion, updatedPrefix, this.suffix);
         } else {
             this.accept();
         }
@@ -113,21 +118,8 @@ class SuggestingState extends State {
         return undefined;
     }
 
-    private updateSurroundingText(text: string): void {
-        this.context.transitionTo(
-            SuggestingState.withSuggestion(
-                this.context,
-                text,
-            )
-        );
-    }
-
-    handlePartialUndoKeyPressed(): boolean {
-        this.context.undoLastInsert();
-        return true;
-    }
-
     handleCancelKeyPressed(): boolean {
+        this.context.clearSuggestionsCache();
         this.clearPrediction();
         return true;
     }

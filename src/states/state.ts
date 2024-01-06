@@ -40,9 +40,6 @@ abstract class State implements EventHandler {
     handlePartialAcceptKeyPressed(): boolean {
         return false;
     }
-    handlePartialUndoKeyPressed(): boolean {
-        return false;
-    }
 
     handleCancelKeyPressed(): boolean {
         return false;

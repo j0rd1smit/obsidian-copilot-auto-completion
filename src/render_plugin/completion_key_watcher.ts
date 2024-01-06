@@ -5,7 +5,6 @@ import { Prec } from "@codemirror/state";
 function CompletionKeyWatcher(
     handleAcceptKey: () => boolean,
     handlePartialAcceptKey: () => boolean,
-    handlePartialUndoKey: () => boolean,
     handleCancelKey: () => boolean
 ) {
     return Prec.highest(
@@ -17,10 +16,6 @@ function CompletionKeyWatcher(
             {
                 key: "ArrowRight",
                 run: handlePartialAcceptKey,
-            },
-            {
-                key: "ArrowLeft",
-                run: handlePartialUndoKey,
             },
             {
                 key: "Escape",
