@@ -216,7 +216,7 @@ class EventListener implements EventHandler, SettingsObserver {
     public getCachedSuggestionFor(prefix: string, suffix: string): string | undefined {
         return this.suggestionCache.get(JSON.stringify({prefix, suffix}));
     }
-    
+
     public clearSuggestionsCache(): void {
         this.suggestionCache.clear();
     }

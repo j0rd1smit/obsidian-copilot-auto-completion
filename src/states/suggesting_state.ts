@@ -2,6 +2,7 @@ import State from "./state";
 import {DocumentChanges} from "../render_plugin/document_changes_listener";
 import EventListener from "../event_listener";
 import IdleState from "./idle_state";
+import PredictingState from "./predicting_state";
 
 class SuggestingState extends State {
     private readonly suggestion: string;
@@ -130,6 +131,16 @@ class SuggestingState extends State {
 
     getStatusBarText(): string {
         return `Suggesting for ${this.context.context}`;
+    }
+
+    handlePredictCommand(prefix: string, suffix: string): void {
+        this.context.transitionTo(
+            PredictingState.createAndStartPredicting(
+                this.context,
+                prefix,
+                suffix
+            )
+        );
     }
 }
 
