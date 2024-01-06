@@ -17,10 +17,12 @@ import {isMatchBetweenPathAndPatterns} from "./utils";
 import DisabledManualState from "./states/disabled_manual_state";
 import DisabledInvalidSettingsState from "./states/disabled_invalid_settings_state";
 import DisabledFileSpecificState from "./states/disabled_file_specific_state";
+import {Editor} from "obsidian";
 
 
 class EventListener implements EventHandler, SettingsObserver {
     private view: EditorView | null = null;
+    private editor: Editor | null = null;
 
     private state: EventHandler = new InitState();
     private statusBar: StatusBar;
@@ -75,10 +77,9 @@ class EventListener implements EventHandler, SettingsObserver {
         return this.state instanceof SuggestingState;
     }
 
-    public onViewUpdate(view: EditorView): void {
+    public onViewUpdate(view: EditorView, editor: Editor): void {
         this.view = view;
-
-
+        this.editor = editor;
     }
 
     public handleFilePathChange(path: string): void {
@@ -107,6 +108,13 @@ class EventListener implements EventHandler, SettingsObserver {
             return;
         }
         insertSuggestion(this.view, suggestion);
+    }
+
+    public undoLastInsert(): void {
+        if (this.view === null) {
+            return;
+        }
+        this.editor?.undo();
     }
 
     cancelSuggestion(): void {
@@ -158,6 +166,10 @@ class EventListener implements EventHandler, SettingsObserver {
 
     handlePartialAcceptKeyPressed(): boolean {
         return this.state.handlePartialAcceptKeyPressed();
+    }
+
+    handlePartialUndoKeyPressed(): boolean {
+        return this.state.handlePartialUndoKeyPressed();
     }
 
     handleCancelKeyPressed(): boolean {

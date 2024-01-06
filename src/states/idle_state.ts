@@ -1,5 +1,5 @@
 import State from "./state";
-import { DocumentChanges } from "../render_plugin/document_changes_listener";
+import {DocumentChanges} from "../render_plugin/document_changes_listener";
 import QueuedState from "./queued_state";
 import PredictingState from "./predicting_state";
 

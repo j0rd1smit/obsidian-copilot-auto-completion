@@ -1,11 +1,15 @@
-import { ViewPlugin, ViewUpdate } from "@codemirror/view";
+import {ViewPlugin, ViewUpdate} from "@codemirror/view";
 import UserEvent from "./user_event";
 
 export class DocumentChanges {
     private update: ViewUpdate;
+    private previousPrefix: string;
+    private previousSuffix: string;
 
-    constructor(update: ViewUpdate) {
+    constructor(update: ViewUpdate, previousPrefix: string, previousSuffix: string) {
         this.update = update;
+        this.previousPrefix = previousPrefix;
+        this.previousSuffix = previousSuffix;
     }
 
     public isDocInFocus(): boolean {
@@ -67,15 +71,59 @@ export class DocumentChanges {
     }
 
     getPrefix(): string {
-        return this.update.state.doc.sliceString(0, this.getCursorLocation());
-    }
-
-    private getCursorLocation(): number {
-        return this.update.state.selection.main.head;
+        return getPrefix(this.update);
     }
 
     getSuffix(): string {
-        return this.update.state.doc.sliceString(this.getCursorLocation());
+        return getSuffix(this.update);
+    }
+
+    getAddedPrefixText(): string|undefined {
+        if (!this.isDocInFocus() || this.hasCursorMoved()) {
+            return undefined;
+        }
+        const updatedPrefix = this.getPrefix();
+        if (updatedPrefix.length > this.previousPrefix.length) {
+            return updatedPrefix.substring(this.previousPrefix.length);
+        }
+        return "";
+    }
+
+    getAddedSuffixText(): string|undefined {
+        if (!this.isDocInFocus() || this.hasCursorMoved()) {
+            return undefined;
+        }
+
+        const updatedSuffix = this.getSuffix();
+
+        if (updatedSuffix.length > this.previousSuffix.length) {
+            return updatedSuffix.substring(0, updatedSuffix.length - this.previousSuffix.length);
+        }
+        return "";
+    }
+
+    getRemovedPrefixText(): string | undefined {
+        if (!this.isDocInFocus() || this.hasCursorMoved()) {
+            return undefined
+        }
+
+        const updatedPrefix = this.getPrefix();
+        if (updatedPrefix.length < this.previousPrefix.length) {
+            return this.previousPrefix.substring(updatedPrefix.length);
+        }
+        return "";
+    }
+
+    getRemovedSuffixText(): string|undefined {
+        if (!this.isDocInFocus() || this.hasCursorMoved()) {
+            return undefined
+        }
+
+        const updatedSuffix = this.getSuffix();
+        if (updatedSuffix.length < this.previousSuffix.length) {
+            return this.previousSuffix.substring(0, this.previousSuffix.length - updatedSuffix.length);
+        }
+        return "";
     }
 }
 
@@ -84,10 +132,27 @@ const DocumentChangesListener = (
 ) =>
     ViewPlugin.fromClass(
         class FetchPlugin {
+            private previousPrefix = "";
+            private previousSuffix = "";
+
             async update(update: ViewUpdate) {
-                await onDocumentChange(new DocumentChanges(update));
+                await onDocumentChange(new DocumentChanges(update, this.previousPrefix, this.previousSuffix));
+                this.previousPrefix = getPrefix(update);
+                this.previousSuffix = getSuffix(update);
             }
         }
     );
+
+function getPrefix(update: ViewUpdate): string {
+    return update.state.doc.sliceString(0, getCursorLocation(update));
+}
+
+function getCursorLocation(update: ViewUpdate): number {
+    return update.state.selection.main.head;
+}
+
+function getSuffix(update: ViewUpdate): string {
+    return update.state.doc.sliceString(getCursorLocation(update));
+}
 
 export default DocumentChangesListener;

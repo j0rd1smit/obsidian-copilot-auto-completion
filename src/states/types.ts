@@ -11,6 +11,7 @@ export interface EventHandler  {
     handleAcceptKeyPressed(): boolean;
 
     handlePartialAcceptKeyPressed(): boolean;
+    handlePartialUndoKeyPressed(): boolean;
 
     handleCancelKeyPressed(): boolean;
 
