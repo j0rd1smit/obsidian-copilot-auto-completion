@@ -86,7 +86,7 @@ export default class CopilotPlugin extends Plugin {
                 view: MarkdownView
             ) => {
                 if (checking) {
-                    return !eventListener.isDisabled();
+                    return eventListener.isIdle();
                 }
 
                 // @ts-expect-error, not typed
