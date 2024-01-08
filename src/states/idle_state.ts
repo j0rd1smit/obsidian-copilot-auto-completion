@@ -4,14 +4,15 @@ import QueuedState from "./queued_state";
 import PredictingState from "./predicting_state";
 
 class IdleState extends State {
+
     async handleDocumentChange(
         documentChanges: DocumentChanges
     ): Promise<void> {
-        if (!documentChanges.isDocInFocus()) {
+        if (!documentChanges.isDocInFocus() || !documentChanges.hasDocChanged() || documentChanges.hasUserDeleted() || !documentChanges.isTextAdded()) {
             return;
         }
 
-        if (this.context.hasCachedSuggestionsFor(documentChanges.getPrefix(), documentChanges.getSuffix())) {
+        if (this.context.settings.cacheSuggestions && this.context.hasCachedSuggestionsFor(documentChanges.getPrefix(), documentChanges.getSuffix())) {
             const suggestion = this.context.getCachedSuggestionFor(documentChanges.getPrefix(), documentChanges.getSuffix());
             if (suggestion !== undefined) {
                 this.context.transitionToSuggestingState(suggestion, documentChanges.getPrefix(), documentChanges.getSuffix());
@@ -20,7 +21,7 @@ class IdleState extends State {
         }
 
         if (
-            documentChanges.hasDocChanged() &&
+
             this.context.containsTriggerCharacters(documentChanges)
         ) {
             this.context.transitionTo(

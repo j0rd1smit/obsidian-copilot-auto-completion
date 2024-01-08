@@ -58,7 +58,6 @@ abstract class State implements EventHandler {
             this.context.transitionToDisabledFileSpecificState();
         }
     }
-
 }
 
 export default State;

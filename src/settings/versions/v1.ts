@@ -75,7 +75,8 @@ export const settingsSchema = z.object({
         .filter(s => s.trim().length > 0)
         .filter(s => !isValidIgnorePattern(s)).length === 0,
         {message: "Invalid ignore pattern"}
-    )
+    ),
+    cacheSuggestions: z.boolean(),
 }).strict();
 
 export const pluginDataSchema = z.object({
@@ -171,6 +172,7 @@ Your answer must be in the same language as the text directly surrounding the <m
     removeDuplicateMathBlockIndicator: true,
     removeDuplicateCodeBlockIndicator: true,
     ignoredFilePatterns: "**/secret/**\n",
+    cacheSuggestions: true,
 };
 
 export type Settings = z.input<typeof settingsSchema>;

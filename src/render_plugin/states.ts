@@ -7,9 +7,9 @@ import {
     Transaction,
     TransactionSpec,
 } from "@codemirror/state";
-import {InlineSuggestion,  OptionalSuggestion} from "./types";
-import { EditorView } from "@codemirror/view";
-import { sleep } from "../utils";
+import {InlineSuggestion, OptionalSuggestion} from "./types";
+import {EditorView} from "@codemirror/view";
+import {sleep} from "../utils";
 
 const InlineSuggestionEffect = StateEffect.define<InlineSuggestion>();
 
@@ -55,7 +55,7 @@ export const updateSuggestion = (
     });
 };
 
-export function cancelSuggestion(view: EditorView) {
+export const cancelSuggestion = (view: EditorView) => {
     const doc = view.state.doc;
     // else we cannot do state updates in the callback.
     sleep(5).then(() => {
@@ -68,10 +68,10 @@ export function cancelSuggestion(view: EditorView) {
                 doc: doc,
             }),
         });
-    });
-}
+    })
+};
 
-export function insertSuggestion(view: EditorView, suggestion: string) {
+export const insertSuggestion = (view: EditorView, suggestion: string) => {
     view.dispatch({
         ...createInsertSuggestionTransaction(
             view.state,
@@ -80,7 +80,8 @@ export function insertSuggestion(view: EditorView, suggestion: string) {
             view.state.selection.main.to
         ),
     });
-}
+};
+
 
 function createInsertSuggestionTransaction(
     state: EditorState,
@@ -88,18 +89,25 @@ function createInsertSuggestionTransaction(
     from: number,
     to: number
 ): TransactionSpec {
+    const docLength = state.doc.length;
+    if (from < 0 || to > docLength || from > to) {
+        // If the range is not valid, return an empty transaction spec.
+        return {changes: []};
+    }
+
     const createInsertSuggestionTransactionFromSelectionRange = (
         range: SelectionRange
     ) => {
+
         if (range === state.selection.main) {
             return {
-                changes: { from, to, insert: text },
+                changes: {from, to, insert: text},
                 range: EditorSelection.cursor(to + text.length),
             };
         }
         const length = to - from;
         if (hasTextChanged(from, to, state, range)) {
-            return { range };
+            return {range};
         }
         return {
             changes: {
@@ -130,6 +138,13 @@ function hasTextChanged(
     }
     const length = to - from;
     if (length <= 0) {
+        return false;
+    }
+    if (changeRange.to <= from || changeRange.from >= to) {
+        return false;
+    }
+    // check out of bound
+    if (changeRange.from < 0 || changeRange.to > state.doc.length) {
         return false;
     }
 

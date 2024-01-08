@@ -2,6 +2,7 @@ import State from "./state";
 import {DocumentChanges} from "../render_plugin/document_changes_listener";
 import EventListener from "../event_listener";
 import IdleState from "./idle_state";
+import {Settings} from "../settings/versions";
 
 class SuggestingState extends State {
     private readonly suggestion: string;
@@ -20,20 +21,12 @@ class SuggestingState extends State {
     async handleDocumentChange(
         documentChanges: DocumentChanges
     ): Promise<void> {
-
-        if (!documentChanges.isDocInFocus()) {
+        if (!documentChanges.isDocInFocus() || documentChanges.noUserEvents()) {
             return;
         }
 
-        const currentPrefix = documentChanges.getPrefix();
-        const currentSuffix = documentChanges.getSuffix();
-        const suggestion = this.context.getCachedSuggestionFor(currentPrefix, currentSuffix);
-        if (
-            documentChanges.getPrefix() !== this.prefix
-            && documentChanges.getSuffix() !== this.suffix
-            && suggestion !== undefined
-        ) {
-            this.context.transitionToSuggestingState(suggestion, currentPrefix, currentSuffix);
+        if (documentChanges.hasUserDeleted() || !documentChanges.isTextAdded() || documentChanges) {
+            this.clearPrediction();
             return;
         }
 
@@ -42,7 +35,16 @@ class SuggestingState extends State {
             return
         }
 
-        if (documentChanges.getPrefix() !== this.prefix || documentChanges.getSuffix() !== this.suffix) {
+        const currentPrefix = documentChanges.getPrefix();
+        const currentSuffix = documentChanges.getSuffix();
+        const suggestion = this.context.getCachedSuggestionFor(currentPrefix, currentSuffix);
+
+        if (suggestion !== undefined && suggestion !== this.suggestion && (documentChanges.hasDocChanged() || documentChanges.hasCursorMoved())) {
+            this.context.transitionToSuggestingState(suggestion, currentPrefix, currentSuffix);
+            return;
+        }
+
+        if (currentPrefix !== this.prefix || currentSuffix !== this.suffix) {
             this.clearPrediction();
             return
         }
@@ -52,6 +54,8 @@ class SuggestingState extends State {
             return;
         }
     }
+
+
 
     hasUserAddedPartOfSuggestion(documentChanges: DocumentChanges): boolean {
         const addedPrefixText = documentChanges.getAddedPrefixText();
@@ -82,8 +86,8 @@ class SuggestingState extends State {
     }
 
     private clearPrediction(): void {
-        this.context.cancelSuggestion();
         this.context.transitionTo(new IdleState(this.context));
+        this.context.cancelSuggestion();
     }
 
     handleAcceptKeyPressed(): boolean {
@@ -92,9 +96,10 @@ class SuggestingState extends State {
     }
 
     private accept() {
-        this.context.insertCurrentSuggestion(this.suggestion);
         this.context.transitionTo(new IdleState(this.context));
         this.addPartialSuggestionCaches(this.suggestion);
+        this.context.insertCurrentSuggestion(this.suggestion);
+        this.context.cancelSuggestion();
     }
 
     handlePartialAcceptKeyPressed(): boolean {
@@ -147,6 +152,12 @@ class SuggestingState extends State {
 
     getStatusBarText(): string {
         return `Suggesting for ${this.context.context}`;
+    }
+
+    handleSettingChanged(settings: Settings): void {
+        if (!settings.cacheSuggestions) {
+            this.clearPrediction();
+        }
     }
 
 }

@@ -178,6 +178,14 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 enabled={settings.enabled}
                 setEnabled={(value) => updateSettings({enabled: value})}
             />
+            <CheckBoxSettingItem
+                name={"Cache completions"}
+                description={
+                    "If disabled, the plugin will not cache the completions. After accepting or rejecting a completion, the plugin will not remember it. This might result in more API calls."
+                }
+                enabled={settings.cacheSuggestions}
+                setEnabled={(value) => updateSettings({cacheSuggestions: value})}
+            />
             <DropDownSettingItem
                 name={"API provider"}
                 description={

@@ -16,6 +16,10 @@ export class DocumentChanges {
         return this.update.view.hasFocus;
     }
 
+    public noUserEvents(): boolean {
+        return this.getUserEvents().length === 0;
+    }
+
     public hasUserTyped(): boolean {
         const userEvents = this.getUserEvents();
         return userEvents.contains(UserEvent.INPUT_TYPE) || this.isTextAdded();

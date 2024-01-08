@@ -1,6 +1,6 @@
 import StatusBar from "./status_bar";
 import {DocumentChanges} from "./render_plugin/document_changes_listener";
-import {cancelSuggestion, insertSuggestion, updateSuggestion,} from "./render_plugin/states";
+import {cancelSuggestion, insertSuggestion, updateSuggestion} from "./render_plugin/states";
 import {EditorView} from "@codemirror/view";
 import State from "./states/state";
 import {EventHandler} from "./states/types";
@@ -123,10 +123,12 @@ class EventListener implements EventHandler, SettingsObserver {
     }
 
     transitionToDisabledManualState(): void {
+        this.cancelSuggestion();
         this.transitionTo(new DisabledManualState(this));
     }
 
     transitionToDisabledInvalidSettingsState(): void {
+        this.cancelSuggestion();
         this.transitionTo(new DisabledInvalidSettingsState(this));
     }
 
@@ -143,9 +145,9 @@ class EventListener implements EventHandler, SettingsObserver {
             return;
         }
 
-        this.suggestionCache.set(this.getCacheKey(prefix, suffix), suggestion);
-        updateSuggestion(this.view, suggestion);
+        this.addSuggestionToCache(prefix, suffix, suggestion);
         this.transitionTo(new SuggestingState(this, suggestion, prefix, suffix));
+        updateSuggestion(this.view, suggestion);
     }
 
 
@@ -159,6 +161,11 @@ class EventListener implements EventHandler, SettingsObserver {
 
     handleSettingChanged(settings: Settings): void {
         this.settings = settings;
+        this.predictionService = createPredictionService(settings);
+        if (!this.settings.cacheSuggestions) {
+            this.clearSuggestionsCache();
+        }
+
         this.state.handleSettingChanged(settings);
     }
 
@@ -230,10 +237,11 @@ class EventListener implements EventHandler, SettingsObserver {
     }
     
     public addSuggestionToCache(prefix: string, suffix: string, suggestions: string): void {
+        if (!this.settings.cacheSuggestions) {
+            return;
+        }
         this.suggestionCache.set(this.getCacheKey(prefix, suffix), suggestions);
     }
-
-
 }
 
 function createPredictionService(settings: Settings) {
