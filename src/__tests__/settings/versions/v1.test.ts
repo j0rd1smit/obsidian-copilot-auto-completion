@@ -92,7 +92,8 @@ describe('settingsSchema', () => {
         maxSuffixCharLimit: 1000,
         ignoredFilePatterns: '',
         removeDuplicateMathBlockIndicator: true,
-        removeDuplicateCodeBlockIndicator: true
+        removeDuplicateCodeBlockIndicator: true,
+        cacheSuggestions: true,
     };
 
     const missingPropertiesToTest: (keyof SettingsType)[] = Object.keys(settingsSchema.shape) as (keyof SettingsType)[];

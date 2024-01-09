@@ -153,9 +153,11 @@ export function deserializeSettings(data: JSONObject|null|undefined): Result<Set
     }
 
     if (isSettingsV0(settings)) {
+        console.log("Migrating settings from v0 to v1");
         settings = migrateFromV0ToV1(settings);
     }
     if (!isSettingsV1(settings)) {
+        console.log("Fixing settings structure and value errors");
         return fixStructureAndValueErrors(settingsSchema, DEFAULT_SETTINGS, settings);
     }
 

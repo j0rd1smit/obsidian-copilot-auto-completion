@@ -4,6 +4,7 @@
         "enabled": true,
         "advancedMode": false,
         "apiProvider": "azure",
+        "cacheSuggestions": true,
         "azureOAIApiSettings": {
             "key": "***",
             "url": "https://your_workspace_name.openai.azure.com/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-07-01-preview"
