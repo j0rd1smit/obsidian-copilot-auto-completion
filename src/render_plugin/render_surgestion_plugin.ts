@@ -31,10 +31,9 @@ const RenderSuggestionPlugin = () =>
                         InlineSuggestionState
                     );
 
-                    if (suggestion === null || suggestion === undefined) {
-                        return;
+                    if (suggestion !== null && suggestion !== undefined) {
+                        this.suggestion = suggestion;
                     }
-                    this.suggestion = suggestion;
 
                     this.decorations = inlineSuggestionDecoration(
                         update.view,
@@ -66,7 +65,6 @@ function inlineSuggestionDecoration(
 
         return Decoration.set([decoration.range(post)]);
     } catch (e) {
-        console.error(e);
         return Decoration.none;
     }
 

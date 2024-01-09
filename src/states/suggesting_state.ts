@@ -21,14 +21,19 @@ class SuggestingState extends State {
     async handleDocumentChange(
         documentChanges: DocumentChanges
     ): Promise<void> {
-        if (!documentChanges.isDocInFocus() || documentChanges.noUserEvents()) {
+        if (
+            !documentChanges.isDocInFocus()
+            || documentChanges.noUserEvents()
+            || !documentChanges.hasDocChanged()
+        ) {
             return;
         }
 
-        if (documentChanges.hasUserDeleted() || !documentChanges.isTextAdded() || documentChanges) {
+        if (documentChanges.hasUserDeleted()) {
             this.clearPrediction();
             return;
         }
+
 
         if (documentChanges.hasUserTyped() && this.hasUserAddedPartOfSuggestion(documentChanges)) {
             this.acceptPartialAddedText(documentChanges);
@@ -38,21 +43,15 @@ class SuggestingState extends State {
         const currentPrefix = documentChanges.getPrefix();
         const currentSuffix = documentChanges.getSuffix();
         const suggestion = this.context.getCachedSuggestionFor(currentPrefix, currentSuffix);
+        const isThereCachedSuggestion = suggestion !== undefined;
+        const isCachedSuggestionDifferent = suggestion !== this.suggestion;
 
-        if (suggestion !== undefined && suggestion !== this.suggestion && (documentChanges.hasDocChanged() || documentChanges.hasCursorMoved())) {
+        if (isThereCachedSuggestion && isCachedSuggestionDifferent) {
             this.context.transitionToSuggestingState(suggestion, currentPrefix, currentSuffix);
             return;
         }
 
-        if (currentPrefix !== this.prefix || currentSuffix !== this.suffix) {
-            this.clearPrediction();
-            return
-        }
-
-        if (this.suggestion.trim() === "") {
-            this.clearPrediction();
-            return;
-        }
+        this.clearPrediction();
     }
 
 

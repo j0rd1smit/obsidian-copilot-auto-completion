@@ -9,7 +9,6 @@ import {
 } from "@codemirror/state";
 import {InlineSuggestion, OptionalSuggestion} from "./types";
 import {EditorView} from "@codemirror/view";
-import {sleep} from "../utils";
 
 const InlineSuggestionEffect = StateEffect.define<InlineSuggestion>();
 
@@ -40,35 +39,30 @@ export const updateSuggestion = (
     suggestion: string
 ) => {
     const doc = view.state.doc;
-    // else we cannot do state updates in the callback.
-    sleep(5).then(() => {
-        view.dispatch({
-            effects: InlineSuggestionEffect.of({
-                suggestion: {
-                    value: suggestion,
-                    render: true,
-                },
-                doc: doc,
 
-            }),
-        });
+    view.dispatch({
+        effects: InlineSuggestionEffect.of({
+            suggestion: {
+                value: suggestion,
+                render: true,
+            },
+            doc: doc,
+        }),
     });
 };
 
 export const cancelSuggestion = (view: EditorView) => {
     const doc = view.state.doc;
     // else we cannot do state updates in the callback.
-    sleep(5).then(() => {
-        view.dispatch({
-            effects: InlineSuggestionEffect.of({
-                suggestion: {
-                    value: "suggestion",
-                    render: false,
-                },
-                doc: doc,
-            }),
-        });
-    })
+    view.dispatch({
+        effects: InlineSuggestionEffect.of({
+            suggestion: {
+                value: "suggestion",
+                render: false,
+            },
+            doc: doc,
+        }),
+    });
 };
 
 export const insertSuggestion = (view: EditorView, suggestion: string) => {
