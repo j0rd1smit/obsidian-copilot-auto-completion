@@ -23,7 +23,13 @@ import math_block_multi_line
     from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/math_block_multi_line";
 import header_example_relu
     from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/header_example_relu";
-import {MAX_DELAY, MAX_MAX_CHAR_LIMIT, MIN_DELAY, MIN_MAX_CHAR_LIMIT} from "./shared";
+import {
+    MAX_DELAY,
+    MAX_MAX_CHAR_LIMIT,
+    MIN_DELAY,
+    MIN_MAX_CHAR_LIMIT,
+    ollamaApiSettingsSchema,
+} from "./shared";
 import {z} from "zod";
 import {azureOAIApiSettingsSchema, fewShotExampleSchema, modelOptionsSchema, openAIApiSettingsSchema} from "./shared";
 import {isRegexValid, isValidIgnorePattern} from "../utils";
@@ -55,9 +61,10 @@ export const settingsSchema = z.object({
     version: z.literal("1"),
     enabled: z.boolean(),
     advancedMode: z.boolean(),
-    apiProvider: z.enum(['azure', 'openai']),
+    apiProvider: z.enum(['azure', 'openai', "ollama"]),
     azureOAIApiSettings: azureOAIApiSettingsSchema,
     openAIApiSettings: openAIApiSettingsSchema,
+    ollamaApiSettings: ollamaApiSettingsSchema,
     triggers: z.array(triggerSchema),
     delay: z.number().int().min(MIN_DELAY, {message: "Delay must be between 0ms and 2000ms"}).max(MAX_DELAY, {message: "Delay must be between 0ms and 2000ms"}),
     modelOptions: modelOptionsSchema,
@@ -94,12 +101,16 @@ export const DEFAULT_SETTINGS: Settings = {
     // API settings
     azureOAIApiSettings: {
         key: "",
-        url: "",
+        url: "https://YOUR_AOI_SERVICE_NAME.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT_NAME/chat/completions",
     },
     openAIApiSettings: {
         key: "",
         url: "https://api.openai.com/v1/chat/completions",
         model: "gpt-3.5-turbo",
+    },
+    ollamaApiSettings: {
+        url: "http://localhost:11434/api/chat",
+        model: "",
     },
 
     // Trigger settings

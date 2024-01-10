@@ -29,6 +29,7 @@ export function migrateFromV0ToV1(settings: SettingsV0): SettingsV1 {
 
     updatedSettings.ignoredFilePatterns = "";
     updatedSettings.cacheSuggestions = DEFAULT_SETTINGS_V1.cacheSuggestions;
+    updatedSettings.ollamaApiSettings = DEFAULT_SETTINGS_V1.ollamaApiSettings;
 
     // Parsing the updated settings to ensure they match the SettingsV1 schema
     return settingsSchemaV1.parse(updatedSettings);

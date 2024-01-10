@@ -5,7 +5,7 @@ import {cloneDeep} from "lodash";
 import {
     azureOAIApiSettingsSchema,
     fewShotExampleSchema,
-    modelOptionsSchema,
+    modelOptionsSchema, ollamaApiSettingsSchema,
     openAIApiSettingsSchema
 } from "../../../settings/versions/shared";
 import Context from "../../../context_detection";
@@ -63,6 +63,11 @@ describe('settingsSchema', () => {
         url: 'https://example.com',
         model: 'gpt-3'
     });
+    const validOllamaSettings = ollamaApiSettingsSchema.parse({
+        url: 'https://example.com',
+        model: 'mistral',
+
+    });
     const validTrigger = triggerSchema.parse({type: 'string', value: '# '});
     const validModelOptions = modelOptionsSchema.parse({
         temperature: 0.5,
@@ -80,6 +85,7 @@ describe('settingsSchema', () => {
         apiProvider: 'azure',
         azureOAIApiSettings: validAzureSettings,
         openAIApiSettings: validOpenAISettings,
+        ollamaApiSettings: validOllamaSettings,
         triggers: [validTrigger],
         delay: 1000,
         modelOptions: validModelOptions,

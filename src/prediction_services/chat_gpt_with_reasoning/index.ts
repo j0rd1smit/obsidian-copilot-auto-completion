@@ -20,6 +20,7 @@ import AzureOAIClient from "../api_clients/AzureOAIClient";
 import RemoveOverlap from "../post_processors/remove_overlap";
 import {Settings, FewShotExample} from "../../settings/versions";
 import RemoveWhitespace from "../post_processors/remove_whitespace";
+import OllamaApiClient from "../api_clients/OllamaApiClient";
 
 class ChatGPTWithReasoning implements PredictionService {
     private readonly client: ApiClient;
@@ -82,6 +83,8 @@ class ChatGPTWithReasoning implements PredictionService {
             client = OpenAIApiClient.fromSettings(settings);
         } else if (settings.apiProvider === "azure") {
             client = AzureOAIClient.fromSettings(settings);
+        } else if (settings.apiProvider === "ollama") {
+            client = OllamaApiClient.fromSettings(settings);
         } else {
             throw new Error("Invalid API provider");
         }

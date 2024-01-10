@@ -5,7 +5,7 @@ import {
     azureOAIApiSettingsSchema,
     openAIApiSettingsSchema,
     modelOptionsSchema,
-    fewShotExampleSchema,
+    fewShotExampleSchema, ollamaApiSettingsSchema,
 } from "../../../settings/versions/shared";
 
 
@@ -100,6 +100,30 @@ describe('openAIApiSettingsSchema', () => {
         expect(() => openAIApiSettingsSchema.parse(data)).toThrow();
     });
 });
+
+describe('ollamaApiSettingsSchema', () => {
+    type OllamaApiSettingsSchemaType = TypeOf<typeof ollamaApiSettingsSchema>;
+    const baseData: OllamaApiSettingsSchemaType = {model: "model", url: 'http://localhost:11434/api/chat'};
+    const propertiesNames = Object.keys(ollamaApiSettingsSchema.shape) as Array<keyof OllamaApiSettingsSchemaType>;
+
+    test.each(propertiesNames)('should throw an error if %s is missing', (property) => {
+        const dataWithoutProperty = cloneDeep(baseData);
+        delete dataWithoutProperty[property];
+        expect(() => ollamaApiSettingsSchema.parse(dataWithoutProperty)).toThrow();
+    });
+
+    test('successful parse', () => {
+        expect(ollamaApiSettingsSchema.parse(baseData)).toEqual(baseData);
+    });
+
+    test('invalid url fails', () => {
+        const data = {key: 'abc123', url: 'not an url', model: "model",};
+        expect(() => ollamaApiSettingsSchema.parse(data)).toThrow();
+    });
+
+
+});
+
 
 describe('modelOptionsSchema', () => {
     type ModelOptionsSchemaType = TypeOf<typeof modelOptionsSchema>;

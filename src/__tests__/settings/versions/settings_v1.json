@@ -14,6 +14,10 @@
             "url": "https://api.openai.com/v1/chat/completions",
             "model": "gpt-3.5-turbo"
         },
+        "ollamaApiSettings": {
+            "url": "http://localhost:11434/api/chat",
+            "model": "mistral"
+        },
         "triggers": [
             {
                 "type": "string",

@@ -1,8 +1,8 @@
 import * as React from "react";
+import {useState} from "react";
 
 import TextSettingItem from "./components/TextSettingItem";
-import { useState } from "react";
-import { checkForErrors } from "./utils";
+import {checkForErrors} from "./utils";
 import SliderSettingsItem from "./components/SliderSettingsItem";
 
 import TriggerSettings from "./components/TriggerSettings";
@@ -11,16 +11,24 @@ import CheckBoxSettingItem from "./components/CheckBoxSettingItem";
 import FewShotExampleSettings from "./components/FewShotExampleSettings";
 import ConnectivityCheck from "./components/ConnectivityCheck";
 import DropDownSettingItem from "./components/DropDownSettingItem";
-import { Notice } from "obsidian";
+import {Notice} from "obsidian";
 import {
-    MAX_DELAY, MAX_FREQUENCY_PENALTY,
+    DEFAULT_SETTINGS,
+    MAX_DELAY,
+    MAX_FREQUENCY_PENALTY,
     MAX_MAX_CHAR_LIMIT,
-    MAX_MAX_TOKENS, MAX_PRESENCE_PENALTY, MAX_TEMPERATURE, MAX_TOP_P,
-    MIN_DELAY, MIN_FREQUENCY_PENALTY,
+    MAX_MAX_TOKENS,
+    MAX_PRESENCE_PENALTY,
+    MAX_TEMPERATURE,
+    MAX_TOP_P,
+    MIN_DELAY,
+    MIN_FREQUENCY_PENALTY,
     MIN_MAX_CHAR_LIMIT,
-    MIN_MAX_TOKENS, MIN_PRESENCE_PENALTY, MIN_TEMPERATURE, MIN_TOP_P,
-    Settings,
-    DEFAULT_SETTINGS
+    MIN_MAX_TOKENS,
+    MIN_PRESENCE_PENALTY,
+    MIN_TEMPERATURE,
+    MIN_TOP_P,
+    Settings
 } from "./versions"
 
 interface IProps {
@@ -39,7 +47,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
 
     const updateSettings = (update: Partial<Settings>) => {
         _setSettings((settings: Settings) => {
-            const newSettings = { ...settings, ...update };
+            const newSettings = {...settings, ...update};
             props.onSettingsChanged(newSettings);
             return newSettings;
         });
@@ -63,7 +71,6 @@ export default function SettingsView(props: IProps): React.JSX.Element {
         updateSettings(newSettings);
         new Notice("Factory reset complete.");
     };
-
 
 
     const renderAPISettings = () => {
@@ -105,7 +112,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                             })
                         }
                     />
-                    <ConnectivityCheck key={"azure"} settings={settings} />
+                    <ConnectivityCheck key={"azure"} settings={settings}/>
                 </>
             );
         }
@@ -161,7 +168,47 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                         errorMessage={errors.get("openAIApiSettings.model")}
                     />
 
-                    <ConnectivityCheck key={"openai"} settings={settings} />
+                    <ConnectivityCheck key={"openai"} settings={settings}/>
+                </>
+            );
+        }
+        if (settings.apiProvider === "ollama") {
+            return (
+                <>
+                    <TextSettingItem
+                        name={"OpenAI API URL"}
+                        description={
+                            "The URL used in the requests."
+                        }
+                        placeholder={"Your API URL..."}
+                        value={settings.ollamaApiSettings.url}
+                        errorMessage={errors.get("openAIApiSettings.url")}
+                        setValue={(value: string) =>
+                            updateSettings({
+                                ollamaApiSettings: {
+                                    ...settings.ollamaApiSettings,
+                                    url: value,
+                                },
+                            })
+                        }
+                    />
+                    <TextSettingItem
+                        name={"Model"}
+                        description={"The model you have locally running using OLLAMA."}
+                        placeholder="mistral"
+                        value={settings.ollamaApiSettings.model}
+                        setValue={(value: string) =>
+                            updateSettings({
+                                ollamaApiSettings: {
+                                    ...settings.ollamaApiSettings,
+                                    model: value,
+                                }
+                            })
+                        }
+                        errorMessage={errors.get("openAIApiSettings.model")}
+                    />
+
+                    <ConnectivityCheck key={"openai"} settings={settings}/>
                 </>
             );
         }
@@ -193,13 +240,14 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 }
                 value={settings.apiProvider}
                 setValue={(value: string) => {
-                    if (value === "openai" || value === "azure") {
+                    if (value === "openai" || value === "azure" || value === "ollama") {
                         updateSettings({apiProvider: value});
                     }
                 }}
                 options={{
                     openai: "OpenAI API",
                     azure: "Azure OAI API",
+                    ollama: "Self-hosted OLLAMA API"
                 }}
                 errorMessage={errors.get("apiProvider")}
             />
@@ -247,63 +295,65 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 max={MAX_TOP_P}
                 step={0.05}
             />
-            <SliderSettingsItem
-                name={"Frequency Penalty"}
-                description={
-                    "This parameter reduces the chance of repeating a token proportionally based on how often it has appeared in the text so far. This decreases the likelihood of repeating the exact same text in a response."
-                }
-                value={settings.modelOptions.frequency_penalty}
-                errorMessage={errors.get("modelOptions.frequency_penalty")}
-                setValue={(value: number) =>
-                    updateSettings({
-                        modelOptions: {
-                            ...settings.modelOptions,
-                            frequency_penalty: value,
-                        },
-                    })
-                }
-                min={MIN_FREQUENCY_PENALTY}
-                max={MAX_FREQUENCY_PENALTY}
-                step={0.05}
-            />
-            <SliderSettingsItem
-                name={"Presence Penalty"}
-                description={
-                    "This parameter reduces the chance of repeating any token that has appeared in the text so far. This increases the likelihood of introducing new topics in a response."
-                }
-                value={settings.modelOptions.presence_penalty}
-                errorMessage={errors.get("modelOptions.presence_penalty")}
-                setValue={(value: number) =>
-                    updateSettings({
-                        modelOptions: {
-                            ...settings.modelOptions,
-                            presence_penalty: value,
-                        },
-                    })
-                }
-                min={MIN_PRESENCE_PENALTY}
-                max={MAX_PRESENCE_PENALTY}
-                step={0.05}
-            />
-            <SliderSettingsItem
-                name={"Max Tokens"}
-                description={
-                    "This parameter changes the maximum number of tokens the model is allowed to generate. This includes the chain of thought tokens before the answer."
-                }
-                value={settings.modelOptions.max_tokens}
-                errorMessage={errors.get("modelOptions.max_tokens")}
-                setValue={(value: number) =>
-                    updateSettings({
-                        modelOptions: {
-                            ...settings.modelOptions,
-                            max_tokens: value,
-                        },
-                    })
-                }
-                min={MIN_MAX_TOKENS}
-                max={MAX_MAX_TOKENS}
-                step={10}
-            />
+            {settings.apiProvider !== "ollama" && (<>
+                <SliderSettingsItem
+                    name={"Frequency Penalty"}
+                    description={
+                        "This parameter reduces the chance of repeating a token proportionally based on how often it has appeared in the text so far. This decreases the likelihood of repeating the exact same text in a response."
+                    }
+                    value={settings.modelOptions.frequency_penalty}
+                    errorMessage={errors.get("modelOptions.frequency_penalty")}
+                    setValue={(value: number) =>
+                        updateSettings({
+                            modelOptions: {
+                                ...settings.modelOptions,
+                                frequency_penalty: value,
+                            },
+                        })
+                    }
+                    min={MIN_FREQUENCY_PENALTY}
+                    max={MAX_FREQUENCY_PENALTY}
+                    step={0.05}
+                />
+                <SliderSettingsItem
+                    name={"Presence Penalty"}
+                    description={
+                        "This parameter reduces the chance of repeating any token that has appeared in the text so far. This increases the likelihood of introducing new topics in a response."
+                    }
+                    value={settings.modelOptions.presence_penalty}
+                    errorMessage={errors.get("modelOptions.presence_penalty")}
+                    setValue={(value: number) =>
+                        updateSettings({
+                            modelOptions: {
+                                ...settings.modelOptions,
+                                presence_penalty: value,
+                            },
+                        })
+                    }
+                    min={MIN_PRESENCE_PENALTY}
+                    max={MAX_PRESENCE_PENALTY}
+                    step={0.05}
+                />
+                <SliderSettingsItem
+                    name={"Max Tokens"}
+                    description={
+                        "This parameter changes the maximum number of tokens the model is allowed to generate. This includes the chain of thought tokens before the answer."
+                    }
+                    value={settings.modelOptions.max_tokens}
+                    errorMessage={errors.get("modelOptions.max_tokens")}
+                    setValue={(value: number) =>
+                        updateSettings({
+                            modelOptions: {
+                                ...settings.modelOptions,
+                                max_tokens: value,
+                            },
+                        })
+                    }
+                    min={MIN_MAX_TOKENS}
+                    max={MAX_MAX_TOKENS}
+                    step={10}
+                />
+            </>)}
 
             <h2>Preprocessing</h2>
             <CheckBoxSettingItem
@@ -402,8 +452,11 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                             'disabled' status in the bottom menu. Enter one pattern per line. These patterns function
                             similar to glob patterns. Here are some frequently used patterns:</p>
                         <ul>
-                            <li><code>path/to/folder/**</code>: This pattern ignores all files and sub folders within this folder.</li>
-                            <li><code>"**/secret/**"</code>: This pattern ignores any file located inside a 'secret' directory,
+                            <li><code>path/to/folder/**</code>: This pattern ignores all files and sub folders within
+                                this folder.
+                            </li>
+                            <li><code>"**/secret/**"</code>: This pattern ignores any file located inside a 'secret'
+                                directory,
                                 regardless of its location in the path.
                             </li>
                             <li><code>!path/to/folder/example.md</code>: This pattern explicitly undoes an ignore,
