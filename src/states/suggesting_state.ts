@@ -21,6 +21,11 @@ class SuggestingState extends State {
     async handleDocumentChange(
         documentChanges: DocumentChanges
     ): Promise<void> {
+        if (documentChanges.hasCursorMoved()) {
+            this.clearPrediction();
+            return;
+        }
+
         if (
             !documentChanges.isDocInFocus()
             || documentChanges.noUserEvents()
