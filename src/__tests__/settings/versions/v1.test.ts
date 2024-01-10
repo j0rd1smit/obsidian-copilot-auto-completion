@@ -11,6 +11,8 @@ import {
 import Context from "../../../context_detection";
 import * as fs from 'fs';
 import * as path from 'path';
+import {parseWithSchema} from "../../../settings/utils";
+import {ok} from "neverthrow";
 
 describe('triggerSchema', () => {
     type TriggerSchemaType = TypeOf<typeof triggerSchema>;
@@ -199,12 +201,9 @@ describe('smoketest', () => {
         const fileContents = fs.readFileSync(filePath, 'utf8');
         const data = JSON.parse(fileContents);
 
-        const result = pluginDataSchema.safeParse(data);
-        if (!result.success) {
-            console.error(result.error);
-        }
+        const result = parseWithSchema(pluginDataSchema, data);
 
-        expect(result.success).toEqual(true);
+        expect(result).toEqual(ok(data));
     });
 
     test("default settings should be valid", () => {

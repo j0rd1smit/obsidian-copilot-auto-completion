@@ -1,7 +1,7 @@
 import {ApiClient, ChatMessage, ModelOptions} from "../types";
-import {requestUrl} from "obsidian";
 import {Settings} from "../../settings/versions";
-
+import {Result} from "neverthrow";
+import {makeAPIRequest} from "./utils";
 
 
 class OllamaApiClient implements ApiClient {
@@ -27,7 +27,7 @@ class OllamaApiClient implements ApiClient {
         this.model = model;
     }
 
-    async queryChatModel(messages: ChatMessage[]): Promise<string> {
+    async queryChatModel(messages: ChatMessage[]): Promise<Result<string, Error>> {
         const headers = {
             "Content-Type": "application/json",
         };
@@ -42,29 +42,12 @@ class OllamaApiClient implements ApiClient {
             }
         }
 
-        const response = await requestUrl({
-            url: this.url,
-            method: "POST",
-            body: JSON.stringify(body),
-            headers,
-            throw: false,
-            contentType: "application/json",
-        });
-
-        if (response.status >= 500) {
-            throw new Error("OpenAI API returned status code 500. Please try again later.");
+        const data = await makeAPIRequest(this.url, "POST", body, headers);
+        if(data.isOk()) {
+            console.log(data.value.message.content);
         }
 
-        if (response.status >= 400) {
-            let errorMessage = `OpenAI API returned status code ${response.status}`;
-            if (response.json && response.json.error && response.json.error.message) {
-                errorMessage += `: ${response.json.error.message}`;
-            }
-            throw new Error(errorMessage);
-        }
-
-        const data = response.json;
-        return data.message.content;
+        return data.map((data) => data.message.content);
     }
 
     async checkIfConfiguredCorrectly(): Promise<string[]> {
@@ -77,13 +60,14 @@ class OllamaApiClient implements ApiClient {
             return errors;
         }
 
-        try {
-            await this.queryChatModel([
-                {content: "hello world", role: "user"},
-            ]);
-        } catch (e) {
-            errors.push(e.message);
+        const result = await this.queryChatModel([
+            {content: "hello world", role: "user"},
+        ]);
+
+        if (result.isErr()) {
+            errors.push(result.error.message);
         }
+
         return errors;
     }
 }

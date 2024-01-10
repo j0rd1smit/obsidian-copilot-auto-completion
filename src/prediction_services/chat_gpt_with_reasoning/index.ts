@@ -18,9 +18,10 @@ import LengthLimiter from "../pre_processors/length_limiter";
 import OpenAIApiClient from "../api_clients/OpenAIApiClient";
 import AzureOAIClient from "../api_clients/AzureOAIClient";
 import RemoveOverlap from "../post_processors/remove_overlap";
-import {Settings, FewShotExample} from "../../settings/versions";
+import {FewShotExample, Settings} from "../../settings/versions";
 import RemoveWhitespace from "../post_processors/remove_whitespace";
 import OllamaApiClient from "../api_clients/OllamaApiClient";
+import {err, ok, Result} from "neverthrow";
 
 class ChatGPTWithReasoning implements PredictionService {
     private readonly client: ApiClient;
@@ -34,7 +35,6 @@ class ChatGPTWithReasoning implements PredictionService {
 
     private constructor(
         client: ApiClient,
-
         systemMessage: string,
         userMessageFormatter: UserMessageFormatter,
         removePreAnswerGenerationRegex: string,
@@ -54,7 +54,7 @@ class ChatGPTWithReasoning implements PredictionService {
     public static fromSettings(settings: Settings): PredictionService {
         const formatter = Handlebars.compile<UserMessageFormattingInputs>(
             settings.userMessageTemplate,
-            { noEscape: true, strict: true }
+            {noEscape: true, strict: true}
         );
         const preProcessors: PreProcessor[] = [];
         if (settings.dontIncludeDataviews) {
@@ -103,15 +103,15 @@ class ChatGPTWithReasoning implements PredictionService {
     async fetchPredictions(
         prefix: string,
         suffix: string
-    ): Promise<string | undefined> {
+    ): Promise<Result<string, Error>> {
         const context: Context = Context.getContext(prefix, suffix);
 
         for (const preProcessor of this.preProcessors) {
             if (preProcessor.removesCursor(prefix, suffix)) {
-                return undefined;
+                return ok("");
             }
 
-            ({ prefix, suffix } = preProcessor.process(
+            ({prefix, suffix} = preProcessor.process(
                 prefix,
                 suffix,
                 context
@@ -125,7 +125,7 @@ class ChatGPTWithReasoning implements PredictionService {
             fewShotExamplesToChatMessages(examples);
 
         const messages: ChatMessage[] = [
-            { content: this.systemMessage, role: "system" },
+            {content: this.systemMessage, role: "system"},
             ...fewShotExamplesChatMessages,
             {
                 role: "user",
@@ -137,15 +137,45 @@ class ChatGPTWithReasoning implements PredictionService {
         ];
 
         let result = await this.client.queryChatModel(messages);
+        result = this.extractAnswerFromChainOfThoughts(result);
 
-
-        result = result.replace(
-            new RegExp(this.removePreAnswerGenerationRegex, "gm"),
-            ""
-        );
 
         for (const postProcessor of this.postProcessors) {
-            result = postProcessor.process(prefix, suffix, result, context);
+            result = result.map((r) => postProcessor.process(prefix, suffix, r, context));
+        }
+
+        result = this.checkAgainstGuardRails(result);
+
+        return result;
+    }
+
+    private extractAnswerFromChainOfThoughts(
+        result: Result<string, Error>
+    ): Result<string, Error> {
+        if (result.isErr()) {
+            return result;
+        }
+        const chainOfThoughts = result.value;
+
+        const regex = new RegExp(this.removePreAnswerGenerationRegex, "gm");
+        const match = regex.exec(chainOfThoughts);
+        if (match === null) {
+            return err(new Error("No match found"));
+        }
+        return ok(chainOfThoughts.replace(regex, ""));
+    }
+
+    private checkAgainstGuardRails(
+        result: Result<string, Error>
+    ): Result<string, Error> {
+        if (result.isErr()) {
+            return result;
+        }
+        if (result.value.length === 0) {
+            return err(new Error("Empty result"));
+        }
+        if (result.value.contains("<mask/>")) {
+            return err(new Error("Mask in result"));
         }
 
         return result;

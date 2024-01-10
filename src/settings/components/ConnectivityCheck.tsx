@@ -34,7 +34,6 @@ export default function ConnectivityCheck(props: IProps): React.JSX.Element {
             return OpenAIApiClient.fromSettings(props.settings);
         }
         if (props.settings.apiProvider === "ollama") {
-            console.log("Creating Ollama client");
             return OllamaApiClient.fromSettings(props.settings);
         }
         throw new Error("Unknown API provider");

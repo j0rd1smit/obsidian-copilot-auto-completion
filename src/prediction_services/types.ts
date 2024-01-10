@@ -1,10 +1,11 @@
 import Context from "../context_detection";
+import {Result} from "neverthrow";
 
 export interface PredictionService {
     fetchPredictions(
         prefix: string,
         suffix: string
-    ): Promise<string | undefined>;
+    ): Promise<Result<string, Error>>;
 }
 
 export interface PostProcessor {
@@ -42,7 +43,7 @@ export type UserMessageFormatter = (
 ) => string;
 
 export interface ApiClient {
-    queryChatModel(messages: ChatMessage[]): Promise<string>;
+    queryChatModel(messages: ChatMessage[]): Promise<Result<string, Error>>;
     checkIfConfiguredCorrectly(): Promise<string[]>;
 }
 

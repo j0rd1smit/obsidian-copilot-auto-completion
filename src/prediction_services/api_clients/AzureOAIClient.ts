@@ -1,6 +1,7 @@
 import {ApiClient, ChatMessage, ModelOptions} from "../types";
-import {requestUrl} from "obsidian";
 import {Settings} from "../../settings/versions";
+import {makeAPIRequest} from "./utils";
+import {Result} from "neverthrow";
 
 
 
@@ -23,35 +24,14 @@ class AzureOAIClient implements ApiClient {
         );
     }
 
-    async queryChatModel(messages: ChatMessage[]): Promise<string> {
+    async queryChatModel(messages: ChatMessage[]): Promise<Result<string, Error>> {
         const headers = {
             "Content-Type": "application/json",
             "api-key": this.apiKey,
         }
-
-        const response = await requestUrl({
-            url: this.url,
-            method: "POST",
-            body: JSON.stringify({messages, ...this.modelOptions}),
-            headers,
-            throw: false,
-            contentType: "application/json",
-        });
-
-        if (response.status >= 500) {
-            throw new Error("Azure OpenAI API returned status code 500. Please try again later.");
-        }
-
-        if (response.status >= 400) {
-            let errorMessage = `Azure OpenAI API returned status code ${response.status}`;
-            if (response.json && response.json.error && response.json.error.message) {
-                errorMessage += `: ${response.json.error.message}`;
-            }
-            throw new Error(errorMessage);
-        }
-
-        const data = response.json;
-        return data.choices[0].message.content;
+        const body = {messages, ...this.modelOptions};
+        const data = await makeAPIRequest(this.url, "POST", body, headers);
+        return data.map((data) => data.choices[0].message.content);
     }
 
 
@@ -60,22 +40,22 @@ class AzureOAIClient implements ApiClient {
         const errors: string[] = [];
 
         if (!this.apiKey) {
-            errors.push("OpenAI API key is not set.");
+            errors.push("API key is not set.");
         }
         if (!this.url) {
-            errors.push("OpenAI API url is not set.");
+            errors.push("Azure OpenAI API url is not set.");
         }
         if (errors.length > 0) {
             // api check is not possible without passing previous checks so return early
             return errors;
         }
 
-        try {
-            await this.queryChatModel([
+        const result =await this.queryChatModel([
                 {content: "hello world", role: "user"},
             ]);
-        } catch (e) {
-            errors.push(e.message);
+
+        if (result.isErr()) {
+            errors.push(result.error.message);
         }
         return errors;
     }

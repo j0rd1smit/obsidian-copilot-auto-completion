@@ -149,6 +149,12 @@ class EventListener implements EventHandler, SettingsObserver {
         this.transitionTo(new SuggestingState(this, suggestion, prefix, suffix));
         updateSuggestion(this.view, suggestion);
     }
+    public transitionToIdleState() {
+        if (this.state instanceof SuggestingState) {
+            this.cancelSuggestion();
+        }
+        this.transitionTo(new IdleState(this));
+    }
 
 
     private updateStatusBarText(): void {

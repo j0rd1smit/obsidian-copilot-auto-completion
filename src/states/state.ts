@@ -56,7 +56,9 @@ abstract class State implements EventHandler {
     handleFilePathChange(path: string): void {
         if (this.context.isCurrentFilePathIgnored()) {
             this.context.transitionToDisabledFileSpecificState();
+            return;
         }
+        this.context.transitionToIdleState();
     }
 }
 
