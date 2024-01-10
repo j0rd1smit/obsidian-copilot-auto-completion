@@ -22,7 +22,7 @@ export class DocumentChanges {
 
     public hasUserTyped(): boolean {
         const userEvents = this.getUserEvents();
-        return userEvents.contains(UserEvent.INPUT_TYPE) || this.isTextAdded();
+        return userEvents.contains(UserEvent.INPUT_TYPE);
     }
 
     public hasUserUndone(): boolean {
@@ -140,20 +140,11 @@ const DocumentChangesListener = (
             private previousSuffix = "";
 
             async update(update: ViewUpdate) {
-                // We freeze the state of the document before the sleep
-                // to prevent race conditions.
                 const previousPrefix = this.previousPrefix;
                 const previousSuffix = this.previousSuffix;
                 this.previousPrefix = getPrefix(update);
                 this.previousSuffix = getSuffix(update);
 
-                // This event is fired by a state change.
-                // We are not allowed to call other state change during another state change.
-                // (so we cannot call anything that change the suggestion state)
-                // This is something we want to based on this event.
-                // So we have to wait for the state change to finish by sleeping.
-                // Then we can inform the observer of the state change.
-                await sleep(1);
                 await onDocumentChange(new DocumentChanges(update, previousPrefix, previousSuffix));
             }
         }

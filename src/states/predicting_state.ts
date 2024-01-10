@@ -1,7 +1,6 @@
 import State from "./state";
 import { DocumentChanges } from "../render_plugin/document_changes_listener";
 import EventListener from "../event_listener";
-import IdleState from "./idle_state";
 import { Notice } from "obsidian";
 import Context from "../context_detection";
 
@@ -48,7 +47,7 @@ class PredictingState extends State {
 
     private cancelPrediction(): void {
         this.isStillNeeded = false;
-        this.context.transitionTo(new IdleState(this.context));
+        this.context.transitionToIdleState();
     }
 
     startPredicting(): void {
@@ -72,13 +71,13 @@ class PredictingState extends State {
                 `Copilot: Something went wrong cannot make a prediction. Full error is available in the dev console. Please check your settings. `
             );
             console.error(result.error);
-            this.context.transitionTo(new IdleState(this.context));
+            this.context.transitionToIdleState();
         }
 
         const prediction = result.unwrapOr("");
 
         if (prediction === "") {
-            this.context.transitionTo(new IdleState(this.context));
+            this.context.transitionToIdleState();
             return;
         }
         this.context.transitionToSuggestingState(prediction, this.prefix, this.suffix);

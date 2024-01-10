@@ -1,8 +1,6 @@
 import State from "./state";
 import {Settings} from "../settings/versions";
-import IdleState from "./idle_state";
 import {checkForErrors} from "../settings/utils";
-import DisabledManualState from "./disabled_manual_state";
 
 class DisabledInvalidSettingsState extends State {
     getStatusBarText(): string {
@@ -15,9 +13,9 @@ class DisabledInvalidSettingsState extends State {
             return
         }
         if (this.context.settings.enabled) {
-            this.context.transitionTo(new IdleState(this.context));
+            this.context.transitionToIdleState();
         } else {
-            this.context.transitionTo(new DisabledManualState(this.context));
+            this.context.transitionToDisabledManualState();
         }
     }
 

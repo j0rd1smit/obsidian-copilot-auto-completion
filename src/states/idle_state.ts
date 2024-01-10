@@ -1,7 +1,6 @@
 import State from "./state";
 import {DocumentChanges} from "../render_plugin/document_changes_listener";
-import QueuedState from "./queued_state";
-import PredictingState from "./predicting_state";
+
 
 class IdleState extends State {
 
@@ -26,24 +25,12 @@ class IdleState extends State {
         }
 
         if (this.context.containsTriggerCharacters(documentChanges)) {
-            this.context.transitionTo(
-                QueuedState.createAndStartTimer(
-                    this.context,
-                    documentChanges.getPrefix(),
-                    documentChanges.getSuffix()
-                )
-            );
+           this.context.transitionToQueuedState(documentChanges.getPrefix(), documentChanges.getSuffix());
         }
     }
 
     handlePredictCommand(prefix: string, suffix: string): void {
-        this.context.transitionTo(
-            PredictingState.createAndStartPredicting(
-                this.context,
-                prefix,
-                suffix
-            )
-        );
+        this.context.transitionToPredictingState(prefix, suffix);
     }
 
     getStatusBarText(): string {

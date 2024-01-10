@@ -1,7 +1,6 @@
 import State from "./state";
 import {DocumentChanges} from "../render_plugin/document_changes_listener";
 import EventListener from "../event_listener";
-import IdleState from "./idle_state";
 import {Settings} from "../settings/versions";
 
 class SuggestingState extends State {
@@ -21,10 +20,6 @@ class SuggestingState extends State {
     async handleDocumentChange(
         documentChanges: DocumentChanges
     ): Promise<void> {
-        if (documentChanges.hasCursorMoved()) {
-            this.clearPrediction();
-            return;
-        }
 
         if (
             !documentChanges.isDocInFocus()
@@ -34,13 +29,18 @@ class SuggestingState extends State {
             return;
         }
 
-        if (documentChanges.hasUserDeleted()) {
+        if (documentChanges.hasCursorMoved() || documentChanges.hasUserUndone()) {
             this.clearPrediction();
             return;
         }
 
 
-        if (documentChanges.hasUserTyped() && this.hasUserAddedPartOfSuggestion(documentChanges)) {
+        if (documentChanges.hasUserDeleted()) {
+            this.clearPrediction();
+            return;
+        }
+
+        if (this.hasUserAddedPartOfSuggestion(documentChanges)) {
             this.acceptPartialAddedText(documentChanges);
             return
         }
@@ -51,14 +51,17 @@ class SuggestingState extends State {
         const isThereCachedSuggestion = suggestion !== undefined;
         const isCachedSuggestionDifferent = suggestion !== this.suggestion;
 
-        if (isThereCachedSuggestion && isCachedSuggestionDifferent) {
+        if (!isCachedSuggestionDifferent) {
+            return;
+        }
+
+        if (isThereCachedSuggestion) {
             this.context.transitionToSuggestingState(suggestion, currentPrefix, currentSuffix);
             return;
         }
 
         this.clearPrediction();
     }
-
 
 
     hasUserAddedPartOfSuggestion(documentChanges: DocumentChanges): boolean {
@@ -90,8 +93,7 @@ class SuggestingState extends State {
     }
 
     private clearPrediction(): void {
-        this.context.transitionTo(new IdleState(this.context));
-        this.context.cancelSuggestion();
+        this.context.transitionToIdleState();
     }
 
     handleAcceptKeyPressed(): boolean {
@@ -100,10 +102,9 @@ class SuggestingState extends State {
     }
 
     private accept() {
-        this.context.transitionTo(new IdleState(this.context));
         this.addPartialSuggestionCaches(this.suggestion);
         this.context.insertCurrentSuggestion(this.suggestion);
-        this.context.cancelSuggestion();
+        this.context.transitionToIdleState();
     }
 
     handlePartialAcceptKeyPressed(): boolean {
@@ -112,15 +113,14 @@ class SuggestingState extends State {
     }
 
     private acceptNextWord() {
-        const nextWord = this.getNextWord();
-        if (nextWord !== undefined) {
-            const acceptedPart = nextWord + " ";
-            const remainingSuggestion = this.suggestion.substring(acceptedPart.length);
-            const updatedPrefix = this.prefix + acceptedPart;
+        const [nextWord, remaining] = this.getNextWordAndRemaining();
 
-            this.context.insertCurrentSuggestion(acceptedPart);
-            this.addPartialSuggestionCaches(acceptedPart, remainingSuggestion);
-            this.context.transitionToSuggestingState(remainingSuggestion, updatedPrefix, this.suffix);
+        if (nextWord !== undefined && remaining !== undefined && nextWord.trim() !== "" && remaining.trim() !== "") {
+            const updatedPrefix = this.prefix + nextWord;
+
+            this.addPartialSuggestionCaches(nextWord, remaining);
+            this.context.insertCurrentSuggestion(nextWord);
+            this.context.transitionToSuggestingState(remaining, updatedPrefix, this.suffix, false);
         } else {
             this.accept();
         }
@@ -136,12 +136,17 @@ class SuggestingState extends State {
         }
     }
 
-    private getNextWord(): string | undefined {
+    private getNextWordAndRemaining(): [string | undefined, string | undefined] {
         const words = this.suggestion.split(" ");
-        if (words.length > 0) {
-            return words[0];
+        if (words.length === 0) {
+            return ["", ""];
         }
-        return undefined;
+
+        if (words.length === 1) {
+            return [words[0] + " ", ""];
+        }
+
+        return [words[0] + " ", words.slice(1).join(" ")];
     }
 
     handleCancelKeyPressed(): boolean {

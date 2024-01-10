@@ -39,29 +39,31 @@ export const updateSuggestion = (
     suggestion: string
 ) => {
     const doc = view.state.doc;
-
-    view.dispatch({
-        effects: InlineSuggestionEffect.of({
-            suggestion: {
-                value: suggestion,
-                render: true,
-            },
-            doc: doc,
-        }),
+    sleep(1).then(() => {
+        view.dispatch({
+            effects: InlineSuggestionEffect.of({
+                suggestion: {
+                    value: suggestion,
+                    render: true,
+                },
+                doc: doc,
+            }),
+        });
     });
 };
 
 export const cancelSuggestion = (view: EditorView) => {
     const doc = view.state.doc;
-    // else we cannot do state updates in the callback.
-    view.dispatch({
-        effects: InlineSuggestionEffect.of({
-            suggestion: {
-                value: "suggestion",
-                render: false,
-            },
-            doc: doc,
-        }),
+    sleep(1).then(() => {
+        view.dispatch({
+            effects: InlineSuggestionEffect.of({
+                suggestion: {
+                    value: "suggestion",
+                    render: false,
+                },
+                doc: doc,
+            }),
+        });
     });
 };
 

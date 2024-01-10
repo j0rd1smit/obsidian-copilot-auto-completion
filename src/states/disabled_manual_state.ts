@@ -1,6 +1,5 @@
 import State from "./state";
 import {Settings} from "../settings/versions";
-import IdleState from "./idle_state";
 
 class DisabledManualState extends State {
     getStatusBarText(): string {
@@ -9,7 +8,7 @@ class DisabledManualState extends State {
 
     handleSettingChanged(settings: Settings): void {
         if (this.context.settings.enabled) {
-            this.context.transitionTo(new IdleState(this.context));
+            this.context.transitionToIdleState();
         }
     }
 

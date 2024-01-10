@@ -14,8 +14,7 @@ function CompletionKeyWatcher(
                 run: handleAcceptKey,
             },
             {
-                key: "Ctrl-ArrowRight",
-                mac: "CMD-ArrowRight",
+                key: "ArrowRight",
                 run: handlePartialAcceptKey,
             },
             {

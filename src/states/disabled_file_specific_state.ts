@@ -1,7 +1,6 @@
 import State from "./state";
 import {Settings} from "../settings/versions";
-import IdleState from "./idle_state";
-import DisabledManualState from "./disabled_manual_state";
+
 
 class DisabledFileSpecificState extends State {
     getStatusBarText(): string {
@@ -10,9 +9,9 @@ class DisabledFileSpecificState extends State {
 
     handleSettingChanged(settings: Settings) {
         if (!this.context.settings.enabled) {
-            this.context.transitionTo(new DisabledManualState(this.context));
+            this.context.transitionToDisabledManualState();
         } if (!this.context.isCurrentFilePathIgnored()) {
-            this.context.transitionTo(new IdleState(this.context));
+            this.context.transitionToIdleState();
         }
     }
 
@@ -22,7 +21,7 @@ class DisabledFileSpecificState extends State {
         }
 
         if (this.context.settings.enabled) {
-            this.context.transitionTo(new IdleState(this.context));
+            this.context.transitionToIdleState();
         } else {
             this.context.transitionToDisabledManualState();
         }

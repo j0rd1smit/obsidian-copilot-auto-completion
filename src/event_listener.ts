@@ -18,11 +18,12 @@ import DisabledManualState from "./states/disabled_manual_state";
 import DisabledFileSpecificState from "./states/disabled_file_specific_state";
 import {LRUCache} from "lru-cache";
 import DisabledInvalidSettingsState from "./states/disabled_invalid_settings_state";
+import QueuedState from "./states/queued_state";
+import PredictingState from "./states/predicting_state";
 
 
 const FIVE_MINUTES_IN_MS = 1000 * 60 * 5;
 const MAX_N_ITEMS_IN_CACHE = 5000;
-const PRECENTAGE_OF_TO_KEEP_IN_CACHE = 0.25;
 
 class EventListener implements EventHandler, SettingsObserver {
     private view: EditorView | null = null;
@@ -49,11 +50,11 @@ class EventListener implements EventHandler, SettingsObserver {
 
         const settingErrors = checkForErrors(settings);
         if (settings.enabled) {
-            eventListener.transitionTo(new IdleState(eventListener));
+            eventListener.transitionToIdleState()
         } else if (settingErrors.size > 0) {
-            eventListener.transitionTo(new DisabledInvalidSettingsState(eventListener));
+            eventListener.transitionToDisabledInvalidSettingsState();
         } else if (!settings.enabled) {
-            eventListener.transitionTo(new DisabledManualState(eventListener));
+            eventListener.transitionToDisabledManualState();
         }
 
         return eventListener;
@@ -113,7 +114,7 @@ class EventListener implements EventHandler, SettingsObserver {
         cancelSuggestion(this.view);
     }
 
-    transitionTo(state: State): void {
+    private transitionTo(state: State): void {
         this.state = state;
         this.updateStatusBarText();
     }
@@ -132,28 +133,53 @@ class EventListener implements EventHandler, SettingsObserver {
         this.transitionTo(new DisabledInvalidSettingsState(this));
     }
 
+    transitionToQueuedState(prefix: string, suffix: string): void {
+        this.transitionTo(
+            QueuedState.createAndStartTimer(
+                this,
+                prefix,
+                suffix
+            )
+        );
+    }
+
+    transitionToPredictingState(prefix: string, suffix: string): void {
+        this.transitionTo(PredictingState.createAndStartPredicting(
+                this,
+                prefix,
+                suffix
+            )
+        );
+    }
+
     transitionToSuggestingState(
         suggestion: string,
         prefix: string,
         suffix: string,
+        addToCache = true
     ): void {
         if (this.view === null) {
             return;
         }
         if (suggestion.trim().length === 0) {
-            this.transitionTo(new IdleState(this));
+            this.transitionToIdleState();
             return;
         }
-
-        this.addSuggestionToCache(prefix, suffix, suggestion);
+        if (addToCache) {
+            this.addSuggestionToCache(prefix, suffix, suggestion);
+        }
         this.transitionTo(new SuggestingState(this, suggestion, prefix, suffix));
         updateSuggestion(this.view, suggestion);
     }
+
     public transitionToIdleState() {
-        if (this.state instanceof SuggestingState) {
+        const previousState = this.state;
+
+        this.transitionTo(new IdleState(this));
+
+        if (previousState instanceof SuggestingState) {
             this.cancelSuggestion();
         }
-        this.transitionTo(new IdleState(this));
     }
 
 
@@ -223,17 +249,13 @@ class EventListener implements EventHandler, SettingsObserver {
         return this.state instanceof IdleState;
     }
 
-    public hasCachedSuggestionsFor(prefix: string, suffix: string): boolean {
-        return this.suggestionCache.has(this.getCacheKey(prefix, suffix));
-    }
-
     public getCachedSuggestionFor(prefix: string, suffix: string): string | undefined {
         return this.suggestionCache.get(this.getCacheKey(prefix, suffix));
     }
 
     private getCacheKey(prefix: string, suffix: string): string {
-        const nCharsToKeepPrefix = Math.floor(prefix.length * PRECENTAGE_OF_TO_KEEP_IN_CACHE);
-        const nCharsToKeepSuffix = Math.floor(suffix.length * PRECENTAGE_OF_TO_KEEP_IN_CACHE);
+        const nCharsToKeepPrefix = prefix.length;
+        const nCharsToKeepSuffix = suffix.length;
 
         return `${prefix.substring(prefix.length - nCharsToKeepPrefix)}<mask/>${suffix.substring(0, nCharsToKeepSuffix)}`
     }
@@ -241,12 +263,12 @@ class EventListener implements EventHandler, SettingsObserver {
     public clearSuggestionsCache(): void {
         this.suggestionCache.clear();
     }
-    
-    public addSuggestionToCache(prefix: string, suffix: string, suggestions: string): void {
+
+    public addSuggestionToCache(prefix: string, suffix: string, suggestion: string): void {
         if (!this.settings.cacheSuggestions) {
             return;
         }
-        this.suggestionCache.set(this.getCacheKey(prefix, suffix), suggestions);
+        this.suggestionCache.set(this.getCacheKey(prefix, suffix), suggestion);
     }
 }
 
