@@ -125,6 +125,7 @@ export const DEFAULT_SETTINGS: Settings = {
         {type: "string", value: "' "},
         {type: "string", value: "= "},
         {type: "string", value: "$ "},
+        {type: "string", value: "> "},
         {type: "string", value: "\n"},
 
         // bullet list
