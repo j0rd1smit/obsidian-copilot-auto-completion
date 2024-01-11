@@ -158,7 +158,7 @@ export function deserializeSettings(data: JSONObject|null|undefined): Result<Set
     }
     if (!isSettingsV1(settings)) {
         console.log("Fixing settings structure and value errors");
-        return fixStructureAndValueErrors(settingsSchema, DEFAULT_SETTINGS, settings);
+        return fixStructureAndValueErrors(settingsSchema, settings, DEFAULT_SETTINGS);
     }
 
     return parseWithSchema(settingsSchema, settings);
