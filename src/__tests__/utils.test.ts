@@ -1,5 +1,5 @@
 import {describe, expect, test} from "@jest/globals";
-import {isMatchBetweenPathAndPatterns} from "../utils";
+import {extractNextWordAndRemaining, isMatchBetweenPathAndPatterns} from "../utils";
 
 describe("isMatchBetweenPathAndPatterns", () => {
 
@@ -125,5 +125,112 @@ describe("isMatchBetweenPathAndPatterns", () => {
         const patterns = ["path/to/folder/**"]
         const result = isMatchBetweenPathAndPatterns(path, patterns);
         expect(result).toBe(true);
+    });
+});
+
+describe('getNextWordAndRemaining', () => {
+    test('should handle leading whitespace', () => {
+        const input = '   leading space';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBe('   leading ');
+        expect(remaining).toBe('space');
+    });
+
+    test('should handle multiple whitespace between words', () => {
+        const input = 'multiple   spaces';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBe('multiple   ');
+        expect(remaining).toBe('spaces');
+    });
+
+    test('should return undefined for an empty string', () => {
+        const input = '';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBeUndefined();
+        expect(remaining).toBeUndefined();
+    });
+
+    test('should handle a single word with trailing whitespace', () => {
+        const input = 'single   ';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBe('single');
+        expect(remaining).toBeUndefined();
+    });
+
+    test('should handle a single word with trailing empty line', () => {
+        const input = 'single\n';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBe('single');
+        expect(remaining).toBeUndefined();
+    });
+
+    test('should handle a single word with leading whitespace', () => {
+        const input = '   single';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBe('   single');
+        expect(remaining).toBeUndefined();
+    });
+
+    test('should handle a single word with leading and trailing whitespace', () => {
+        const input = '   other   ';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBe('   other');
+        expect(remaining).toBeUndefined();
+    });
+
+    test('should handle a single word with leading and trailing empty line', () => {
+        const input = '\nother\n';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBe('\nother');
+        expect(remaining).toBeUndefined();
+    });
+
+    test('should handle a string with only whitespace', () => {
+        const input = '     ';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBeUndefined();
+        expect(remaining).toBeUndefined();
+    });
+
+    test('should handle a string with only empty lines', () => {
+        const input = '\n\n';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBeUndefined();
+        expect(remaining).toBeUndefined();
+    });
+
+    test('should handle multiple words with single spacing', () => {
+        const input = 'hello world my name is bob';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBe('hello ');
+        expect(remaining).toBe('world my name is bob');
+    });
+
+    test('should handle multiple words with empty line', () => {
+        const input = 'hello\nworld\nmy\nname\nis\nbob';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBe('hello\n');
+        expect(remaining).toBe('world\nmy\nname\nis\nbob');
+    });
+
+    test('should handle multiple words with varying spacing', () => {
+        const input = 'hello world  my name   is    bob';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBe('hello ');
+        expect(remaining).toBe('world  my name   is    bob');
+    });
+
+    test('should handle leading empty line', () => {
+        const input = '\nhello';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBe('\nhello');
+        expect(remaining).toBeUndefined();
+    });
+
+    test('should handle multiple words with varying spacing and empty lines', () => {
+        const input = 'hello world  my\nname   is  \n  bob';
+        const [first, remaining] = extractNextWordAndRemaining(input);
+        expect(first).toBe('hello ');
+        expect(remaining).toBe('world  my\nname   is  \n  bob');
     });
 });

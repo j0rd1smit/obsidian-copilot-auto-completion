@@ -30,6 +30,11 @@ export class DocumentChanges {
         return userEvents.contains(UserEvent.UNDO);
     }
 
+    public hasUserRedone(): boolean {
+        const userEvents = this.getUserEvents();
+        return userEvents.contains(UserEvent.REDO);
+    }
+
     public hasUserDeleted(): boolean {
         const userEvents = this.getUserEvents();
         return (

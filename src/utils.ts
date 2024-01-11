@@ -38,3 +38,36 @@ export function isMatchBetweenPathAndPatterns(
 
     return mm.some(path, inclusionPatterns) && !mm.some(path, exclusionPatterns);
 }
+
+export function extractNextWordAndRemaining(suggestion: string): [string | undefined, string | undefined] {
+    const leadingWhitespacesMatch = suggestion.match(/^(\s*)/);
+    const leadingWhitespaces = leadingWhitespacesMatch ? leadingWhitespacesMatch[0] : '';
+    const trimmedSuggestion = suggestion.slice(leadingWhitespaces.length);
+
+
+    let nextWord: string | undefined;
+    let remaining: string | undefined = undefined;
+
+    const whitespaceAfterNextWordMatch = trimmedSuggestion.match(/\s+/);
+    if (!whitespaceAfterNextWordMatch) {
+        nextWord = trimmedSuggestion || undefined;
+    } else {
+        const whitespaceAfterNextWordStartingIndex = whitespaceAfterNextWordMatch.index!;
+        const whitespaceAfterNextWord = whitespaceAfterNextWordMatch[0];
+        const whitespaceLength = whitespaceAfterNextWord.length;
+        const startOfWhitespaceAfterNextWordIndex = whitespaceAfterNextWordStartingIndex + whitespaceLength;
+
+        nextWord = trimmedSuggestion.substring(0, whitespaceAfterNextWordStartingIndex);
+        if (startOfWhitespaceAfterNextWordIndex < trimmedSuggestion.length) {
+            remaining = trimmedSuggestion.slice(startOfWhitespaceAfterNextWordIndex);
+            nextWord += whitespaceAfterNextWord;
+        }
+    }
+
+    return [nextWord ? leadingWhitespaces + nextWord : undefined, remaining];
+}
+
+
+
+
+

@@ -8,7 +8,7 @@ class RemoveWhitespace implements PostProcessor {
         completion: string,
         context: Context
     ): string {
-        if (context === Context.Text || context === Context.Heading || context === Context.MathBlock) {
+        if (context === Context.Text || context === Context.Heading || context === Context.MathBlock || context === Context.TaskList || context === Context.NumberedList || context === Context.UnorderedList) {
             if (prefix.endsWith(" ") || suffix.endsWith("\n")) {
                 completion = completion.trimStart();
             }

@@ -2,6 +2,7 @@ import State from "./state";
 import {DocumentChanges} from "../render_plugin/document_changes_listener";
 import EventListener from "../event_listener";
 import {Settings} from "../settings/versions";
+import {extractNextWordAndRemaining} from "../utils";
 
 class SuggestingState extends State {
     private readonly suggestion: string;
@@ -20,23 +21,21 @@ class SuggestingState extends State {
     async handleDocumentChange(
         documentChanges: DocumentChanges
     ): Promise<void> {
+        if (
+            documentChanges.hasCursorMoved()
+            || documentChanges.hasUserUndone()
+            || documentChanges.hasUserDeleted()
+            || documentChanges.hasUserRedone()
+            || !documentChanges.isDocInFocus()
+        ) {
+            this.clearPrediction();
+            return;
+        }
 
         if (
-            !documentChanges.isDocInFocus()
-            || documentChanges.noUserEvents()
+            documentChanges.noUserEvents()
             || !documentChanges.hasDocChanged()
         ) {
-            return;
-        }
-
-        if (documentChanges.hasCursorMoved() || documentChanges.hasUserUndone()) {
-            this.clearPrediction();
-            return;
-        }
-
-
-        if (documentChanges.hasUserDeleted()) {
-            this.clearPrediction();
             return;
         }
 
@@ -59,7 +58,6 @@ class SuggestingState extends State {
             this.context.transitionToSuggestingState(suggestion, currentPrefix, currentSuffix);
             return;
         }
-
         this.clearPrediction();
     }
 
@@ -113,9 +111,9 @@ class SuggestingState extends State {
     }
 
     private acceptNextWord() {
-        const [nextWord, remaining] = this.getNextWordAndRemaining();
+        const [nextWord, remaining] = extractNextWordAndRemaining(this.suggestion);
 
-        if (nextWord !== undefined && remaining !== undefined && nextWord.trim() !== "" && remaining.trim() !== "") {
+        if (nextWord !== undefined && remaining !== undefined) {
             const updatedPrefix = this.prefix + nextWord;
 
             this.addPartialSuggestionCaches(nextWord, remaining);
