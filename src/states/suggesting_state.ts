@@ -21,12 +21,15 @@ class SuggestingState extends State {
     async handleDocumentChange(
         documentChanges: DocumentChanges
     ): Promise<void> {
+
         if (
             documentChanges.hasCursorMoved()
             || documentChanges.hasUserUndone()
             || documentChanges.hasUserDeleted()
             || documentChanges.hasUserRedone()
             || !documentChanges.isDocInFocus()
+            || documentChanges.hasSelection()
+            || documentChanges.hasMultipleCursors()
         ) {
             this.clearPrediction();
             return;

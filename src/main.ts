@@ -2,7 +2,11 @@ import {Editor, MarkdownView, Notice, Plugin} from "obsidian";
 import {SettingTab} from "./settings/SettingsTab";
 import EventListener from "./event_listener";
 import StatusBar from "./status_bar";
-import DocumentChangesListener from "./render_plugin/document_changes_listener";
+import DocumentChangesListener, {
+    getPrefix, getSuffix,
+    hasMultipleCursors,
+    hasSelection
+} from "./render_plugin/document_changes_listener";
 import {EditorView} from "@codemirror/view";
 import RenderSuggestionPlugin from "./render_plugin/render_surgestion_plugin";
 import {InlineSuggestionState} from "./render_plugin/states";
@@ -85,19 +89,15 @@ export default class CopilotPlugin extends Plugin {
                 editor: Editor,
                 view: MarkdownView
             ) => {
-                if (checking) {
-                    return eventListener.isIdle();
-                }
-
                 // @ts-expect-error, not typed
                 const editorView = editor.cm as EditorView;
-                // const editorView = view.editor.cm as EditorView;
-                const cursorLocation = editorView.state.selection.main.head;
-                const prefix = editorView.state.doc.sliceString(
-                    0,
-                    cursorLocation
-                );
-                const suffix = editorView.state.doc.sliceString(cursorLocation);
+                const state = editorView.state;
+                if (checking) {
+                    return eventListener.isIdle() && !hasMultipleCursors(state) && !hasSelection(state);
+                }
+
+                const prefix = getPrefix(state)
+                const suffix = getSuffix(state)
 
                 eventListener.handlePredictCommand(prefix, suffix);
                 return true;

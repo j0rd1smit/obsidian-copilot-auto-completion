@@ -1,19 +1,23 @@
 import { Transaction } from "@codemirror/state";
 
 enum UserEvent {
+    INPUT = "input",
+    INPUT_TYPE = "input.type",
+    INPUT_TYPE_COMPOSE = "input.type.compose",
+    INPUT_PASTE = "input.paste",
+    INPUT_DROP = "input.drop",
+    INPUT_COMPLETE = "input.complete",
+    DELETE = "delete",
+    DELETE_SELECTION = "delete.selection",
+    DELETE_FORWARD = "delete.forward",
+    DELETE_BACKWARDS = "delete.backward",
+    DELETE_CUT = "delete.cut",
+    MOVE = "move",
+    MOVE_DROP = "move.drop",
+    CURSOR_MOVED = "select",
+    CURSOR_MOVED_BY_MOUSE = "select.pointer",
     UNDO = "undo",
     REDO = "redo",
-    CURSOR_MOVED = "select",
-    DELETE_CUT = "delete.cut",
-    DELETE_BACKWARDS = "delete.backward",
-    DELETE_FORWARD = "delete.forward",
-    DELETE_SELECTION = "delete.selection",
-    INPUT = "input",
-    INPUT_COMPLETE = "input.complete",
-    INPUT_TYPE_COMPOSE = "input.type.compose",
-    INPUT_DROP = "input.drop",
-    INPUT_PASTE = "input.paste",
-    INPUT_TYPE = "input.type",
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace

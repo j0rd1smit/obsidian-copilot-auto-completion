@@ -11,6 +11,10 @@ class IdleState extends State {
             !documentChanges.isDocInFocus()
             || !documentChanges.hasDocChanged()
             || documentChanges.hasUserDeleted()
+            || documentChanges.hasMultipleCursors()
+            || documentChanges.hasSelection()
+            || documentChanges.hasUserUndone()
+            || documentChanges.hasUserRedone()
         ) {
             return;
         }
