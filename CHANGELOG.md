@@ -1,8 +1,12 @@
 # Changelog
 
-## 1.1.0
-- Add the ability to ignore certain files and folder based on glob patterns. Users can now specify a list of glob patterns in the settings, and the extension will temporarily auto-disable while you are working on that file.
-- Refactored the inner workings of the settings management to allow for more flexibility and migrations to new setting schemas.
+## 1.1.0  
+- Added the ability to exclude specific files and folders using glob patterns. Users can now define a list of glob patterns in the settings, and the extension will automatically disable or enable when switching between files.
+- Refactored the internal mechanisms of the settings management to increase flexibility and facilitate migrations to new settings schemas.
+- Added a note suggesting that caching can enhance performance and reduce API calls. If you accidentally dismiss a suggestion or press an incorrect key, simply resume typing and the suggestion will reappear.
+- Typing the next character in a suggestion will no longer dismiss it. Instead, the suggestion will automatically update to show the remaining part of the suggestion, excluding the character you just typed.
+- Fixed a bug that could cause the suggestion box to render outside the boundaries of the editor.
+- Added support for [Ollama](https://ollama.ai/) as a local API provider.
 
 ## 1.0.7
 - If a prediction fails, the full exception is now logged to the console. Allowing users to investigate the issue further.
