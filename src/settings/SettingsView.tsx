@@ -176,13 +176,13 @@ export default function SettingsView(props: IProps): React.JSX.Element {
             return (
                 <>
                     <TextSettingItem
-                        name={"OpenAI API URL"}
+                        name={"API URL"}
                         description={
                             "The URL used in the requests."
                         }
                         placeholder={"Your API URL..."}
                         value={settings.ollamaApiSettings.url}
-                        errorMessage={errors.get("openAIApiSettings.url")}
+                        errorMessage={errors.get("ollamaApiSettings.url")}
                         setValue={(value: string) =>
                             updateSettings({
                                 ollamaApiSettings: {
@@ -195,7 +195,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                     <TextSettingItem
                         name={"Model"}
                         description={"The model you have locally running using OLLAMA."}
-                        placeholder="mistral"
+                        placeholder="Your model name..."
                         value={settings.ollamaApiSettings.model}
                         setValue={(value: string) =>
                             updateSettings({
@@ -205,7 +205,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                                 }
                             })
                         }
-                        errorMessage={errors.get("openAIApiSettings.model")}
+                        errorMessage={errors.get("ollamaApiSettings.model")}
                     />
 
                     <ConnectivityCheck key={"openai"} settings={settings}/>
