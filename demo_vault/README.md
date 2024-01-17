@@ -5,6 +5,9 @@ The file contains some example notes with useful content for testing the plugin.
 
 The following files are used to test certain completion scenarios:
 - `Block quote (a tale of two cities).md`: contains an example note with a block quote. The plugin should be able to complete the block quote.
+- `Code generation (Kadane algorithm python).md`: contains an example note about the Kadane algorithm. The Python code is incomplete. The plugin should be able to complete the code.
+- `Code generation (Kadane algorithm rust).md`: contains an example note about the Kadane algorithm. The Rust code is incomplete. The plugin should be able to complete the code.
+- `Code generation (Kadane algorithm typescript).md`: contains an example note about the Kadane algorithm. The Typescript code is incomplete. The plugin should be able to complete the code.
 - `Javascript code completion test (fizz buzz).md`: contains an example note about the fizz buzz problem. The Javascript code is incomplete. The plugin should be able to complete the code.
 - `List completion in the middle (missing solid principles).md`: contains an example note about the SOLID design principles. The list of principles is incomplete. The plugin should be able to complete the list.
 - `List completion test (dead relu reasons).md`: contains an example note about the dead ReLU problem. The possible reasons for the dead ReLU problem are missing. The plugin should be able to complete the list of reasons.

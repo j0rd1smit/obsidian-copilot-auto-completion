@@ -16,5 +16,5 @@ Increasing this delay will reduce the number of API calls but will also make the
 So you should find a balance between these two factors that works for you.
 
 The relationship and transitions between the states are shown in the following diagram:
-![states](assets/state_diagram.jpg)
+![states](../assets/state_diagram.jpg)
 

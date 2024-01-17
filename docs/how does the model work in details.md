@@ -13,8 +13,9 @@ Your job is to predict the most logical text that should be written at the locat
 Your answer can be either code, a single word, or multiple sentences.
 Your answer must be in the same language as the text that is already there.
 Your response must have the following format:
-THOUGHT: here you explain your reasoning of what could be at the location of <mask/>
-ANSWER: here you write the text that should be at the location of <mask/>
+THOUGHT: here, you reason about the answer; use the 80/20 principle to be brief.
+LANGUAGE: here, you write the language of your answer, e.g. English, Python, Dutch, etc.
+ANSWER: here, you write the text that should be at the location of <mask/>.
 ```
 
 We then provide the model with the (truncated) text before and after the cursor in the format `<truncated_text_before_cursor> <mask/> <truncated_text_after_cursor>`.
@@ -98,3 +99,35 @@ You can find all the examples under the advanced settings.
 You can also add your own examples or customize the existing ones.
 This way, you tell the model about your specific writing style and expectations.
 See the [advanced settings](#advanced-configuration) section for more information.
+
+
+### Language Detection
+The system prompt compels the model to respond with `LANGUAGE: <language>`, a directive further reinforced by the context-aware few-shot examples.
+This prompt engineering strategy ensures the model considers the language of the surrounding text and encourages consistency in its responses.
+While there is no 100% guarantee that the model will respond in the same language, my experience suggests that it is significantly more likely to do so.
+
+Despite all system prompts being in English, the model is capable of providing quality suggestions in other languages. 
+This presents a considerable advantage as:
+- There is no need to translate the system prompts and few-shot examples into your language;
+- It allows for seamless switching between languages;
+- English requires fewer tokens than other languages, leading to quicker suggestions and reduced API costs.
+
+| English                                                                                                                                                                                    | Dutch                                                                                                                                                          | Chinese                                                                                                                                                                                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![English](../assets/language-detection-english.jpg)                                                                                                                                       | ![Dutch](../assets/language-detection-dutch.jpg)                                                                                                               | ![Chinese](../assets/language-detection-chinese.jpg)                                                                                                                                                       |
+| THOUGHT: The paragraph introduces Bitcoin and its unique features, emphasizing its decentralized nature and accessibility to all users. The title should reflect this introductory nature. | THOUGHT: The paragraph introduces Bitcoin as a new form of digital currency and explains its decentralized nature. The title should reflect this introduction. | THOUGHT: The paragraph provides an overview of Bitcoin, emphasizing its decentralized nature and the need for learning about its underlying technology. The title should reflect this introductory nature. |
+| LANGUAGE: English                                                                                                                                                                          | LANGUAGE: Dutch                                                                                                                                                | LANGUAGE: Chinese                                                                                                                                                                                          |
+| ANSWER: Introduction to Bitcoin                                                                                                                                                            | ANSWER: Introductie van Bitcoin                                                                                                                                | ANSWER: 什么是比特币？                                                                                                                                                                                     |
+
+Note: The above examples have been generated by `Chat-GPT3.5-16k` API version `2023-07-01-preview`.
+
+This same approach also works for code blocks and math blocks.
+In the few-shot examples, for these contexts, we set the example answer equal to the programming language in the case of code blocks and LaTeX in the case of math blocks.
+This makes the model more consistent in generating the correct code, while its thought section does not need to focus on language-specific implementation details.
+
+| Python                                                                                                                                                                                     | TypeScript                                                                                                                                                     | Rust                                                                                                                                                                                                       |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ![English](../assets/language-detection-python.jpg)                                                                                                                                        | ![Dutch](../assets/language-detection-typescript.jpg)                                                                                                          | ![Chinese](../assets/language-detection-rust.jpg)                                                                                                                                                          |
+| THOUGHT: The code should implement Kadane's algorithm by following the steps mentioned in the description | THOUGHT: The code should implement Kadane's algorithm as described in the text. It should initialize `currentSum` and `maxSum`, then loop through the array to update these variables based on the two choices mentioned. | THOUGHT: The code should implement Kadane's algorithm as described in the text. It should initialize `currentSum` and `maxSum`, then loop through the array to update these variables based on the given conditions. |
+
+
