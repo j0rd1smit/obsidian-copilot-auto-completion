@@ -4,7 +4,6 @@ import {makeAPIRequest} from "./utils";
 import {Result} from "neverthrow";
 
 
-
 class AzureOAIClient implements ApiClient {
     private readonly apiKey: string;
     private readonly url: string;
@@ -35,7 +34,6 @@ class AzureOAIClient implements ApiClient {
     }
 
 
-
     async checkIfConfiguredCorrectly(): Promise<string[]> {
         const errors: string[] = [];
 
@@ -50,9 +48,9 @@ class AzureOAIClient implements ApiClient {
             return errors;
         }
 
-        const result =await this.queryChatModel([
-                {content: "hello world", role: "user"},
-            ]);
+        const result = await this.queryChatModel([
+            {content: "Say hello world and nothing else.", role: "user"},
+        ]);
 
         if (result.isErr()) {
             errors.push(result.error.message);

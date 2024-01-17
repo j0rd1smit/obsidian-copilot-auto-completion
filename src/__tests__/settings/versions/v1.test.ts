@@ -1,6 +1,6 @@
 import {describe, expect, test} from "@jest/globals";
 import {TypeOf} from "zod";
-import {DEFAULT_SETTINGS, pluginDataSchema, settingsSchema, triggerSchema} from "../../../settings/versions/v1";
+import {DEFAULT_SETTINGS, pluginDataSchema, settingsSchema, triggerSchema} from "../../../settings/versions/v1/v1";
 import {cloneDeep} from "lodash";
 import {
     azureOAIApiSettingsSchema,

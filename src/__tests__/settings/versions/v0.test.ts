@@ -2,7 +2,7 @@ import {describe, expect, test} from "@jest/globals";
 import {TypeOf} from "zod";
 
 import {cloneDeep} from "lodash";
-import {DEFAULT_SETTINGS, pluginDataSchema, settingsSchema, triggerSchema} from "../../../settings/versions/v0";
+import {DEFAULT_SETTINGS, pluginDataSchema, settingsSchema, triggerSchema} from "../../../settings/versions/v0/v0";
 
 import Context from "../../../context_detection";
 import {

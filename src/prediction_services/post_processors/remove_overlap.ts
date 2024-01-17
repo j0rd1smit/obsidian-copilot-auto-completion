@@ -55,7 +55,7 @@ function removeWordOverlapPrefix(prefix: string, completion: string): string {
 }
 
 function removeWordOverlapSuffix(completion: string, suffix: string): string {
-    const suffixTrimmed = suffix.trimStart();
+    const suffixTrimmed = removeLeadingWhiteSpace(suffix);
 
     const startIdxOfEachWord = startLocationOfEachWord(completion);
 
@@ -70,9 +70,13 @@ function removeWordOverlapSuffix(completion: string, suffix: string): string {
     return completion;
 }
 
+function removeLeadingWhiteSpace(completion: string): string {
+    return completion.replace(/^[ \t\f\r\v]+/, "");
+}
+
 function startLocationOfEachWord(text: string): number[] {
     const locations: number[] = [];
-    if (text.length > 0 && !text[0].match(/\s/)) {
+    if (text.length > 0 && !isWhiteSpaceChar(text[0])) {
         locations.push(0);
     }
 

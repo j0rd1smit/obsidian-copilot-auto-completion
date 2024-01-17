@@ -31,7 +31,6 @@ class OllamaApiClient implements ApiClient {
         const headers = {
             "Content-Type": "application/json",
         };
-
         const body = {
             messages,
             stream: false,
@@ -43,10 +42,6 @@ class OllamaApiClient implements ApiClient {
         }
 
         const data = await makeAPIRequest(this.url, "POST", body, headers);
-        if(data.isOk()) {
-            console.log(data.value.message.content);
-        }
-
         return data.map((data) => data.message.content);
     }
 
@@ -61,7 +56,7 @@ class OllamaApiClient implements ApiClient {
         }
 
         const result = await this.queryChatModel([
-            {content: "hello world", role: "user"},
+            {content: "Say hello world and nothing else.", role: "user"},
         ]);
 
         if (result.isErr()) {

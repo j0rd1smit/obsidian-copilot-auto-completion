@@ -3,13 +3,12 @@ import {TypeOf} from "zod";
 import {cloneDeep} from "lodash";
 import {
     azureOAIApiSettingsSchema,
-    openAIApiSettingsSchema,
+    fewShotExampleSchema,
     modelOptionsSchema,
-    fewShotExampleSchema, ollamaApiSettingsSchema,
+    ollamaApiSettingsSchema,
+    openAIApiSettingsSchema,
 } from "../../../settings/versions/shared";
-
-
-
+import {findEqualPaths} from "../../../settings/utils";
 
 
 describe('azureOAIApiSettingsSchema', () => {
@@ -212,3 +211,93 @@ describe('modelOptionsSchema', () => {
     });
 });
 
+
+describe('findEqualPaths', () => {
+    test('should return empty array if no paths are equal', () => {
+        const obj1 = {prop1: {prop2: 3}};
+        const obj2 = {prop1: {prop2: 4}};
+        expect(findEqualPaths(obj1, obj2)).toEqual([]);
+    });
+
+    test('should return correct paths for equal leaves', () => {
+        const obj1 = {
+            prop1: [{prop2: 5}, {prop3: 10}],
+            prop3: 'value',
+        };
+        const obj2 = {
+            prop1: [{prop2: 5}, {prop3: 20}],
+            prop3: 'value',
+        };
+        expect(findEqualPaths(obj1, obj2)).toEqual(['prop1.[0].prop2', 'prop3']);
+    });
+
+    test('should handle nested objects', () => {
+        const obj1 = {
+            prop1: {nested: {prop2: 'hello'}},
+            prop3: 'value',
+        };
+        const obj2 = {
+            prop1: {nested: {prop2: 'hello'}},
+            prop3: 'value',
+        };
+        expect(findEqualPaths(obj1, obj2)).toEqual(['prop1.nested.prop2', 'prop3']);
+    });
+
+    test('should handle arrays', () => {
+        const obj1 = {prop1: ['a', 'b', 'c']};
+        const obj2 = {prop1: ['a', 'x', 'c']};
+        expect(findEqualPaths(obj1, obj2)).toEqual(['prop1.[0]', 'prop1.[2]']);
+    });
+
+    test('should handle different structures', () => {
+        const obj1 = {prop1: 1, prop2: {nested: 2}};
+        const obj2 = {prop1: 1, prop2: 2};
+        expect(findEqualPaths(obj1, obj2)).toEqual(['prop1']);
+    });
+
+    test('should handle empty objects', () => {
+        const obj1 = {};
+        const obj2 = {};
+        const obj3 = {prop1: 'value'};
+        expect(findEqualPaths(obj1, obj2)).toEqual([]);
+        expect(findEqualPaths(obj1, obj3)).toEqual([]);
+    });
+
+    test('should handle arrays of different lengths', () => {
+        const obj1 = {prop1: ['a', 'b', 'c', 'd']};
+        const obj2 = {prop1: ['a', 'b']};
+        expect(findEqualPaths(obj1, obj2)).toEqual(['prop1.[0]', 'prop1.[1]']);
+    });
+
+    test('should handle objects with different keys', () => {
+        const obj1 = {prop1: 'value', prop2: 'value2'};
+        const obj2 = {prop3: 'value', prop4: 'value2'};
+        expect(findEqualPaths(obj1, obj2)).toEqual([]);
+    });
+
+    test('should handle objects with arrays and nested objects', () => {
+        const obj1 = {prop1: [{nested: {prop2: 'hello'}}]};
+        const obj2 = {prop1: [{nested: {prop2: 'hello'}}]};
+        expect(findEqualPaths(obj1, obj2)).toEqual(['prop1.[0].nested.prop2']);
+    });
+
+    test('should handle non-object values', () => {
+        expect(findEqualPaths('hello', 'hello')).toEqual([]);
+        expect(findEqualPaths(42, 42)).toEqual([]);
+        expect(findEqualPaths(['a', 'b'], ['a', 'b'])).toEqual([]);
+    });
+
+    test('should handle null and undefined values', () => {
+        const obj1 = {prop1: null, prop2: undefined};
+        const obj2 = {prop1: null, prop2: 'defined'};
+        expect(findEqualPaths(obj1, obj2)).toEqual(['prop1']);
+    });
+
+    test('should ignore functions', () => {
+        const func = () => {
+        };
+        const obj1 = {prop1: func};
+        const obj2 = {prop1: func};
+        expect(findEqualPaths(obj1, obj2)).toEqual([]);
+    });
+});

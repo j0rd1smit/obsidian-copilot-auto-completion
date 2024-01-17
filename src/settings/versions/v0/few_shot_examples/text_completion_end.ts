@@ -1,5 +1,6 @@
-import {FewShotExample} from "../../../settings/versions";
-import Context from "../../../context_detection";
+import {FewShotExample} from "../../shared";
+import Context from "../../../../context_detection";
+
 
 const example: FewShotExample = {
     context: Context.Text,

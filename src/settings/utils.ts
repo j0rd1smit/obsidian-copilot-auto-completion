@@ -1,10 +1,9 @@
 import {DEFAULT_SETTINGS, PluginData, Settings, settingsSchema} from "./versions";
-import {z, ZodError, ZodType, ZodIssueCode} from 'zod';
-import {cloneDeep, get, has, set, unset} from "lodash";
+import {z, ZodError, ZodIssueCode, ZodType} from 'zod';
+import {cloneDeep, each, get, has, isArray, isEqual, isNumber, isObject, isString, set, unset} from "lodash";
 import {isSettingsV0, isSettingsV1, migrateFromV0ToV1} from "./versions/migration";
 import {err, ok, Result} from "neverthrow";
 import * as mm from "micromatch";
-
 
 
 type JSONObject = Record<string, any>;
@@ -31,7 +30,7 @@ export function checkForErrors(settings: Settings) {
 
 export function fixStructureAndValueErrors<T extends ZodType>(
     schema: T,
-    value: any|null|undefined,
+    value: any | null | undefined,
     defaultValue: z.infer<T>,
 ): Result<ReturnType<T["parse"]>, Error> {
     if (value === null || value === undefined) {
@@ -144,11 +143,11 @@ export function serializeSettings(settings: Settings): PluginData {
     return {settings: settings};
 }
 
-export function deserializeSettings(data: JSONObject|null|undefined): Result<Settings, Error> {
+export function deserializeSettings(data: JSONObject | null | undefined): Result<Settings, Error> {
     let settings: any;
     if (data === null || data === undefined || !data.hasOwnProperty("settings")) {
         settings = {};
-    } else  {
+    } else {
         settings = data.settings;
     }
 
@@ -181,4 +180,46 @@ export function isValidIgnorePattern(value: string): boolean {
     } catch (e) {
         return false;
     }
+}
+
+export function findEqualPaths(obj1: any, obj2: any, basePath = ''): string[] {
+    let paths: string[] = [];
+
+    if (
+        basePath === ''
+        && (
+            !isObject(obj1)
+            || !isObject(obj2)
+            || isArray(obj1)
+            || isArray(obj2)
+            || isNumber(obj1)
+            || isNumber(obj2)
+            || isString(obj1)
+            || isString(obj2)
+        )
+    ) {
+        return [];
+    }
+
+    // Function to iterate over keys and compare values
+    function iterateKeys(value: any, key: string | number): void {
+        const path = basePath ? `${basePath}.${key}` : `${key}`;
+        if (isObject(value) && isObject(get(obj2, key))) {
+            // Recursively find paths for nested objects
+            paths = paths.concat(findEqualPaths(value, get(obj2, key), path));
+        } else if (isEqual(value, get(obj2, key))) {
+            // Add path to array if values are equal
+            paths.push(path);
+        }
+    }
+
+    // If both are arrays, iterate using each index
+    if (isArray(obj1) && isArray(obj2)) {
+        each(obj1, (value, index) => iterateKeys(value, `[${index}]`));
+    } else {
+        // Iterate over keys of the first object
+        each(obj1, iterateKeys);
+    }
+
+    return paths;
 }
