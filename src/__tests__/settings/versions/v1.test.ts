@@ -102,6 +102,7 @@ describe('settingsSchema', () => {
         removeDuplicateMathBlockIndicator: true,
         removeDuplicateCodeBlockIndicator: true,
         cacheSuggestions: true,
+        debugMode: true,
     };
 
     const missingPropertiesToTest: (keyof SettingsType)[] = Object.keys(settingsSchema.shape) as (keyof SettingsType)[];
