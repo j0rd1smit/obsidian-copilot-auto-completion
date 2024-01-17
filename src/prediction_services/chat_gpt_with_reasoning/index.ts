@@ -32,6 +32,7 @@ class ChatGPTWithReasoning implements PredictionService {
     private readonly preProcessors: PreProcessor[];
     private readonly postProcessors: PostProcessor[];
     private readonly fewShotExamples: FewShotExample[];
+    private debugMode: boolean;
 
     private constructor(
         client: ApiClient,
@@ -40,7 +41,8 @@ class ChatGPTWithReasoning implements PredictionService {
         removePreAnswerGenerationRegex: string,
         preProcessors: PreProcessor[],
         postProcessors: PostProcessor[],
-        fewShotExamples: FewShotExample[]
+        fewShotExamples: FewShotExample[],
+        debugMode: boolean,
     ) {
         this.client = client;
         this.systemMessage = systemMessage;
@@ -49,6 +51,7 @@ class ChatGPTWithReasoning implements PredictionService {
         this.preProcessors = preProcessors;
         this.postProcessors = postProcessors;
         this.fewShotExamples = fewShotExamples;
+        this.debugMode = debugMode;
     }
 
     public static fromSettings(settings: Settings): PredictionService {
@@ -96,7 +99,8 @@ class ChatGPTWithReasoning implements PredictionService {
             settings.chainOfThoughRemovalRegex,
             preProcessors,
             postProcessors,
-            settings.fewShotExamples
+            settings.fewShotExamples,
+            settings.debugMode,
         );
     }
 
@@ -125,7 +129,7 @@ class ChatGPTWithReasoning implements PredictionService {
             fewShotExamplesToChatMessages(examples);
 
         const messages: ChatMessage[] = [
-            {content: this.systemMessage, role: "system"},
+            {content: this.getSystemMessageFor(context), role: "system"},
             ...fewShotExamplesChatMessages,
             {
                 role: "user",
@@ -136,9 +140,16 @@ class ChatGPTWithReasoning implements PredictionService {
             },
         ];
 
-        let result = await this.client.queryChatModel(messages);
-        result = this.extractAnswerFromChainOfThoughts(result);
+        if (this.debugMode) {
+            console.log("Copilot messages send:\n", messages);
+        }
 
+        let result = await this.client.queryChatModel(messages);
+        if (this.debugMode && result.isOk()) {
+            console.log("Copilot response:\n", result.value);
+        }
+
+        result = this.extractAnswerFromChainOfThoughts(result);
 
         for (const postProcessor of this.postProcessors) {
             result = result.map((r) => postProcessor.process(prefix, suffix, r, context));
@@ -147,6 +158,40 @@ class ChatGPTWithReasoning implements PredictionService {
         result = this.checkAgainstGuardRails(result);
 
         return result;
+    }
+
+    private getSystemMessageFor(context: Context): string {
+        if (context === Context.Text) {
+            return this.systemMessage + "\n\n" + "The <mask/> is located in a paragraph. Your answer must complete this paragraph or sentence in a way that fits the surrounding text without overlapping with it. It must be in the same language as the paragraph.";
+        }
+        if (context === Context.Heading) {
+            return this.systemMessage + "\n\n" + "The <mask/> is located in the Markdown heading. Your answer must complete this title in a way that fits the content of this paragraph and be in the same language as the paragraph.";
+        }
+
+        if (context === Context.BlockQuotes) {
+            return this.systemMessage + "\n\n" + "The <mask/> is located within a quote. Your answer must complete this quote in a way that fits the context of the paragraph.";
+        }
+        if (context === Context.UnorderedList) {
+            return this.systemMessage + "\n\n" + "The <mask/> is located in an unordered list. Your answer must include one or more list items that fit with the surrounding list without overlapping with it.";
+        }
+
+        if (context === Context.NumberedList) {
+            return this.systemMessage + "\n\n" + "The <mask/> is located in a numbered list. Your answer must include one or more list items that fit the sequence and context of the surrounding list without overlapping with it.";
+        }
+
+        if (context === Context.CodeBlock) {
+            return this.systemMessage + "\n\n" + "The <mask/> is located in a code block. Your answer must complete this code block in the same programming language and support the surrounding code and text outside of the code block.";
+        }
+        if (context === Context.MathBlock) {
+            return this.systemMessage + "\n\n" + "The <mask/> is located in a math block. Your answer must only contain LaTeX code that captures the math discussed in the surrounding text. No text or explaination only LaTex math code.";
+        }
+        if (context === Context.TaskList) {
+            return this.systemMessage + "\n\n" + "The <mask/> is located in a task list. Your answer must include one or more (sub)tasks that are logical given the other tasks and the surrounding text.";
+        }
+
+
+        return this.systemMessage;
+
     }
 
     private extractAnswerFromChainOfThoughts(

@@ -60,7 +60,7 @@ class OpenAIApiClient implements ApiClient {
             return errors;
         }
         const result = await this.queryChatModel([
-            {content: "hello world", role: "user"},
+            {content: "Say hello world and nothing else.", role: "user"},
         ]);
 
         if (result.isErr()) {

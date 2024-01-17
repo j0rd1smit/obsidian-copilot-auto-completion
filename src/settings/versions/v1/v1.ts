@@ -1,57 +1,90 @@
 import block_qoute_example
-    from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/block_qoute_example";
+    from "./few_shot_examples/block_qoute_example";
 import codeblock_function_completion
-    from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/codeblock_function_completion";
+    from "./few_shot_examples/codeblock_function_completion";
 import codeblock_function_parameters
-    from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/codeblock_function_parameters";
-import header_example from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/header_example";
+    from "./few_shot_examples/codeblock_function_parameters";
+import header_example from "./few_shot_examples/header_example";
 import numbered_list_example
-    from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/numbered_list_example";
+    from "./few_shot_examples/numbered_list_example";
 import sub_task_list_example
-    from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/sub_task_list_example";
-import task_list_example from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/task_list_example";
+    from "./few_shot_examples/sub_task_list_example";
+import task_list_example from "./few_shot_examples/task_list_example";
 import text_completion_end
-    from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/text_completion_end";
+    from "./few_shot_examples/text_completion_end";
 import text_completion_middle
-    from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/text_completion_middle";
+    from "./few_shot_examples/text_completion_middle";
 import unordered_list_pro_and_con_list
-    from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/unordered_list_pro_and_con_list";
+    from "./few_shot_examples/unordered_list_pro_and_con_list";
 import unordered_list_solid
-    from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/unordered_list_solid";
-import math_block_inline from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/math_block_inline";
+    from "./few_shot_examples/unordered_list_solid";
+import math_block_inline from "./few_shot_examples/math_block_inline";
 import math_block_multi_line
-    from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/math_block_multi_line";
+    from "./few_shot_examples/math_block_multi_line";
 import header_example_relu
-    from "../../prediction_services/chat_gpt_with_reasoning/few_shot_examples/header_example_relu";
-
+    from "./few_shot_examples/header_example_relu";
+import {
+    MAX_DELAY,
+    MAX_MAX_CHAR_LIMIT,
+    MIN_DELAY,
+    MIN_MAX_CHAR_LIMIT,
+    ollamaApiSettingsSchema,
+} from "../shared";
 import {z} from "zod";
-import {azureOAIApiSettingsSchema, fewShotExampleSchema, modelOptionsSchema, openAIApiSettingsSchema} from "./shared";
-import {MAX_DELAY, MAX_MAX_CHAR_LIMIT, MIN_DELAY, MIN_MAX_CHAR_LIMIT} from "./shared";
+import {azureOAIApiSettingsSchema, fewShotExampleSchema, modelOptionsSchema, openAIApiSettingsSchema} from "../shared";
+import {isRegexValid, isValidIgnorePattern} from "../../utils";
 
 export const triggerSchema = z.object({
     type: z.enum(['string', 'regex']),
-    value: z.string(),
-}).strict();
+    value: z.string().min(1, {message: "Trigger value must be at least 1 character long"})
+}).strict().superRefine((trigger, ctx) => {
+    if (trigger.type === "regex") {
+        if (!trigger.value.endsWith("$")) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: "Regex triggers must end with a $.",
+                path: ["value"],
+            });
+        }
+        if (!isRegexValid(trigger.value)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: `Invalid regex: "${trigger.value}"`,
+                path: ["value"],
+            });
+        }
+    }
+});
+
 
 export const settingsSchema = z.object({
+    version: z.literal("1"),
     enabled: z.boolean(),
     advancedMode: z.boolean(),
-    apiProvider: z.enum(['azure', 'openai']),
+    apiProvider: z.enum(['azure', 'openai', "ollama"]),
     azureOAIApiSettings: azureOAIApiSettingsSchema,
     openAIApiSettings: openAIApiSettingsSchema,
+    ollamaApiSettings: ollamaApiSettingsSchema,
     triggers: z.array(triggerSchema),
     delay: z.number().int().min(MIN_DELAY, {message: "Delay must be between 0ms and 2000ms"}).max(MAX_DELAY, {message: "Delay must be between 0ms and 2000ms"}),
     modelOptions: modelOptionsSchema,
     systemMessage: z.string().min(3, {message: "System message must be at least 3 characters long"}),
     fewShotExamples: z.array(fewShotExampleSchema),
     userMessageTemplate: z.string().min(3, {message: "User message template must be at least 3 characters long"}),
-    chainOfThoughRemovalRegex: z.string(),
+    chainOfThoughRemovalRegex: z.string().refine((regex) => isRegexValid(regex), {message: "Invalid regex"}),
     dontIncludeDataviews: z.boolean(),
-    // TODO: see if we can replace this with tokens in the future.
     maxPrefixCharLimit: z.number().int().min(MIN_MAX_CHAR_LIMIT, {message: `Max prefix char limit must be at least ${MIN_MAX_CHAR_LIMIT}`}).max(MAX_MAX_CHAR_LIMIT, {message: `Max prefix char limit must be at most ${MAX_MAX_CHAR_LIMIT}`}),
     maxSuffixCharLimit: z.number().int().min(MIN_MAX_CHAR_LIMIT, {message: `Max prefix char limit must be at least ${MIN_MAX_CHAR_LIMIT}`}).max(MAX_MAX_CHAR_LIMIT, {message: `Max prefix char limit must be at most ${MAX_MAX_CHAR_LIMIT}`}),
     removeDuplicateMathBlockIndicator: z.boolean(),
-    removeDuplicateCodeBlockIndicator: z.boolean()
+    removeDuplicateCodeBlockIndicator: z.boolean(),
+    ignoredFilePatterns: z.string().refine((value) => value
+        .split("\n")
+        .filter(s => s.trim().length > 0)
+        .filter(s => !isValidIgnorePattern(s)).length === 0,
+        {message: "Invalid ignore pattern"}
+    ),
+    cacheSuggestions: z.boolean(),
+    debugMode: z.boolean(),
 }).strict();
 
 export const pluginDataSchema = z.object({
@@ -60,6 +93,8 @@ export const pluginDataSchema = z.object({
 
 
 export const DEFAULT_SETTINGS: Settings = {
+    version: "1",
+
     // General settings
     enabled: true,
     advancedMode: false,
@@ -67,12 +102,16 @@ export const DEFAULT_SETTINGS: Settings = {
     // API settings
     azureOAIApiSettings: {
         key: "",
-        url: "",
+        url: "https://YOUR_AOI_SERVICE_NAME.openai.azure.com/openai/deployments/YOUR_DEPLOYMENT_NAME/chat/completions",
     },
     openAIApiSettings: {
         key: "",
         url: "https://api.openai.com/v1/chat/completions",
         model: "gpt-3.5-turbo",
+    },
+    ollamaApiSettings: {
+        url: "http://localhost:11434/api/chat",
+        model: "",
     },
 
     // Trigger settings
@@ -87,6 +126,7 @@ export const DEFAULT_SETTINGS: Settings = {
         {type: "string", value: "' "},
         {type: "string", value: "= "},
         {type: "string", value: "$ "},
+        {type: "string", value: "> "},
         {type: "string", value: "\n"},
 
         // bullet list
@@ -101,7 +141,7 @@ export const DEFAULT_SETTINGS: Settings = {
         {type: "regex", value: "\\s*(-|[0-9]+\\.) \\[.\\]\\s+$"},
     ],
 
-    delay: 1000,
+    delay: 500,
     // Request settings
     modelOptions: {
         temperature: 1,
@@ -113,10 +153,12 @@ export const DEFAULT_SETTINGS: Settings = {
     // Prompt settings
     systemMessage: `Your job is to predict the most logical text that should be written at the location of the <mask/>.
 Your answer can be either code, a single word, or multiple sentences.
-Your answer must be in the same language as the text that is already there.
 Your response must have the following format:
-THOUGHT: here you explain your reasoning of what could be at the location of <mask/>
-ANSWER: here you write the text that should be at the location of <mask/>
+THOUGHT: here, you reason about the answer; use the 80/20 principle to be brief.
+LANGUAGE: here, you write the language of your answer, e.g. English, Python, Dutch, etc.
+ANSWER: here, you write the text that should be at the location of <mask/>
+You are not allowed to have any overlapping text directly surrounding the <mask/>.  
+Your answer must be in the same language as the text directly surrounding the <mask/>.
 `,
     fewShotExamples: [
         block_qoute_example,
@@ -138,16 +180,15 @@ ANSWER: here you write the text that should be at the location of <mask/>
     chainOfThoughRemovalRegex: `(.|\\n)*ANSWER:`,
     // Preprocessing settings
     dontIncludeDataviews: true,
-    maxPrefixCharLimit: 2000,
-    maxSuffixCharLimit: 2000,
+    maxPrefixCharLimit: 4000,
+    maxSuffixCharLimit: 4000,
     // Postprocessing settings
     removeDuplicateMathBlockIndicator: true,
     removeDuplicateCodeBlockIndicator: true,
+    ignoredFilePatterns: "**/secret/**\n",
+    cacheSuggestions: true,
+    debugMode: false,
 };
-
-export const DEFAULT_PLUGIN_DATA: PluginData = {
-    settings: DEFAULT_SETTINGS,
-}
 
 export type Settings = z.input<typeof settingsSchema>;
 export type Trigger = z.infer<typeof triggerSchema>;

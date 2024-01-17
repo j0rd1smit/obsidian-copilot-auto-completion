@@ -3,11 +3,10 @@ import RemoveOverlap from "../../../prediction_services/post_processors/remove_o
 import Context from "../../../context_detection";
 
 
-
 const noOverWithPrefixData = [
     ["Hello ", "there. "],
-    ["Hello my name is bob",  ""],
-    ["Hello my name ",  "is bob"],
+    ["Hello my name is bob", ""],
+    ["Hello my name ", "is bob"],
     ["abc", "efg"],
     ["", "efg"],
 ];
@@ -21,7 +20,7 @@ test.each(noOverWithPrefixData)(
 
 function removeOverlapFromCompletion(prefix: string, suffix: string, completion: string) {
     const postProcessor = new RemoveOverlap();
-    return  postProcessor.process(prefix, suffix, completion, Context.Text);
+    return postProcessor.process(prefix, suffix, completion, Context.Text);
 }
 
 const noOverWithSuffixData = [
@@ -49,7 +48,7 @@ const overWithPrefixData = [
 test.each(overWithPrefixData)(
     `overWithPrefixIsRemoved('%s', '%s', '%s', '%s')`,
     (prefix, completion, expected) => {
-         const suffix = "";
+        const suffix = "";
         expect(removeOverlapFromCompletion(prefix, suffix, completion)).toEqual(expected);
     }
 );
@@ -90,3 +89,22 @@ test('scenario with empty line before it', () => {
 - Unbalanced data`;
     expect(removeOverlapFromCompletion(prefix, suffix, completion)).toEqual(expected);
 });
+
+
+test.each([
+    {
+        "prefix": "# ",
+        "completion": "Introductie van Bitcoin",
+        "suffix": "\nBitcoin is een nieuw soort digitaal geld.",
+        "expected": "Introductie van Bitcoin"
+    },
+    {
+        "prefix": "# ",
+        "completion": "Introductie van Bitcoin\nBitcoin is een nieuw soort digitaal geld.",
+        "suffix": "\nBitcoin is een nieuw soort digitaal geld.",
+        "expected": "Introductie van Bitcoin"
+    },
+])(`regression test for removeOverlapFromCompletion (%s)`,
+    ({prefix, completion, suffix, expected}) => {
+        expect(removeOverlapFromCompletion(prefix, suffix, completion)).toEqual(completion);
+    });

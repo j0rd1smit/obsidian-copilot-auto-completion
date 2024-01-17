@@ -1,5 +1,5 @@
-import {FewShotExample} from "../../../settings/versions";
-import Context from "../../../context_detection";
+import {FewShotExample} from "../../index";
+import Context from "../../../../context_detection";
 
 const example: FewShotExample = {
     context: Context.Heading,
@@ -8,7 +8,8 @@ A neuron is considered dead if it does not activate for any of the training inst
 1. Poorly initialized weights.
 2. Extremely high learning rates during training.
 `,
-    answer: `THOUGHT: <mask/> is located inside a Markdown headings, so I should write a title. There is no text in the header yet. The text after <mask/> is about the dead ReLU problem, so the title should reflect this.
+    answer: `THOUGHT: The paragraph discusses the ReLU activation function, and dead neurons never activate. This problem is named the "Dead ReLU problem".
+LANGUAGE: English
 ANSWER: The dead ReLU problem`,
 };
 

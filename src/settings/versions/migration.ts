@@ -1,11 +1,21 @@
-import {Settings as SettingsV0, settingsSchema as settingsSchemaV0, Trigger} from "./v0";
-import {Settings as SettingsV1, DEFAULT_SETTINGS as DEFAULT_SETTINGS_V1, settingsSchema as settingsSchemaV1} from "./v1";
-import {cloneDeep} from "lodash";
-import {isRegexValid} from "../utils";
+import {
+    DEFAULT_SETTINGS as DEFAULT_SETTINGS_V0,
+    Settings as SettingsV0,
+    settingsSchema as settingsSchemaV0,
+    Trigger
+} from "./v0/v0";
+import {
+    DEFAULT_SETTINGS as DEFAULT_SETTINGS_V1,
+    Settings as SettingsV1,
+    settingsSchema as settingsSchemaV1
+} from "./v1/v1";
+import {cloneDeep, get, has, set} from "lodash";
+import {findEqualPaths, isRegexValid} from "../utils";
 
 export function migrateFromV0ToV1(settings: SettingsV0): SettingsV1 {
     // eslint-disable  @typescript-eslint/no-explicit-any
     const updatedSettings: any = cloneDeep(settings);
+    migrateDefaultSettings(updatedSettings, DEFAULT_SETTINGS_V0, DEFAULT_SETTINGS_V1);
 
     updatedSettings.triggers.forEach((trigger: Trigger) => {
         // Check if the trigger type is 'regex' and if its value does not end with '$'
@@ -27,16 +37,25 @@ export function migrateFromV0ToV1(settings: SettingsV0): SettingsV1 {
         updatedSettings.chainOfThoughRemovalRegex = DEFAULT_SETTINGS_V1.chainOfThoughRemovalRegex;
     }
 
-    updatedSettings.ignoredFilePatterns = "";
+    updatedSettings.ignoredFilePatterns = DEFAULT_SETTINGS_V1.ignoredFilePatterns;
     updatedSettings.cacheSuggestions = DEFAULT_SETTINGS_V1.cacheSuggestions;
     updatedSettings.ollamaApiSettings = DEFAULT_SETTINGS_V1.ollamaApiSettings;
+    updatedSettings.debugMode = DEFAULT_SETTINGS_V1.debugMode;
 
     // Parsing the updated settings to ensure they match the SettingsV1 schema
     return settingsSchemaV1.parse(updatedSettings);
 }
 
 
-
+function migrateDefaultSettings(setting: any, previousDefault: any, currentDefault: any): any {
+    const unchangedDefaultProperties = findEqualPaths(setting, previousDefault);
+    for (const path of unchangedDefaultProperties) {
+        if (has(currentDefault, path)) {
+            const newDefaultValue = get(currentDefault, path);
+            set(setting, path, newDefaultValue);
+        }
+    }
+}
 
 
 export const isSettingsV0 = (settings: object): boolean => {

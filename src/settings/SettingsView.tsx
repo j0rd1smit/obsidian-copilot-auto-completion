@@ -57,15 +57,18 @@ export default function SettingsView(props: IProps): React.JSX.Element {
             ...settings.azureOAIApiSettings,
         };
         const openAIApiSettings = {
-            ...DEFAULT_SETTINGS.openAIApiSettings,
-            key: settings.openAIApiSettings.key,
+           ... settings.openAIApiSettings,
         };
+        const ollamaApiSettings = {
+            ...settings.ollamaApiSettings,
+        }
 
         const newSettings: Settings = {
             ...DEFAULT_SETTINGS,
             apiProvider: settings.apiProvider,
             azureOAIApiSettings,
             openAIApiSettings,
+            ollamaApiSettings,
             advancedMode: settings.advancedMode,
         };
         updateSettings(newSettings);
@@ -250,6 +253,14 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                     ollama: "Self-hosted OLLAMA API"
                 }}
                 errorMessage={errors.get("apiProvider")}
+            />
+            <CheckBoxSettingItem
+                name={"Debug mode"}
+                description={
+                    "If enabled, various debug messages will be logged to the console, such as the complete response from the API, including the chain of thought tokens."
+                }
+                enabled={settings.debugMode}
+                setEnabled={(value) => updateSettings({debugMode: value})}
             />
 
             <h2>API</h2>

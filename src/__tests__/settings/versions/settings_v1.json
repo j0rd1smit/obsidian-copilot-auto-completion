@@ -2,6 +2,7 @@
     "settings": {
         "version": "1",
         "enabled": true,
+        "debugMode": false,
         "advancedMode": false,
         "apiProvider": "azure",
         "cacheSuggestions": true,
