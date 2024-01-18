@@ -153,12 +153,13 @@ export const DEFAULT_SETTINGS: Settings = {
     // Prompt settings
     systemMessage: `Your job is to predict the most logical text that should be written at the location of the <mask/>.
 Your answer can be either code, a single word, or multiple sentences.
+If the <mask/> is in the middle of a partial sentence, your answer should only be the 1 or 2 words fixes the sentence and not the entire sentence.
+You are not allowed to have any overlapping text directly surrounding the <mask/>.  
+Your answer must be in the same language as the text directly surrounding the <mask/>.
 Your response must have the following format:
 THOUGHT: here, you reason about the answer; use the 80/20 principle to be brief.
 LANGUAGE: here, you write the language of your answer, e.g. English, Python, Dutch, etc.
 ANSWER: here, you write the text that should be at the location of <mask/>
-You are not allowed to have any overlapping text directly surrounding the <mask/>.  
-Your answer must be in the same language as the text directly surrounding the <mask/>.
 `,
     fewShotExamples: [
         block_qoute_example,
