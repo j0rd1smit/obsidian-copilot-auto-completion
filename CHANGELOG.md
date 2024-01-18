@@ -9,6 +9,7 @@
 - Added support for [Ollama](https://ollama.ai/) as a local API provider.
 - Improve language detection. The plugin should now more often write responses in the same language as the text around the cursor. If you customize the few shot examples or system prompt, you might need to press the factory reset to get the updated settings. If you have not customized it, it will update automatically.
 - Improve default few shot examples and system prompt. They are now shorter and more focused on the reasoning, resulting in better and faster suggestions. If you customize the few shot examples or system prompt, you might need to press the factory reset to get the updated settings. If you have not customized it, it will update automatically.
+- Add guides for how to configure the extension for different API providers and how to get the needed API keys.
 
 ## 1.0.7
 - If a prediction fails, the full exception is now logged to the console. Allowing users to investigate the issue further.
