@@ -42,7 +42,7 @@ class QueuedState extends State {
     ): Promise<void> {
         if (
             documentChanges.isDocInFocus() &&
-            documentChanges.hasUserTyped() &&
+            documentChanges.isTextAdded() &&
             this.context.containsTriggerCharacters(documentChanges)
         ) {
             this.cancelTimer();

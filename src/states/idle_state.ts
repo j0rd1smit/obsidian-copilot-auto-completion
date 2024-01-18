@@ -20,7 +20,7 @@ class IdleState extends State {
         }
 
         const cachedSuggestion = this.context.getCachedSuggestionFor(documentChanges.getPrefix(), documentChanges.getSuffix());
-        const isThereCachedSuggestion = cachedSuggestion !== undefined;
+        const isThereCachedSuggestion = cachedSuggestion !== undefined && cachedSuggestion.trim().length > 0;
 
         if (this.context.settings.cacheSuggestions && isThereCachedSuggestion) {
             this.context.transitionToSuggestingState(cachedSuggestion, documentChanges.getPrefix(), documentChanges.getSuffix());

@@ -25,8 +25,7 @@ export const InlineSuggestionState = StateField.define<OptionalSuggestion>({
         );
 
         if (
-            inlineSuggestion?.value?.doc !== undefined &&
-            transaction?.state?.doc === inlineSuggestion?.value?.doc
+            inlineSuggestion?.value?.doc !== undefined
         ) {
             return inlineSuggestion.value.suggestion;
         }
@@ -58,7 +57,7 @@ export const cancelSuggestion = (view: EditorView) => {
         view.dispatch({
             effects: InlineSuggestionEffect.of({
                 suggestion: {
-                    value: "suggestion",
+                    value: "",
                     render: false,
                 },
                 doc: doc,
