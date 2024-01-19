@@ -1,293 +1,176 @@
 # Copilot like auto-completion for Obsidian
-This plugin adds a copilot-like auto-completion to Obsidian.
-It uses the OpenAI API or Azure OpenAi API to generate text based on the `n` characters before and after your cursor.
+This plugin adds a Copilot-like auto-completion to Obsidian.
+It uses large language models (LLMs) to generate text based on the `n` characters before and after your cursor.
 It will show the suggested completion in transparent text next to your cursor. 
-You can then press Tab to insert the entire suggestion, or the right arrow key to insert part of the suggestion. Additionally, you can press Escape or move the cursor to ignore the suggestion.
+You can then press Tab to insert the entire suggestion, or the right arrow key to insert part of the suggestion. 
+Additionally, you can press Escape or move the cursor to ignore the suggestion.
+The plugin supports multiple API providers, such as OpenAI, Azure OpenAI and Ollama.
 
-![demo](assets/demo.gif)
-
-## Usage
-When you are writing, the plugin watches if the text before your cursor matches any of the trigger words or regexes.
-If it does, it will queue a prediction request. 
-The plugin will cancel the prediction request if you move the cursor, change the document, or press escape.
-Prediction requests will be queued for a certain time to prevent excessive API calls.
-Once the prediction request is made, the plugin will show the suggestion in transparent text.
-You can accept the entire suggestion by pressing the Tab key or using the `Obsidian Copilot: Accept` quick action.
-You can accept part of the suggestion by continually pressing the right arrow key to insert the next suggested word.
-If you press escape, move the cursor or change the document, the suggestion will be canceled.
-
-Sometimes, you may force a prediction request at a particular location in the document.
-Theoretically, you can add a trigger rule that will always match, which can be costly.
-Instead, you can use the `Obsidian Copilot: Predict` quick action.
-The plugin will directly make a prediction request and show the suggestion.
-![prediction_quick_action](assets/type_hint_prediction.gif)
-
-If you are working on a privacy-sensitive document, you might not want to share its content with the API provider.
-To prevent this, you can temporarily disable the plugin. 
-The easiest way to do this is to use one of the quick actions.
-Open the command palette (`CMD + P` on Mac or `CTRL + P` on Windows) and search for `Obsidian Copilot: Disable`. This action will put the plugin in the disabled state.
-In this state, the plugin will ignore all triggers and not send any text to the API provider.
-The plugin will stay in this state until you enable it again, even if you close and reopen Obsidian.
-When you want to enable the plugin again, you can use the `Obsidian Copilot: Enable` quick action.
-
-![disable](assets/disable_quick_action.jpg)
+![demo](assets/demo-static.gif)
 
 
-## Installation
-After installing the plugin, you need to configure your API provider.
-You can do this as follows:
-1. Go to the plugin settings.
-2. Ensure you installed this plugin and enabled it under "Community plugins" settings.
-3. Go to the `Obsidian Copilot` settings.
-4. Select your API provider.
-5. If you selected the OpenAI API, you must provide your API key. 
-6. If you selected the Azure OpenAI API, you must provide your API key and endpoint. 
-7. Click the test connection button to verify that the plugin can connect to the API provider. If the test fails, check your API key and endpoint.
-8. Close the settings window.
-9. You are now ready to use the plugin.
 
+## Features
+The plugin offers the following features:
+
+- **Fill-in-the-Middle Auto-Completion**: The plugin provides suggestions based on the `n` characters before and after your cursor, displaying the proposed text as transparent overlay near your cursor, tailored to fit the current context. Want to know how it works? See the [how does the model work in detail?](docs/how%20does%20the%20model%20work%20in%20details.md) documentation.
+- **Context-Aware Suggestions**: The suggestions adapt to the current writing context. For instance, the plugin will offer text suggestions in paragraphs, code in code blocks, and LaTeX formulas in math blocks, among others. Want to know how it does this? See the [context aware few shot examples](docs/how%20does%20the%20model%20work%20in%20details.md#context-aware-few-shot-examples) documentation.
+- **Language-Aware Suggestions**: The automaticly tries to detect the language around the cursor and nudges the model to generate text in that language. See the [language detection documentation](docs/how%20does%20the%20model%20work%20in%20details.md#language-detection) for more information.
+- **Multiple API Providers**: Support is available for various API providers, including [OpenAI](docs/how-to/OpenAI%20API%20setup%20guide.md), [Azure OpenAI](docs/how-to/Azure%20API%20setup%20guide.md), and [Ollama](docs/how-to/Ollama%20setup%20guide.md).
+- **Highly Customizable**: Configure elements like [triggers](docs/personalization%20and%20settings.md#triggers), [trigger delay](docs/personalization%20and%20settings.md#trigger-delay), [prefix/suffix size](docs/personalization%20and%20settings.md#preprocessing), [text generation settings](docs/personalization%20and%20settings.md#model-options), [custom few-shot examples](docs/personalization%20and%20settings.md#customize-the-few-shot-examples), and the [custom system prompt](docs/personalization%20and%20settings.md#customize-the-system-prompts) to your liking.
+- **Git-Ignore-Like Functionality**: The plugin features functionality similar to `.gitignore`, automatically disabling itself when opening files that match certain patterns. This helps prevent unintended triggers in sensitive documents. For more information, [click here](docs/how-to/ignore%20files.md).
+- **Partial Suggestions Insertion**: Insert portions of a suggestion incrementally using the right arrow key, enabling word-by-word insertion.
+- **Smart Caching**: Suggestions are cached to minimize API calls. If the typed text matches a cached suggestion, that suggestion is displayed, avoiding an additional API call.
+- **Optimized to Reduce API Calls**: The plugin employs an intelligent queuing and trigger detection system to minimize API call frequency. For more information, [click here](docs/plugin%20design.md).
+- **Easy to disable**: The plugin can be disabled at any time using the `Obsidian Copilot: Disable` command. This allows you to disable the plugin when working on sensitive documents or when you are currently not in need of suggestions. 
+
+
+## Getting Started
+To install the plugin, please follow these steps:
+
+1. Open Obsidian.
+2. Navigate to the 'Settings' menu.
+3. Select the 'Community Plugins' tab.
+4. Disable 'Restricted Mode' by turning it off.
+5. Access the Community Plugins Store by clicking the 'Browse' button.
+6. Search for 'Copilot Auto Completion.'
+7. Click the 'Install' button to proceed with the installation.
+8. Once installed, activate the plugin by enabling it in the 'Community Plugins' settings.
+9. Proceed to the 'Copilot Auto Completion' settings section.
+10. Choose your API provider and refer to the corresponding guide for specific instructions: 
+    - [OpenAI API setup guide](docs/how-to/OpenAI%20API%20setup%20guide.md)
+    - [Azure OpenAI API setup guide](docs/how-to/Azure%20API%20setup%20guide.md)
+    - [Ollama setup guide](docs/how-to/Ollama%20setup%20guide.md)
+11. Depending on your chosen API provider, you may be required to enter additional details, such as an API key or endpoint URLs.
+12. Once you have entered all necessary information, use the 'Test Connection' button to ensure that the plugin can successfully connect to the API provider.
+13. If the test is successful, the plugin is ready for use.
+
+The following GIF demonstrates what a successful connection test should look like:
 ![settings](assets/settings_demo.gif)
 
-## How does it work?
+The plugin is now ready for use.  
+It monitors the text you type for specific triggers, such as end-of-sentence punctuation, a new line, or a list item.
+Upon detecting a trigger, it presents context-specific suggestions.  
+For instance, try typing the following:  
+   
+```text  
+# A Tale of Two Cities  
+   
+The most famous quote from this book is:  
+```
+   
+Once you type a space after the `:`, the plugin should display a suggestion like this.
 
-### Model
-The prediction task has been formulated as a mask replacement task.
-Using prompt engineering, we can make a Chat-LLM model to perform this task.
-To do this, we give the model the following system instructions:
+![](assets/a-tale-of-two-cities-example.jpg)
+
+Note: To minimize API calls and costs, this plugin is not as sensitive to triggers as the original Copilot.
+It only activates after specific triggers, such as end-of-sentence punctuation, a new line, or a list item.
+For more information, see the [triggers documentation](docs/personalization%20and%20settings.md#triggers).
+
+## How It Works
+
+This plugin utilizes large language models (LLMs) to perform fill-in-the-middle auto-completion. 
+By default, most LLMs are not trained for this specific task. 
+However, through prompt engineering, we can adapt LLMs to facilitate fill-in-the-middle auto-completion.
+The system prompt we use looks roughly like this:
 
 ```text
 Your job is to predict the most logical text that should be written at the location of the <mask/>.
 Your answer can be either code, a single word, or multiple sentences.
-Your answer must be in the same language as the text that is already there.
-Your response must have the following format:
-THOUGHT: here you explain your reasoning of what could be at the location of <mask/>
-ANSWER: here you write the text that should be at the location of <mask/>
+Your answer must be in the same language as the existing text.
+...
 ```
 
-We then provide the model with the (truncated) text before and after the cursor in the format `<truncated_text_before_cursor> <mask/> <truncated_text_after_cursor>`.
-For example, the user message to the model for the Attention formula in the example above would be:
-
-```text
-Weighted average of (sequence) elements, with the weights dynamically computed based on an input query and elements' keys. 
-
-The attention weight $a_i$ is calculated as follows:
-$$
-<mask/>
-$$
-
-In this formula we have the following components:
-- Value: For each element, we have a feature vector per element we want to average over.
-- Score function  $f_{score}(key, query)$: uses the queries and keys to calculate the weights per value. (Typically a simple similarity metric or MLP.)
-- Attention weight $\alpha_i$: the amount of attention to put on value $i$.
-```
-
-The model then responses with something like:
-
-```text
-THOUGHT: The </mask> is located in a math block. The text before the mask is explaining the attention weight calculation. Based on the text, my answer should be the formula for calculating the attention weight using the score function. 
-ANSWER: \alpha_i = \frac{\exp(f_{score}(key_i, query))}{\sum_j \exp(f_{score}(key_j, query))}
-```
-
-The thought part helps the model to reason about the task and focuses the attention mechanism on the relevant parts of the text.
-However, the thought part is not very useful for the user.
-So, we remove this part. As a result, the suggestion only contains the generated text after the `ANSWER:` part.
-
-As you can see in the above example, the model only has access to the text in the current document.
-This prevents the model from leaking information from other documents that might be privacy-sensitive. 
-
-### Context aware few shot examples
-The above model setup already works quite well, but it can be improved by using context-aware few-shot examples.
-The key idea here is that we expect specific types of answers at specific locations in the document.
-For example:
-- In a math block, we expect latex formulas.
-- In a code block, we expect code in the same language as the code block.
-- In a list, we expect a new list item.
-- In a heading, we expect a new heading that represents the paragraph's content.
-- In a paragraph, we expect a new sentence consistent with the text around it.
-- etc.
-
-You can probably think of many more examples and rules.
-As a result, the system prompt can become long and complex.
-Instead, it is easier to prevent this by giving the model some example input and output pairs.
-These pairs implicitly show the model what you expect in the response for the given context.
-For example, we give the model the following example in a math block.
-
-Input:
-```text
-# Sample mean
-The sample mean, or sometime called average, is defined as:
-
-$$
-sample_mean(x) = <mask/>
-$$
-The average value has the property that 50% of the weighted* value will be above and below it. This weighted property can make it more sensitive to outliers than the median.
-```
-
-Output:
-```text
-THOUGHT: The </mask> is located in math block. Based on the text before and after the mask my answer should be the latex formula for the sample mean. 
-ANSWER: \frac{1}{n} \sum_i^n x_i
-```
-
-This example is math block specific, so this example will only be included if the cursor is in a math block.
-Besides math blocks, we also support a wide range of other contexts, such as:
-- Math blocks;
-- Code blocks;
-- Numbered lists;
-- Unordered/bullet lists;
-- Task lists;
-- Headings;
-- Normal text;
-- Block quotes;
-- etc.
-
-You can find all the examples under the advanced settings.
-You can also add your own examples or customize the existing ones.
-This way, you tell the model about your specific writing style and expectations.
-See the [advanced settings](#advanced-configuration) section for more information.
-
-### Plugin design
-The plugin has been designed to minimize the number of API calls.
-It does this using an intelligent queueing and trigger detection system.
-This system can quickly become quite complex, so it has been designed using a [state machine](https://refactoring.guru/design-patterns/state).
-In the bottom right corner of the Obsidian window, you can see the current state of the plugin. 
-The plugin is always in one of the following states:
-- **Idle**: The plugin is enabled, waiting for a trigger.
-- **Queued**: The plugin has detected a trigger and is waiting for the trigger delay to expire before going to the predicting state.
-- **Predicting**: The plugin requests a prediction from the API provider. 
-- **Suggesting**: The plugin shows the prediction suggestion and waits for the user to accept or reject it.
-- **Disabled**: The plugin is disabled, preventing it from reacting to any trigger.
-
-The queueing state is the most important state for minimizing the number of API calls since it prevents the plugin from making undesired API calls in the prediction state. This is important since your API provider will bill you for all API calls made, even if you don't use the suggestion that comes out of it.
-You can minimize these costs by configuring how long the plugin stays queued.
-Increasing this delay will reduce the number of API calls but will also make the plugin feel less responsive.
-So you should find a balance between these two factors that works for you.
-
-The relationship and transitions between the states are shown in the following diagram:
-![states](assets/state_diagram.jpg)
+We then supply the model with the truncated text before and after the cursor, formatted as `<truncated_text_before_cursor> <mask/> <truncated_text_after_cursor>`. 
+The model responds with the text it predicts should fill the `<mask/>`. 
+After some post-processing, we present this prediction to the user as a suggestion.
 
 
-## Personalization and settings
-The plugin has been designed to be highly customizable. 
-You can customize the following aspects of the plugin.
+In addition to the system prompt, we provide the model with context-specific examples to enhance its performance and make it more context-aware.
+For instance, if the cursor is within a code block, we supply code-related examples to the model. 
+Conversely, if the cursor is in a title, we offer title-related examples. 
+This approach informs the model of our expectations for the response in the given context. 
+The plugin accommodates a wide array of contexts, including code blocks, math blocks, lists, headings, paragraphs, and more.
+These few-shot examples are customizable, allowing you to tailor them to your writing style or language preferences (see [Custom Few-Shot Examples](docs/personalization%20and%20settings.md#customize-the-few-shot-examples) for more information).
 
-### Triggers
-The plugin has default triggers such as:
-- End of sentence: `.` `!` `?`
-- End of the line: `\n`
-- List or task items.
-- etc.
-
-If you prefer different triggers, you edit or remove the default triggers or add your own.
-To do this, go to the settings and triggers section.
-If you press the `+` button, you can add a new trigger.
-You must decide if each trigger is a string or a regex trigger.
-If you select string, the plugin will check if the prefix ends with this specific string.
-If you select regex, the plugin will check if the prefix matches the regex.
-Do not forget to add the end-of-line symbol (`$`) for the regex triggers. Else you might match in the middle of the prefix.
-Also, be aware that more trigger-happy triggers can result in more API calls and, thus, higher costs.
-
-### Trigger delay
-The trigger delay is the amount of time the plugin stays in the queueing state before going to the predicting state.
-This delay prevents the plugin from making too many API calls by automatically canceling the prediction request if the user continues typing.
-You can configure this delay in the settings.
-Increasing this delay will reduce the number of API calls but will also make the plugin feel less responsive.
-So you should find a balance between these two factors that works for you.
-
-### Model options
-The LLM models also have certain hyperparameters that can be tuned.
-For example, you are free to change the following parameters:
-- `temperature`: Controls randomness. Lower temperatures result in more repetitive and deterministic responses. Higher temperatures will result in more unexpected or creative responses.
-- `top_p`: Like the temperature, lowering Top P will limit the model's token selection to likelier tokens. Increasing Top P expands the model's token selection with lower likelihood tokens.
-- `max_tokens`: The maximum number of tokens the model is allowed to generate. This includes the chain of thought tokens before the answer.
-- `presence_penalty`: Reduce the chance of repeating any token that has appeared in the text so far. This increases the likelihood of introducing new topics in a response.
-- `frequency_penalty`: Reduce the chance of repeating a token proportionally based on how often it has appeared in the text so far. This decreases the likelihood of repeating the exact same text in a response.
-
-These parameters allow you to customize the model's creativity and reliability.
-Feel free to experiment with these parameters to find the best settings for you.
-
-### Preprocessing
-Before the text is sent to the API provider, the plugin will do some preprocessing.
-This typically involves removing some text that is not relevant to the API provider.
-The most important thing here is the number of characters in the prefix and suffix that you want to include in the prediction request.
-These settings will truncate the prefix to the last `n` characters and the suffix to the first `m` characters.
-Especially for large documents, this can significantly reduce inference time and costs.
-However, if you set these values too low, the model might not have enough context to generate a good response.
-So you should find a balance between these two factors that work for you.
-
-### Advanced configuration
-For advanced users, we also provide the option to customize the prompt engineering aspects of the plugin.
-These settings are hidden by default, but you can make them visible by enabling the advanced model setting.
-Feel free to experiment with these settings to find the best ones for you.
-If you mess up the settings, you can always reset them using the factory reset button to the default values.
-Be aware that this will reset all the settings to the default values.
-So ensure you have a backup of your settings if you want to keep them.
-
-#### Customize the system prompts
-The [model](#model) section shows the default system prompts.
-This prompt is fully customizable.
-Feel free to experiment with this prompt to find the best settings for you.
-However, be aware that you must make it consistent with the following settings:
-- [Few shot examples](#customize-the-few-shot-examples)
-- Chain-of-thought removal regex: This regex removes all the non-answer-related text from the response. If this is not done correctly, you might get unexpected text in your suggestions.
-- User message template: This template is used to generate the user message that is shown in the suggestion. It determines how the prefix, mask, and suffix are combined into a single message.
-
-![system_prompt](assets/system_message_settings.jpg)
-
-#### Customize the few shot examples
-In the [model](#model) section, we have shown how the few shot examples are used to improve the model's predictions.
-These examples are fully customizable.
-You can add examples by pressing the `+` button (red rectangle).
-You can remove examples by pressing the `x` button (blue rectangle).
-An example consists of 3 parts:
-- **Context** (yellow rectangle): This is the context in which examples should be used. The plugin uses this to determine when to use this example. The example will not be used if the cursor is not in this context.
-- **Human message**: This is the input we want to give the model. This is an example document with text before and after `<mask/>`.
-- **Assist message**: This is an example answer of a suitable response. This answer should be consistent with the system prompt and the chain-of-thought removal regex.
-
-![few_shot_examples](assets/few_shot_example_settings.jpg)
+![context aware few shot examples](assets/few-shot-example-visual.gif)
 
 
-## Local development
-To develop the plugin locally, you can follow the following steps:
+This overview gives you a high-level understanding of how the plugin functions. Interested in more details?
+Explore the following pages:
+- [How Does the Model Work in Detail?](docs/how%20does%20the%20model%20work%20in%20details.md)
+- [How is the plugin designed?](docs/plugin%20design.md)
+- [What are the different states of the plugin?](docs/plugin%20design.md#plugin-design)
 
-1. Go to your (development) obsidian vault.
-2. Find the dotfiles folder with all the configs. Typically name `.obsidian`
-3. Go to the plugin folder here. This is typically named `plugins`. If you have not installed any plugins, this folder might not exist.
-4. Clone the project here using: `git clone https://github.com/j0rd1smit/obsidian-copilot`
-5. Navigate into the newly created obsidian-copilot folder using: `cd obsidian-copilot`.
-6. Install the dependencies using: `npm install`.
-7. Run the build script using: `npm run dev`. This will watch the files and automatically rebuild the plugin when you make changes.
-8. Restart Obsidian to load the plugin. You can also use the `reload app without saving` action to reload the Obisidian app without closing it.
-9. Go to the community plugins and enable obsidian-copilot.
-10. Go to the obsidian-copilot settings and add the needed secrets.
 
-You can now make changes to the plugin and see them reflected in the Obsidian app.
-Feel free to make a pull request if your changes are helpful for others.
+## Personalization and Settings
 
-## Make a release
-To make a release, you can follow the following steps.
-1. Make sure you update the version number in the `package.json` file.
-2. Then run the following commands to sync the version number in all the files.
-    ```bash
-    npm install 
-    npm run version
-    ```
-3. Add a changelog entry to the `CHANGELOG.md` file.
-4. Commit these changes to the master branch.
-5. Make sure you have the latest version of the master branch.
-    ```bash
-    git checkout master
-    git pull
-    ```
-6. Make a release using the following commands.
-      ```bash
-    git tag -a $(jq -r '.version' package.json) -m "Release $(jq -r '.version' package.json)"
-    git push origin $(jq -r '.version' package.json)
-    ```
+The plugin is designed to be highly customizable, allowing you to tailor the following aspects:
 
-This will automatically trigger the GitHub action to build the plugin and upload it to the release.
+- **API Provider**: Choose your preferred API provider. Options include [OpenAI](docs/how-to/OpenAI%20API%20setup%20guide.md), [Azure OpenAI](docs/how-to/Azure%20API%20setup%20guide.md), or [Ollama](docs/how-to/Ollama%20setup%20guide.md).
+- **[Triggers](docs/personalization%20and%20settings.md#triggers)**: Define the text after which the plugin should suggest a completion.
+- **[Trigger Delay](docs/personalization%20and%20settings.md#trigger-delay)**: Set the duration the plugin should wait before offering a suggestion to minimize costs.
+- **[Prefix/Suffix Size](docs/personalization%20and%20settings.md#preprocessing)**: Determine the amount of text to include in the prediction request.
+- **[Text Generation Settings](docs/personalization%20and%20settings.md#model-options)**: Adjust common text generation parameters like temperature, top-k, max tokens, frequency penalty, and more.
+- **[Custom Few-Shot Examples](docs/personalization%20and%20settings.md#customize-the-few-shot-examples)**: Add your own few-shot examples to enhance the model's accuracy or to match your writing style.
+- **[Custom System Prompt](docs/personalization%20and%20settings.md#customize-the-system-prompts)**: Personalize the system prompt to refine model performance or to suit your style and language preferences.
+
+For detailed guidance on customizing these settings, please visit the [Personalization and Settings](docs/personalization%20and%20settings.md) page.
+
+## Keyboard shortcuts
+The plugin supports the following keyboard shortcuts:
+  
+| Key           | State      | Action                                                                                                          |
+| ------------- | ---------- | --------------------------------------------------------------------------------------------------------------- |
+| `Tab`         | Suggesting | Accept the entire suggestion                                                                                    |
+| `Right Arrow` | Suggesting | Accept the next word of the suggestion                                                                          |
+| `Escape`      | Suggesting | Reject the suggestion and clear the suggestion cache                                                            |
+| `Escape`      | Predicting | Cancel the prediction request. This prevents the suggestion from showing up, but the cost has already incurred. |
+| `Escape`      | Queued     | Cancel the prediction request. This prevents the API call, thus no additional costs are incurred.               |
+
+Note that the keyboard shortcuts have different effects depending on the state of the plugin.
+If the plugin is in a state not listed in the table above, the keys will function normally.
+The current state of the plugin is always displayed in the plugin's status bar at the bottom of the screen.
+Click here for more information about the [plugin's states](docs/plugin%20design.md).
+
+## Privacy Considerations
+
+When dealing with privacy-sensitive documents, you may prefer not to share their contents with API providers such as OpenAI or Azure OpenAI.
+These providers could potentially store your data and utilize it to enhance their models, based on their current terms and conditions.
+So always make sure to read the terms and conditions of your chosen API provider before using it with this plugin.
+
+To safeguard your privacy, you can take the following measures:
+
+1. Opt for a local API provider like [Ollama](https://ollama.ai/), which ensures your data remains on your computer. To set up a local provider, [click here](docs/how-to/Ollama%20setup%20guide.md) for a guide. However, it's important to note that these local models may not be as accurate or fast as their cloud-based counterparts.
+2. Utilize the `ignore` functionality within the plugin. Within the settings, you can define a list of patterns similar to .gitignore glob patterns. If you open a file matching one of these patterns, the plugin will automatically deactivate for that file and reactivate when you switch to a non-matching file. By default, the settings are configured to ignore all files within any parent folder named secret. For instructions on setting this up, [click here](docs/how-to/ignore files.md).
+3. Manually disable the plugin while working on sensitive documents by using the `Obsidian Copilot: Disable` command.
+
+## Triggers
+As you write, the plugin monitors the text preceding your cursor to see if it matches any predefined triggers.
+Unlike Copilot, this plugin does not activate after each character you type; it only activates with specific triggers, such as end-of-sentence punctuation, a new line, a list item, math block, code block, etc. 
+This method is intended to minimize the number of API calls and, as a result, the associated costs. 
+The gif below demonstrates how the plugin gets automatically triggered after adding an new line inside a math block.
+
+![demo](assets/demo.gif)
+
+You can tailor these triggers in the plugin's settings according to your preferences. 
+However, please note that more sensitive triggers might increase API calls and, thus, incur higher expenses.
+See the [Personalization and Settings](docs/personalization%20and%20settings.md#triggers) to learn how to customize these triggers to your liking.
+
+In addition to automatic triggers, you can force the plugin to make a prediction by using the command palette (with `CMD + P` on Mac or `CTRL + P` on Windows) and typing `Obsidian Copilot: Predict`.
+This command enables you to request a prediction from the plugin at any time, independent of automatic triggers.
+Obsidian allows you to assign this command to any hotkey of your choice. 
+To do so, search for `Copilot` in the hotkey settings and assign a hotkey to the `Obsidian Copilot: Predict` command.
+
+![demo](assets/type_hint_prediction.gif)
+
+## Development
+
+Want to contribute? Great! 
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
 
 ## Disclaimer
+
 This plugin serves as a connection to the API provider.
 We do not access or retain your data, but it is possible that the API provider does.
 Therefore, it is important to review and understand their terms and conditions and privacy policy.

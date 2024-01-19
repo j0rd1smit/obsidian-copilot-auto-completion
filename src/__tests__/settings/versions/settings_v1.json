@@ -1,0 +1,182 @@
+{
+    "settings": {
+        "version": "1",
+        "enabled": true,
+        "debugMode": false,
+        "advancedMode": false,
+        "apiProvider": "azure",
+        "cacheSuggestions": true,
+        "azureOAIApiSettings": {
+            "key": "***",
+            "url": "https://your_workspace_name.openai.azure.com/openai/deployments/gpt-35-turbo/chat/completions?api-version=2023-07-01-preview"
+        },
+        "openAIApiSettings": {
+            "key": "****",
+            "url": "https://api.openai.com/v1/chat/completions",
+            "model": "gpt-3.5-turbo"
+        },
+        "ollamaApiSettings": {
+            "url": "http://localhost:11434/api/chat",
+            "model": "mistral"
+        },
+        "triggers": [
+            {
+                "type": "string",
+                "value": "# "
+            },
+            {
+                "type": "string",
+                "value": ". "
+            },
+            {
+                "type": "string",
+                "value": ": "
+            },
+            {
+                "type": "string",
+                "value": ", "
+            },
+            {
+                "type": "string",
+                "value": "! "
+            },
+            {
+                "type": "string",
+                "value": "? "
+            },
+            {
+                "type": "string",
+                "value": "`"
+            },
+            {
+                "type": "string",
+                "value": "' "
+            },
+            {
+                "type": "string",
+                "value": "= "
+            },
+            {
+                "type": "string",
+                "value": "$ "
+            },
+            {
+                "type": "string",
+                "value": "\n"
+            },
+            {
+                "type": "regex",
+                "value": "[\\t ]*(\\-|\\*)[\\t ]+$"
+            },
+            {
+                "type": "regex",
+                "value": "[\\t ]*[0-9A-Za-z]+\\.[\\t ]+$"
+            },
+            {
+                "type": "regex",
+                "value": "\\$\\$\\n[\\t ]*$"
+            },
+            {
+                "type": "regex",
+                "value": "```[a-zA-Z0-9]*(\\\\n\\\\s*)?$"
+            },
+            {
+                "type": "regex",
+                "value": "\\s*(-|[0-9]+\\.) \\[.\\]\\s+$"
+            },
+            {
+                "type": "regex",
+                "value": "\\s*(-|[0-9]+\\.) \\[.\\]\\s+$"
+            }
+        ],
+        "delay": 1000,
+        "modelOptions": {
+            "temperature": 1,
+            "top_p": 0.1,
+            "frequency_penalty": 0.25,
+            "presence_penalty": 0,
+            "max_tokens": 800
+        },
+        "systemMessage": "Your job is to predict the most logical text that should be written at the location of the <mask/>.\nYour answer can be either code, a single word, or multiple sentences.\nYour answer must be in the same language as the text that is already there.\nYour response must have the following format:\nTHOUGHT: here you explain your reasoning of what could be at the location of <mask/>\nANSWER: here you write the text that should be at the location of <mask/>\n",
+        "fewShotExamples": [
+            {
+                "context": "BlockQuotes",
+                "input": "# Matthew effect\nThe Matthew effect is named after the following New Testament verse:\n> <mask/>\nAccording to Malcolm Gladwell, the Matthew effect means that more successful people are most likely given special attention and opportunities leading to further success. ",
+                "answer": "THOUGHT: The <mask/> is located inside a Markdown quote block, so I should write a quote. The text after <mask/> is about the Matthew effect. The text before <mask/> say the quote is from the New Testament. So my answer should contain something from the New Testament that is about the Matthew effect.\nANSWER: For unto everyone that hath shall be given, and he shall have abundance. \n>  But from him that hath not shall taken away even that which he hath.\n>  Matthew 25:29"
+            },
+            {
+                "context": "CodeBlock",
+                "input": "# debounce\nA debounce function makes sure that a function is only triggered once per user input. This is useful for event based triggers. You can implement in javascript like this:\n```javascript\nfunction debounce(func, timeout = 300){\n  <mask/>\n}\n```\n",
+                "answer": "THOUGHT: The <mask/> is located in JavaScript code block. The text before the <mask/> is describes what a debounce function does, and it defines the function signature. So the answer should not include the function signature to avoid duplication. The <mask/> is inside this function, so the answer should finish the implementation of the function. There is some indentation before the <mask/>, so the answer should be indented as well.\nANSWER:let timer;\n  return (...args) => {\n    clearTimeout(timer);\n    timer = setTimeout(() => { func.apply(this, args); }, timeout);\n  };"
+            },
+            {
+                "context": "CodeBlock",
+                "input": "```python\ndef fibonacci(<mask/>) -> int:\n\tif n == 0 or n == 1:\n\t\treturn n\n\telse:\n\t\treturn fibonacci(n-1) + fibonacci(n-2)\n```\n",
+                "answer": "THOUGHT: The <mask/> is located in Python code block. Based on the location of </mask> I should write the function's arguments and types. Based on the text after </mask>, I see that the function uses a variable n with type int, which is not yet defined.\nANSWER: n: int"
+            },
+            {
+                "context": "Heading",
+                "input": "# The Softmax <mask/>\nThe softmax function transforms a vector into a probability distribution such that the sum of the vector is equal to 1.",
+                "answer": "THOUGHT: <mask/> is located inside a Markdown headings. The header already contains the text \"The Softmax\" contains so my answer should be coherent with that. The text after <mask/> is about the softmax function, so the title should reflect this.\nANSWER: function"
+            },
+            {
+                "context": "NumberedList",
+                "input": "# Binary search\nBinary is a sorting O(log(n)) sorting algorithm. It works as follows:\n1. Ensure you have a sorted array.\n2. Check the middle element in the list:\n3. Return the index if this is the item you are looking for.\n4. <mask/>\n",
+                "answer": "THOUGHT: THOUGHT: The <mask/> is located inside a Markdown list. The current number 4 and it is already written so I should not be in the answer. The text before the <mask/> is bout the binary search algorithm and steps in the algorithm but a few steps are missing. There is no text after the <mask/>. So my answer should the remaining steps of the algorithm.\nANSWER: Go to step 2 with the remaining right half if the item is smaller than the target.\n5. Go to step 2 with the remaining left half if the item is larger than the target.\n6. If there are no more elements to check, the return indicates that the item is not in the list."
+            },
+            {
+                "context": "TaskList",
+                "input": " # Prepare for conference\nBefore going to a conference, there are a few things to do:\n- [ ] Finish presentation\n\t- [ ] Write outline\n\t- [ ] Create slides\n\t- [ ] Practice presentation\n- [ ] Book flights  \n- [ ] Reserve hotel  \n- [ ] Pack suitcase\n\t- [ ] <mask/>\n- [ ] Arrange transportation to airport  \n\t",
+                "answer": "THOUGHT: The <mask/> is located inside a Markdown subtask list. The tasks before and after the <mask/> are about preparing and traveling to a conference. The parent task is about packing a suitcase. The syntax for the subtask is already there, so I don't need to write it. So my answer should finish that subtask. Additionally, the answer can also contain additional subtasks that are not already there.\nANSWER:Clothes  \n  - [ ] Toiletries  \n  - [ ] Travel documents  \n"
+            },
+            {
+                "context": "TaskList",
+                "input": " # Write blog post about Obsidian\nFor my Obsidian blog post, I need to do the following:\n- [ ] Research about Obsidian.\n- [ ] Create an outline for the blog.<mask/>\n",
+                "answer": "THOUGHT: The <mask/> is located inside a Markdown task list. The tasks before the <mask/> are about writing a blog about Obsidian. There is no text after the <mask/>. The task before the <mask/> looks already finished. So my answer should contain additional tasks that are not already there and should be help to complete this blog post. \nANSWER:\n- [ ] Gather relevant visual aids.  \n- [ ] Write the first draft  \n- [ ] Review and edit the first draft  \n"
+            },
+            {
+                "context": "Text",
+                "input": "# Locality-sensitive hashing (LSH)\nLocality-sensitive hashing (LSH) is an algorithm that hashes similar items into the same buckets with high probability.\n\n## Potential problems\n### Collision (AND)\nThis happens when distant points are hashed into the same bucket. <mask/>\n\n### Split (OR)\nNearby points are hashed into different buckets. This problem can be solved by using multiple hash tables instead of one. Points are candidates neighbors if they are a candidate in any of the hash tables. As a result the false negative rate reduces significantly, while the false positives rate only increase slightly.\n",
+                "answer": "THOUGHT: The <mask/> is located in a paragraph at the end of sentence, so the answer should offer a completion of this paragraph. The paragraph is in English so the answer must be in this language. The text be the <mask/> is about Locality-sensitive hashing and its potential problems, so my answer should reflect that. The text after the <mask/> is a similiar paragraph about the second problem of Locality-sensitive hashing. So my answer should be about the split problem problem, so my answer should have a similar structure as this paragraph.\nANSWER:This problem can be solved by having multiple projection/hashes per table, where points are candidates neighbors if they occur in all query bins. As a result the false positive rate reduces significantly, while the false negative rate only increase slightly."
+            },
+            {
+                "context": "Text",
+                "input": "# Digitizing sound waves\nTypical sound waves are complex and consist of multiple waves each with their amplitude, frequency, and phase. When we digitize a sound, we sample the amplitude, the difference compared to the base level, at fixed intervals. This gives a sequence of digital values that can be used to approximate the original sound wave by recreating the pressure changes over time. <mask/> The sampling rate must be chosen correctly, else we cannot represent specific frequencies, or we introduce unintended distortions.",
+                "answer": "THOUGHT: The paragraph is in English so the answer must be in this language. The text before the <mask/> is about digitizing sound waves. The text after the <mask/> mentions the sampling rate, but it never explains what it is. So the answer should be a sentence that explains what the sampling rate is writing in such a way that it fits with the text before and after the <mask/>.\nANSWER: The chosen interval is known as the sampling rate."
+            },
+            {
+                "context": "UnorderedList",
+                "input": "# Relu activation function\nThe ReLU activation function is a relatively simple non-linear function:\n$$\nReLU(x) = max(0, x)\n$$\nAdvantages:\n- <mask/>\n\nDisadvantages:\n- Dead ReLU problem, whereby specific activation will only output zeros and thus will not have any gradients. This can be computationally wasteful since we still need matrix multiplication.\n- Range $[0, \\infty]$ so Exploding Gradients can still be a problem.\n",
+                "answer": "THOUGHT: The <mask/> is located inside a Markdown list. The dash is already there, so I don't need to write it. The text before the <mask/> is about the ReLU activation function, and it looks like this list is about the advantages of the relu function. The text after the <mask/> is about the disadvantages of the ReLU function. So my answer should finish the advantage item and maybe suggest a new advantage. \nANSWER: Computational cheap activations and gradients.\n- Vanishing gradient problem is rare, assuming correct weight initialization."
+            },
+            {
+                "context": "UnorderedList",
+                "input": "# SOLID\nSOLID is a set of design principles from Robert C. Martin. It consists of the following sub-principles:\n- S: Single Responsibility Principle: A class should have only one reason to change, meaning it should only have one job or responsibility.<mask/>\n- I: Interface Segregation Principle: Clients should not be forced to depend on interfaces they do not use.\n- D: Dependency Inversion Principle: High-level modules should not depend on low-level modules, but both should depend on abstractions.\n",
+                "answer": "THOUGHT: The <mask/> is located inside a Markdown list. The text before the list is about SOLID. The list item before the mask is about Single Responsibility Principle. The list items Interface Segregation and Dependency Inversion principles. So the Open-Closed and Liskov Substitution principles are missing. So my answer should contain these list items.\nANSWER:\n- O: Open-Closed Principle: Software entities should be open for extension, but closed for modification.\n- L: Liskov Substitution Principle: Subtypes must be substitutable for their base types without altering the correctness of the program."
+            },
+            {
+                "context": "MathBlock",
+                "input": "# Logarithm definition\nA logarithm is the power to which a base must be raised to yield a given number. For example $2^3 =8$; therefore, 3 is the logarithm of 8 to base 2, or in other words $<mask/>$.3 = \n\n\t",
+                "answer": "THOUGHT: The <mask/> is located inline math block. The text before the mask is about logarithm. The text is giving an example but the math notation still needs to be completed. So my answer should be the latex formula for this example.  \nANSWER: 3 = \\log_2(8)"
+            },
+            {
+                "context": "MathBlock",
+                "input": "# Sample mean\nThe sample mean, or sometime called average, is defined as:\n\n$$\nsample\\_mean(x) = <mask/>\n$$\nThe average value has the property that 50% of the weighted* value will be above and below it. This weighted property can make it more sensitive to outliers than the median.\n",
+                "answer": "THOUGHT: The <mask/> is located in math block. Based on the text before and after the mask my answer should be the latex formula for the sample mean. \nANSWER: \\frac{1}{n} \\sum_i^n x_i"
+            },
+            {
+                "context": "Heading",
+                "input": "# <mask/>\nA neuron is considered dead if it does not activate for any of the training instance in the training dataset. Because it never activates it will never have a gradient due to the chain rule so it also cannot change anymore. The dead ReLU problem can have due to a wide variety of reasons, such as:\n1. Poorly initialized weights.\n2. Extremely high learning rates during training.\n",
+                "answer": "THOUGHT: <mask/> is located inside a Markdown headings, so I should write a title. There is no text in the header yet. The text after <mask/> is about the dead ReLU problem, so the title should reflect this.\nANSWER: The dead ReLU problem"
+            }
+        ],
+        "userMessageTemplate": "{{prefix}}<mask/>{{suffix}}",
+        "chainOfThoughRemovalRegex": "(.|\\n)*ANSWER:",
+        "dontIncludeDataviews": true,
+        "maxPrefixCharLimit": 2000,
+        "maxSuffixCharLimit": 2000,
+        "removeDuplicateMathBlockIndicator": true,
+        "removeDuplicateCodeBlockIndicator": true,
+        "ignoredFilePatterns": ""
+    }
+}

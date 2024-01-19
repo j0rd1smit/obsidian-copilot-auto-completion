@@ -1,0 +1,1 @@
+The plugin should auto disable for this since it is in the secret folder.

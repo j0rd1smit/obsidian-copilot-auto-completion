@@ -1,10 +1,11 @@
 import * as React from "react";
+import {useState} from "react";
 import SettingsItem from "./SettingsItem";
-import { useState } from "react";
-import { Notice } from "obsidian";
-import { Settings } from "../settings";
+import {Notice} from "obsidian";
 import AzureOAIClient from "../../prediction_services/api_clients/AzureOAIClient";
 import OpenAIApiClient from "../../prediction_services/api_clients/OpenAIApiClient";
+import {Settings} from "../versions";
+import OllamaApiClient from "../../prediction_services/api_clients/OllamaApiClient";
 
 interface IProps {
     settings: Settings;
@@ -32,7 +33,10 @@ export default function ConnectivityCheck(props: IProps): React.JSX.Element {
         if (props.settings.apiProvider === "openai") {
             return OpenAIApiClient.fromSettings(props.settings);
         }
-        throw new Error("Unknown API Provider");
+        if (props.settings.apiProvider === "ollama") {
+            return OllamaApiClient.fromSettings(props.settings);
+        }
+        throw new Error("Unknown API provider");
     };
 
     const onClickConnectionButton = async () => {
@@ -41,28 +45,33 @@ export default function ConnectivityCheck(props: IProps): React.JSX.Element {
         }
 
         setStatus(Status.Loading);
+        try {
+            const client = createClient();
+            const _errors = await client.checkIfConfiguredCorrectly();
+            setErrors(_errors);
+            if (_errors.length > 0) {
+                new Notice(
+                    `Cannot connect to the ${props.settings.apiProvider} API. Please check your settings.`
+                );
+                setStatus(Status.Failure);
+                return;
+            }
 
-
-        const client = createClient();
-        const _errors = await client.checkIfConfiguredCorrectly();
-        setErrors(_errors);
-        if (_errors.length > 0) {
             new Notice(
-                `Cannot connect to the ${props.settings.apiProvider} API. Please check your settings.`
+                `Successfully connected to the ${props.settings.apiProvider} API.`
             );
+            setStatus(Status.Success);
+        } catch (e) {
             setStatus(Status.Failure);
-            return;
+            return
         }
 
-        new Notice(
-            `Successfully connected to the ${props.settings.apiProvider} API.`
-        );
-        setStatus(Status.Success);
+
     };
 
     const ProgressFeedback = () => {
         if (status === Status.Loading) {
-            return <span className="loader-copilot-auto-completion" />;
+            return <span className="loader-copilot-auto-completion"/>;
         }
         if (status === Status.Success) {
             return (
@@ -79,7 +88,7 @@ export default function ConnectivityCheck(props: IProps): React.JSX.Element {
                         strokeLinejoin="round"
                         className="lucide lucide-check"
                     >
-                        <polyline points="20 6 9 17 4 12" />
+                        <polyline points="20 6 9 17 4 12"/>
                     </svg>
                 </span>
             );
@@ -99,14 +108,14 @@ export default function ConnectivityCheck(props: IProps): React.JSX.Element {
                         strokeLinejoin="round"
                         className="lucide lucide-x"
                     >
-                        <path d="M18 6 6 18" />
-                        <path d="m6 6 12 12" />
+                        <path d="M18 6 6 18"/>
+                        <path d="m6 6 12 12"/>
                     </svg>
                 </span>
             );
         }
 
-        return <span className={"loader-placeholder-copilot-auto-completion"} />;
+        return <span className={"loader-placeholder-copilot-auto-completion"}/>;
     };
 
     return (

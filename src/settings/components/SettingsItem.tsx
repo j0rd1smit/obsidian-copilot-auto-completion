@@ -2,7 +2,7 @@ import * as React from "react";
 
 interface IProps {
     name: string;
-    description: string;
+    description: string | React.ReactNode;
     errorMessage?: string;
     children: React.ReactNode;
     display?: "block" | "inline-block" | "flex";
@@ -22,7 +22,7 @@ export default function SettingsItem({
 
                 <div className="setting-item-description">{description}</div>
                 {errorMessage !== undefined && (
-                    <div className="setting-item-description ">
+                    <div className="setting-item-description">
                         <span className={"mod-warning"}>{errorMessage}</span>
                     </div>
                 )}

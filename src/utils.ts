@@ -1,3 +1,5 @@
+import * as mm from "micromatch";
+
 export function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -19,4 +21,53 @@ export function generateRandomString(n: number): string {
 
     return result;
 }
+
+export function isMatchBetweenPathAndPatterns(
+    path: string,
+    patterns: string[],
+): boolean {
+    patterns = patterns
+        .map(p => p.trim())
+        .filter((p) => p.length > 0);
+    if (patterns.length === 0) {
+        return false;
+    }
+
+    const exclusionPatterns = patterns.filter((p) => p.startsWith('!')).map(p => p.slice(1));
+    const inclusionPatterns = patterns.filter((p) => !p.startsWith('!'));
+
+    return mm.some(path, inclusionPatterns) && !mm.some(path, exclusionPatterns);
+}
+
+export function extractNextWordAndRemaining(suggestion: string): [string | undefined, string | undefined] {
+    const leadingWhitespacesMatch = suggestion.match(/^(\s*)/);
+    const leadingWhitespaces = leadingWhitespacesMatch ? leadingWhitespacesMatch[0] : '';
+    const trimmedSuggestion = suggestion.slice(leadingWhitespaces.length);
+
+
+    let nextWord: string | undefined;
+    let remaining: string | undefined = undefined;
+
+    const whitespaceAfterNextWordMatch = trimmedSuggestion.match(/\s+/);
+    if (!whitespaceAfterNextWordMatch) {
+        nextWord = trimmedSuggestion || undefined;
+    } else {
+        const whitespaceAfterNextWordStartingIndex = whitespaceAfterNextWordMatch.index!;
+        const whitespaceAfterNextWord = whitespaceAfterNextWordMatch[0];
+        const whitespaceLength = whitespaceAfterNextWord.length;
+        const startOfWhitespaceAfterNextWordIndex = whitespaceAfterNextWordStartingIndex + whitespaceLength;
+
+        nextWord = trimmedSuggestion.substring(0, whitespaceAfterNextWordStartingIndex);
+        if (startOfWhitespaceAfterNextWordIndex < trimmedSuggestion.length) {
+            remaining = trimmedSuggestion.slice(startOfWhitespaceAfterNextWordIndex);
+            nextWord += whitespaceAfterNextWord;
+        }
+    }
+
+    return [nextWord ? leadingWhitespaces + nextWord : undefined, remaining];
+}
+
+
+
+
 

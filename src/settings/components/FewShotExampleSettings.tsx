@@ -1,21 +1,19 @@
 import * as React from "react";
 
-import { FewShotExample } from "../../prediction_services/types";
+
 import Context from "../../context_detection";
 import { Notice } from "obsidian";
-import { isEveryContextPresent } from "../utils";
+import {FewShotExample} from "../versions";
 
 interface IProps {
     name: string;
     description: string;
 
-    errorMessage?: string;
+    errorMessages: Map<string, string>;
 
     fewShotExamples: FewShotExample[];
     setFewShotExamples(fewShotExamples: FewShotExample[]): void;
 }
-const MIN_NUM_OF_EXAMPLES_ERROR_MESSAGE =
-    "You cannot remove this example since it is the last example for this context";
 
 export default function FewShotExampleSettings(
     props: IProps
@@ -25,11 +23,6 @@ export default function FewShotExampleSettings(
             const newFewShotExamples = props.fewShotExamples
                 .slice(0, index)
                 .concat(props.fewShotExamples.slice(index + 1));
-
-            if (!isEveryContextPresent(newFewShotExamples)) {
-                new Notice(MIN_NUM_OF_EXAMPLES_ERROR_MESSAGE);
-                return;
-            }
 
             props.setFewShotExamples(newFewShotExamples);
         };
@@ -58,10 +51,6 @@ export default function FewShotExampleSettings(
                 ...newFewShotExamples[index],
                 context,
             };
-            if (!isEveryContextPresent(newFewShotExamples)) {
-                new Notice(MIN_NUM_OF_EXAMPLES_ERROR_MESSAGE);
-                return;
-            }
 
             props.setFewShotExamples(newFewShotExamples);
         };
@@ -98,10 +87,10 @@ export default function FewShotExampleSettings(
                     <div className="setting-item-description">
                         {props.description}
                     </div>
-                    {props.errorMessage !== undefined && (
+                    {props.errorMessages.get("fewShotExamples") !== undefined &&  (
                         <div className="setting-item-description ">
                             <span className={"mod-warning"}>
-                                {props.errorMessage}
+                                {props.errorMessages.get("fewShotExamples")}
                             </span>
                         </div>
                     )}
@@ -201,6 +190,13 @@ export default function FewShotExampleSettings(
                             >
                                 Human Message
                             </div>
+                            {props.errorMessages.get(`fewShotExamples.${index}.input`) !== undefined &&  (
+                                <div className="setting-item-description" style={{ width: "100%", textAlign: "left" }}>
+                                    <span className={"mod-warning"}>
+                                        {props.errorMessages.get(`fewShotExamples.${index}.input`)}
+                                    </span>
+                                </div>
+                            )}
                             <textarea
                                 className="setting-item-text-area-copilot-auto-completion"
                                 rows={5}
@@ -214,6 +210,13 @@ export default function FewShotExampleSettings(
                             >
                                 Assistant Message
                             </div>
+                            {props.errorMessages.get(`fewShotExamples.${index}.answer`) !== undefined &&  (
+                                <div className="setting-item-description" style={{ width: "100%", textAlign: "left" }}>
+                                    <span className={"mod-warning"}>
+                                        {props.errorMessages.get(`fewShotExamples.${index}.answer`)}
+                                    </span>
+                                </div>
+                            )}
                             <textarea
                                 className="setting-item-text-area-copilot-auto-completion"
                                 rows={5}
@@ -221,6 +224,7 @@ export default function FewShotExampleSettings(
                                 value={example.answer}
                                 onChange={onAnswerInput(index)}
                             />
+
                         </div>
                     </div>
                 </div>

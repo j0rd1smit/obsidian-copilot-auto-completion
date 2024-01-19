@@ -1,14 +1,19 @@
 import {Editor, MarkdownView, Notice, Plugin} from "obsidian";
-
-import {DEFAULT_SETTINGS, Settings, SettingTab} from "./settings/settings";
+import {SettingTab} from "./settings/SettingsTab";
 import EventListener from "./event_listener";
 import StatusBar from "./status_bar";
-import DocumentChangesListener from "./render_plugin/document_changes_listener";
+import DocumentChangesListener, {
+    getPrefix, getSuffix,
+    hasMultipleCursors,
+    hasSelection
+} from "./render_plugin/document_changes_listener";
 import {EditorView} from "@codemirror/view";
 import RenderSuggestionPlugin from "./render_plugin/render_surgestion_plugin";
 import {InlineSuggestionState} from "./render_plugin/states";
 import CompletionKeyWatcher from "./render_plugin/completion_key_watcher";
-import {hasSameAttributes} from "./settings/utils";
+import {DEFAULT_SETTINGS, Settings} from "./settings/versions";
+import {deserializeSettings, serializeSettings} from "./settings/utils";
+
 
 export default class CopilotPlugin extends Plugin {
     async onload() {
@@ -31,7 +36,7 @@ export default class CopilotPlugin extends Plugin {
             CompletionKeyWatcher(
                 eventListener.handleAcceptKeyPressed.bind(eventListener),
                 eventListener.handlePartialAcceptKeyPressed.bind(eventListener),
-                eventListener.handleCancelKeyPressed.bind(eventListener)
+                eventListener.handleCancelKeyPressed.bind(eventListener),
             ),
             DocumentChangesListener(
                 eventListener.handleDocumentChange.bind(eventListener)
@@ -41,6 +46,7 @@ export default class CopilotPlugin extends Plugin {
 
         this.app.workspace.onLayoutReady(() => {
             const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+
             if (view) {
                 // @ts-expect-error, not typed
                 const editorView = view.editor.cm as EditorView;
@@ -52,6 +58,7 @@ export default class CopilotPlugin extends Plugin {
                 // @ts-expect-error, not typed
                 const editorView = leaf.view.editor.cm as EditorView;
                 eventListener.onViewUpdate(editorView);
+                eventListener.handleFilePathChange(leaf.view.file.path);
             }
         });
         this.addCommand({
@@ -64,7 +71,6 @@ export default class CopilotPlugin extends Plugin {
             ) => {
                 if (checking) {
                     return (
-                        settingsTab.settings.enabled &&
                         eventListener.isSuggesting()
                     );
                 }
@@ -83,19 +89,15 @@ export default class CopilotPlugin extends Plugin {
                 editor: Editor,
                 view: MarkdownView
             ) => {
-                if (checking) {
-                    return settingsTab.settings.enabled;
-                }
-
                 // @ts-expect-error, not typed
                 const editorView = editor.cm as EditorView;
-                // const editorView = view.editor.cm as EditorView;
-                const cursorLocation = editorView.state.selection.main.head;
-                const prefix = editorView.state.doc.sliceString(
-                    0,
-                    cursorLocation
-                );
-                const suffix = editorView.state.doc.sliceString(cursorLocation);
+                const state = editorView.state;
+                if (checking) {
+                    return eventListener.isIdle() && !hasMultipleCursors(state) && !hasSelection(state);
+                }
+
+                const prefix = getPrefix(state)
+                const suffix = getSuffix(state)
 
                 eventListener.handlePredictCommand(prefix, suffix);
                 return true;
@@ -138,40 +140,24 @@ export default class CopilotPlugin extends Plugin {
     }
 
     private async saveSettings(settings: Settings): Promise<void> {
-        const data = {settings: settings};
+        const data = serializeSettings(settings);
         await this.saveData(data);
     }
 
     private async loadSettings(): Promise<Settings> {
-        const data = Object.assign(
-            {},
-            {settings: DEFAULT_SETTINGS},
-            await this.loadData()
-        );
-        const settings = data.settings;
-        if (!hasSameAttributes(settings, DEFAULT_SETTINGS)) {
+        const data = await this.loadData();
+        const result = deserializeSettings(data);
+        if (result.isOk()) {
+            return result.value;
+        } else {
             new Notice("Copilot: Could not load settings, reverting to default settings");
-            const azureOAIApiSettings = {
-                ...settings.azureOAIApiSettings,
-            };
-            const openAIApiSettings = {
-                ...DEFAULT_SETTINGS.openAIApiSettings,
-                key: settings.openAIApiSettings.key,
-            };
-
-            const defaultSettings: Settings = {
-                ...DEFAULT_SETTINGS,
-                apiProvider: settings.apiProvider,
-                azureOAIApiSettings,
-                openAIApiSettings,
-                advancedMode: settings.advancedMode,
-            };
-            return defaultSettings;
+            console.error(result.error);
+            return DEFAULT_SETTINGS
         }
-
-        return settings;
     }
 
     onunload() {
     }
 }
+
+

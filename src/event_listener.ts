@@ -1,30 +1,40 @@
-import {Settings, SettingsObserver} from "./settings/settings";
 import StatusBar from "./status_bar";
 import {DocumentChanges} from "./render_plugin/document_changes_listener";
-import {cancelSuggestion, insertSuggestion, updateSuggestion,} from "./render_plugin/states";
+import {cancelSuggestion, insertSuggestion, updateSuggestion} from "./render_plugin/states";
 import {EditorView} from "@codemirror/view";
 import State from "./states/state";
 import {EventHandler} from "./states/types";
 import InitState from "./states/init_state";
 import IdleState from "./states/idle_state";
-import QueuedState from "./states/queued_state";
-import DisabledState from "./states/disabled_state";
-import PredictingState from "./states/predicting_state";
 import SuggestingState from "./states/suggesting_state";
 import {PredictionService} from "./prediction_services/types";
 import ChatGPTWithReasoning from "./prediction_services/chat_gpt_with_reasoning";
 import {checkForErrors} from "./settings/utils";
-import {Notice} from "obsidian";
 import Context from "./context_detection";
+import {Settings} from "./settings/versions";
+import {SettingsObserver} from "./settings/SettingsTab";
+import {isMatchBetweenPathAndPatterns} from "./utils";
+import DisabledManualState from "./states/disabled_manual_state";
+import DisabledFileSpecificState from "./states/disabled_file_specific_state";
+import {LRUCache} from "lru-cache";
+import DisabledInvalidSettingsState from "./states/disabled_invalid_settings_state";
+import QueuedState from "./states/queued_state";
+import PredictingState from "./states/predicting_state";
+
+
+const FIVE_MINUTES_IN_MS = 1000 * 60 * 5;
+const MAX_N_ITEMS_IN_CACHE = 5000;
 
 class EventListener implements EventHandler, SettingsObserver {
     private view: EditorView | null = null;
 
     private state: EventHandler = new InitState();
     private statusBar: StatusBar;
-    private context: Context = Context.Text;
+    context: Context = Context.Text;
     predictionService: PredictionService;
     settings: Settings;
+    private currentFilePath: string | null = null;
+    private suggestionCache = new LRUCache<string, string>({max: MAX_N_ITEMS_IN_CACHE, ttl: FIVE_MINUTES_IN_MS});
 
     public static fromSettings(
         settings: Settings,
@@ -39,10 +49,12 @@ class EventListener implements EventHandler, SettingsObserver {
         );
 
         const settingErrors = checkForErrors(settings);
-        if (settings.enabled && settingErrors.size === 0) {
-            eventListener.transitionTo(new IdleState(eventListener));
-        } else {
-            eventListener.transitionTo(new DisabledState(eventListener));
+        if (settings.enabled) {
+            eventListener.transitionToIdleState()
+        } else if (settingErrors.size > 0) {
+            eventListener.transitionToDisabledInvalidSettingsState();
+        } else if (!settings.enabled) {
+            eventListener.transitionToDisabledManualState();
         }
 
         return eventListener;
@@ -74,11 +86,18 @@ class EventListener implements EventHandler, SettingsObserver {
         this.view = view;
     }
 
-    setSuggestion(suggestion: string): void {
-        if (this.view === null) {
-            return;
+    public handleFilePathChange(path: string): void {
+        this.currentFilePath = path;
+        this.state.handleFilePathChange(path);
+
+    }
+
+    public isCurrentFilePathIgnored(): boolean {
+        if (this.currentFilePath === null) {
+            return false;
         }
-        updateSuggestion(this.view, suggestion);
+        const patterns = this.settings.ignoredFilePatterns.split("\n");
+        return isMatchBetweenPathAndPatterns(this.currentFilePath, patterns);
     }
 
     insertCurrentSuggestion(suggestion: string): void {
@@ -95,52 +114,91 @@ class EventListener implements EventHandler, SettingsObserver {
         cancelSuggestion(this.view);
     }
 
-    transitionTo(state: State): void {
+    private transitionTo(state: State): void {
         this.state = state;
         this.updateStatusBarText();
     }
 
-    private updateStatusBarText(): void {
-         const prefix = "Copilot:";
+    transitionToDisabledFileSpecificState(): void {
+        this.transitionTo(new DisabledFileSpecificState(this));
+    }
 
-         if (this.state instanceof IdleState) {
-            this.statusBar.updateText(`${prefix} Idle`);
-        } else if (this.state instanceof QueuedState) {
-            this.statusBar.updateText(`${prefix} Queued`);
-        } else if (this.state instanceof DisabledState) {
-            this.statusBar.updateText(`${prefix} Disabled`);
-        } else if (this.state instanceof PredictingState) {
-            this.statusBar.updateText(`${prefix} Predicting for ${this.context}`);
-        } else if (this.state instanceof SuggestingState) {
-            this.statusBar.updateText(`${prefix} Suggesting for ${this.context}`);
+    transitionToDisabledManualState(): void {
+        this.cancelSuggestion();
+        this.transitionTo(new DisabledManualState(this));
+    }
+
+    transitionToDisabledInvalidSettingsState(): void {
+        this.cancelSuggestion();
+        this.transitionTo(new DisabledInvalidSettingsState(this));
+    }
+
+    transitionToQueuedState(prefix: string, suffix: string): void {
+        this.transitionTo(
+            QueuedState.createAndStartTimer(
+                this,
+                prefix,
+                suffix
+            )
+        );
+    }
+
+    transitionToPredictingState(prefix: string, suffix: string): void {
+        this.transitionTo(PredictingState.createAndStartPredicting(
+                this,
+                prefix,
+                suffix
+            )
+        );
+    }
+
+    transitionToSuggestingState(
+        suggestion: string,
+        prefix: string,
+        suffix: string,
+        addToCache = true
+    ): void {
+        if (this.view === null) {
+            return;
+        }
+        if (suggestion.trim().length === 0) {
+            this.transitionToIdleState();
+            return;
+        }
+        if (addToCache) {
+            this.addSuggestionToCache(prefix, suffix, suggestion);
+        }
+        this.transitionTo(new SuggestingState(this, suggestion, prefix, suffix));
+        updateSuggestion(this.view, suggestion);
+    }
+
+    public transitionToIdleState() {
+        const previousState = this.state;
+
+        this.transitionTo(new IdleState(this));
+
+        if (previousState instanceof SuggestingState) {
+            this.cancelSuggestion();
         }
     }
 
+
+    private updateStatusBarText(): void {
+        this.statusBar.updateText(this.getStatusBarText());
+    }
+
+    getStatusBarText(): string {
+        return `Copilot: ${this.state.getStatusBarText()}`;
+    }
+
     handleSettingChanged(settings: Settings): void {
-        const fromDisabledToEnabled = !this.settings.enabled && settings.enabled;
-        const fromEnabledToDisabled = this.settings.enabled && !settings.enabled;
-
-
-        const settingErrors = checkForErrors(settings);
-        if (!settings.enabled) {
-            if (fromDisabledToEnabled) {
-                new Notice("Copilot is disabled.");
-            }
-
-            this.transitionTo(new DisabledState(this));
-        } else if (settingErrors.size > 0) {
-            new Notice(
-                `There are ${settingErrors.size} errors in your settings. Please before enable Copilot.`
-            );
-            this.transitionTo(new DisabledState(this));
-        } else {
-            if (fromEnabledToDisabled) {
-                new Notice("Copilot is enabled.");
-            }
-            this.predictionService = createPredictionService(settings);
-            this.transitionTo(new IdleState(this));
+        this.settings = settings;
+        this.predictionService = createPredictionService(settings);
+        if (!this.settings.cacheSuggestions) {
+            this.clearSuggestionsCache();
         }
-         this.settings = settings;
+
+        this.state.handleSettingChanged(settings);
     }
 
     async handleDocumentChange(
@@ -168,6 +226,7 @@ class EventListener implements EventHandler, SettingsObserver {
     handleAcceptCommand(): void {
         this.state.handleAcceptCommand();
     }
+
     containsTriggerCharacters(
         documentChanges: DocumentChanges
     ): boolean {
@@ -178,10 +237,38 @@ class EventListener implements EventHandler, SettingsObserver {
             if (trigger.type === "regex" && documentChanges.getPrefix().match(trigger.value)) {
                 return true;
             }
-
-
         }
         return false;
+    }
+
+    public isDisabled(): boolean {
+        return this.state instanceof DisabledManualState || this.state instanceof DisabledInvalidSettingsState || this.state instanceof DisabledFileSpecificState;
+    }
+
+    public isIdle(): boolean {
+        return this.state instanceof IdleState;
+    }
+
+    public getCachedSuggestionFor(prefix: string, suffix: string): string | undefined {
+        return this.suggestionCache.get(this.getCacheKey(prefix, suffix));
+    }
+
+    private getCacheKey(prefix: string, suffix: string): string {
+        const nCharsToKeepPrefix = prefix.length;
+        const nCharsToKeepSuffix = suffix.length;
+
+        return `${prefix.substring(prefix.length - nCharsToKeepPrefix)}<mask/>${suffix.substring(0, nCharsToKeepSuffix)}`
+    }
+
+    public clearSuggestionsCache(): void {
+        this.suggestionCache.clear();
+    }
+
+    public addSuggestionToCache(prefix: string, suffix: string, suggestion: string): void {
+        if (!this.settings.cacheSuggestions) {
+            return;
+        }
+        this.suggestionCache.set(this.getCacheKey(prefix, suffix), suggestion);
     }
 }
 

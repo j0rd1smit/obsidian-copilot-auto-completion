@@ -1,10 +1,11 @@
 import Context from "../context_detection";
+import {Result} from "neverthrow";
 
 export interface PredictionService {
     fetchPredictions(
         prefix: string,
         suffix: string
-    ): Promise<string | undefined>;
+    ): Promise<Result<string, Error>>;
 }
 
 export interface PostProcessor {
@@ -31,13 +32,6 @@ export interface ChatMessage {
     role: "user" | "assistant" | "system";
 }
 
-export interface ModelOptions {
-    temperature: number;
-    top_p: number;
-    frequency_penalty: number;
-    presence_penalty: number;
-    max_tokens: number;
-}
 
 export interface UserMessageFormattingInputs {
     prefix: string;
@@ -48,13 +42,15 @@ export type UserMessageFormatter = (
     inputs: UserMessageFormattingInputs
 ) => string;
 
-export interface FewShotExample {
-    context: Context;
-    input: string;
-    answer: string;
+export interface ApiClient {
+    queryChatModel(messages: ChatMessage[]): Promise<Result<string, Error>>;
+    checkIfConfiguredCorrectly(): Promise<string[]>;
 }
 
-export interface ApiClient {
-    queryChatModel(messages: ChatMessage[]): Promise<string>;
-    checkIfConfiguredCorrectly(): Promise<string[]>;
+export interface ModelOptions {
+    temperature: number;
+    top_p: number;
+    frequency_penalty: number;
+    presence_penalty: number;
+    max_tokens: number;
 }

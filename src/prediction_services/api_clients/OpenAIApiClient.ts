@@ -1,6 +1,9 @@
 import {ApiClient, ChatMessage, ModelOptions} from "../types";
-import {Settings} from "../../settings/settings";
-import {requestUrl} from "obsidian";
+
+import {Settings} from "../../settings/versions";
+import {Result} from "neverthrow";
+import {makeAPIRequest} from "./utils";
+
 
 class OpenAIApiClient implements ApiClient {
     private readonly apiKey: string;
@@ -29,7 +32,7 @@ class OpenAIApiClient implements ApiClient {
         this.model = model;
     }
 
-    async queryChatModel(messages: ChatMessage[]): Promise<string> {
+    async queryChatModel(messages: ChatMessage[]): Promise<Result<string, Error>> {
         const headers = {
             "Content-Type": "application/json",
             Authorization: `Bearer ${this.apiKey}`,
@@ -40,30 +43,8 @@ class OpenAIApiClient implements ApiClient {
             ...this.modelOptions,
         }
 
-        const response = await requestUrl({
-            url: this.url,
-            method: "POST",
-            body: JSON.stringify(body),
-            headers,
-            throw: false,
-            contentType: "application/json",
-        });
-
-        if (response.status >= 500) {
-            throw new Error("OpenAI API returned status code 500. Please try again later.");
-        }
-
-        if (response.status >= 400) {
-            let errorMessage = `OpenAI API returned status code ${response.status}`;
-            if (response.json && response.json.error && response.json.error.message) {
-                errorMessage += `: ${response.json.error.message}`;
-            }
-            throw new Error(errorMessage);
-        }
-
-        const data = response.json;
-
-        return data.choices[0].message.content;
+        const data = await makeAPIRequest(this.url, "POST", body, headers);
+        return data.map((data) => data.choices[0].message.content);
     }
 
     async checkIfConfiguredCorrectly(): Promise<string[]> {
@@ -78,13 +59,12 @@ class OpenAIApiClient implements ApiClient {
             // api check is not possible without passing previous checks so return early
             return errors;
         }
+        const result = await this.queryChatModel([
+            {content: "Say hello world and nothing else.", role: "user"},
+        ]);
 
-        try {
-            await this.queryChatModel([
-                {content: "hello world", role: "user"},
-            ]);
-        } catch (e) {
-            errors.push(e.message);
+        if (result.isErr()) {
+            errors.push(result.error.message);
         }
         return errors;
     }

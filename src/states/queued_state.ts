@@ -1,8 +1,6 @@
 import State from "./state";
 import { DocumentChanges } from "../render_plugin/document_changes_listener";
 import EventListener from "../event_listener";
-import IdleState from "./idle_state";
-import PredictingState from "./predicting_state";
 import Context from "../context_detection";
 
 
@@ -35,7 +33,7 @@ class QueuedState extends State {
 
     handleCancelKeyPressed(): boolean {
         this.cancelTimer();
-        this.context.transitionTo(new IdleState(this.context));
+        this.context.transitionToIdleState();
         return true;
     }
 
@@ -44,12 +42,11 @@ class QueuedState extends State {
     ): Promise<void> {
         if (
             documentChanges.isDocInFocus() &&
-            documentChanges.hasUserTyped() &&
+            documentChanges.isTextAdded() &&
             this.context.containsTriggerCharacters(documentChanges)
         ) {
             this.cancelTimer();
-            const nextState = QueuedState.createAndStartTimer(this.context, documentChanges.getPrefix(), documentChanges.getSuffix())
-            this.context.transitionTo(nextState);
+            this.context.transitionToQueuedState(documentChanges.getPrefix(), documentChanges.getSuffix());
             return
         }
         if (
@@ -60,20 +57,14 @@ class QueuedState extends State {
             !documentChanges.isDocInFocus())
         ) {
             this.cancelTimer();
-            this.context.transitionTo(new IdleState(this.context));
+            this.context.transitionToIdleState();
         }
     }
 
     startTimer(): void {
         this.cancelTimer();
         this.timer = setTimeout(() => {
-            this.context.transitionTo(
-                PredictingState.createAndStartPredicting(
-                    this.context,
-                    this.prefix,
-                    this.suffix
-                )
-            );
+            this.context.transitionToPredictingState(this.prefix, this.suffix);
         }, this.context.settings.delay);
     }
 
@@ -82,6 +73,10 @@ class QueuedState extends State {
             clearTimeout(this.timer);
             this.timer = null;
         }
+    }
+
+    getStatusBarText(): string {
+        return `Queued (${this.context.settings.delay} ms)`;
     }
 }
 

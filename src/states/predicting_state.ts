@@ -1,8 +1,6 @@
 import State from "./state";
 import { DocumentChanges } from "../render_plugin/document_changes_listener";
 import EventListener from "../event_listener";
-import IdleState from "./idle_state";
-import SuggestingState from "./suggesting_state";
 import { Notice } from "obsidian";
 import Context from "../context_detection";
 
@@ -49,7 +47,7 @@ class PredictingState extends State {
 
     private cancelPrediction(): void {
         this.isStillNeeded = false;
-        this.context.transitionTo(new IdleState(this.context));
+        this.context.transitionToIdleState();
     }
 
     startPredicting(): void {
@@ -57,31 +55,37 @@ class PredictingState extends State {
     }
 
     private async predict(): Promise<void> {
-        try {
-            const prediction =
-                await this.context.predictionService?.fetchPredictions(
-                    this.prefix,
-                    this.suffix
-                );
 
-            if (!this.isStillNeeded) {
-                return;
-            }
-            if (prediction === undefined) {
-                this.context.transitionTo(new IdleState(this.context));
-                return;
-            }
-            this.context.transitionTo(
-                SuggestingState.withSuggestion(this.context, prediction)
+        const result =
+            await this.context.predictionService?.fetchPredictions(
+                this.prefix,
+                this.suffix
             );
-        } catch (error) {
-            console.error(error);
-            new Notice(
-                `Something went wrong cannot make a prediction. Full error is available in the dev console. Please check your settings. `
-            );
-            this.context.transitionTo(new IdleState(this.context));
+
+        if (!this.isStillNeeded) {
             return;
         }
+
+        if (result.isErr()) {
+            new Notice(
+                `Copilot: Something went wrong cannot make a prediction. Full error is available in the dev console. Please check your settings. `
+            );
+            console.error(result.error);
+            this.context.transitionToIdleState();
+        }
+
+        const prediction = result.unwrapOr("");
+
+        if (prediction === "") {
+            this.context.transitionToIdleState();
+            return;
+        }
+        this.context.transitionToSuggestingState(prediction, this.prefix, this.suffix);
+    }
+
+
+    getStatusBarText(): string {
+        return `Predicting for ${this.context.context}`;
     }
 }
 

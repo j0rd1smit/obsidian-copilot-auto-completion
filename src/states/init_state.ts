@@ -1,6 +1,6 @@
 import { DocumentChanges } from "../render_plugin/document_changes_listener";
-import { Settings } from "../settings/settings";
 import { EventHandler } from "./types";
+import {Settings} from "../settings/versions";
 
 class InitState implements EventHandler {
     async handleDocumentChange(
@@ -24,6 +24,14 @@ class InitState implements EventHandler {
     handlePredictCommand(): void {}
 
     handleAcceptCommand(): void {}
+
+    getStatusBarText(): string {
+        return "Initializing...";
+    }
+
+    handleFilePathChange(path: string): void {
+
+    }
 }
 
 export default InitState;
