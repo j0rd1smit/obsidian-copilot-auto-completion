@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.1
+- Added the ability to exclude specific files based on tags in those files. Users can now define a list of tags in the settings, and the extension will automatically disable or enable when switching between files.
+
 ## 1.1.0  
 - Added the ability to exclude specific files and folders using glob patterns. Users can now define a list of glob patterns in the settings, and the extension will automatically disable or enable when switching between files.
 - Refactored the internal mechanisms of the settings management to increase flexibility and facilitate migrations to new settings schemas.
