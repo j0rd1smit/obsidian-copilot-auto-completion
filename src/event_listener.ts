@@ -89,7 +89,7 @@ class EventListener implements EventHandler, SettingsObserver {
 
     public handleFileChange(file: TFile): void {
         this.currentFile = file;
-        this.state.handleFilePathChange(file.path);
+        this.state.handleFileChange(file);
 
     }
 

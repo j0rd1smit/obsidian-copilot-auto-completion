@@ -3,7 +3,7 @@ import EventListener from "../event_listener";
 import {EventHandler} from "./types";
 import {Settings} from "../settings/versions";
 import {checkForErrors} from "../settings/utils";
-import {Notice} from "obsidian";
+import {Notice, TFile} from "obsidian";
 
 abstract class State implements EventHandler {
     protected readonly context: EventListener;
@@ -53,7 +53,7 @@ abstract class State implements EventHandler {
 
     abstract getStatusBarText(): string;
 
-    handleFilePathChange(path: string): void {
+    handleFileChange(file: TFile): void {
         if (this.context.isCurrentFilePathIgnored() || this.context.currentFileContainsIgnoredTag()) {
             this.context.transitionToDisabledFileSpecificState();
             return;

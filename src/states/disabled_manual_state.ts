@@ -1,5 +1,6 @@
 import State from "./state";
 import {Settings} from "../settings/versions";
+import { TFile } from "obsidian";
 
 class DisabledManualState extends State {
     getStatusBarText(): string {
@@ -12,7 +13,7 @@ class DisabledManualState extends State {
         }
     }
 
-    handleFilePathChange(path: string): void {}
+    handleFileChange(file: TFile): void {}
 }
 
 export default DisabledManualState;

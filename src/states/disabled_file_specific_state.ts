@@ -1,5 +1,6 @@
 import State from "./state";
 import {Settings} from "../settings/versions";
+import { TFile } from "obsidian";
 
 
 class DisabledFileSpecificState extends State {
@@ -16,7 +17,7 @@ class DisabledFileSpecificState extends State {
         }
     }
 
-    handleFilePathChange(path: string): void {
+    handleFileChange(file: TFile): void {
         if (this.context.isCurrentFilePathIgnored() || this.context.currentFileContainsIgnoredTag()) {
             return;
         }
