@@ -58,7 +58,7 @@ export default class CopilotPlugin extends Plugin {
                 // @ts-expect-error, not typed
                 const editorView = leaf.view.editor.cm as EditorView;
                 eventListener.onViewUpdate(editorView);
-                eventListener.handleFilePathChange(leaf.view.file.path);
+                eventListener.handleFileChange(leaf.view.file);
             }
         });
         this.addCommand({

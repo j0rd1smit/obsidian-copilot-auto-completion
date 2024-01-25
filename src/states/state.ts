@@ -23,7 +23,7 @@ abstract class State implements EventHandler {
                 `Copilot: There are ${settingErrors.size} errors in your settings. The plugin will be disabled until they are fixed.`
             );
             this.context.transitionToDisabledInvalidSettingsState();
-        } else if (this.context.isCurrentFilePathIgnored()) {
+        } else if (this.context.isCurrentFilePathIgnored() || this.context.currentFileContainsIgnoredTag()) {
             this.context.transitionToDisabledFileSpecificState();
         }
     }
@@ -54,7 +54,7 @@ abstract class State implements EventHandler {
     abstract getStatusBarText(): string;
 
     handleFilePathChange(path: string): void {
-        if (this.context.isCurrentFilePathIgnored()) {
+        if (this.context.isCurrentFilePathIgnored() || this.context.currentFileContainsIgnoredTag()) {
             this.context.transitionToDisabledFileSpecificState();
             return;
         }

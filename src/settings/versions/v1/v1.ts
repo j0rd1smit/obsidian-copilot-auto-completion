@@ -83,6 +83,12 @@ export const settingsSchema = z.object({
         .filter(s => !isValidIgnorePattern(s)).length === 0,
         {message: "Invalid ignore pattern"}
     ),
+    ignoredTags: z.string().refine((value) => value
+        .split(/[\s,]+/)
+        .filter(s => s.trim().length > 0)
+        .filter(s => !s.startsWith("#") || s.includes(" ")).length === 0,
+        {message: "Invalid tag"}
+    ),
     cacheSuggestions: z.boolean(),
     debugMode: z.boolean(),
 }).strict();
@@ -187,6 +193,7 @@ ANSWER: here, you write the text that should be at the location of <mask/>
     removeDuplicateMathBlockIndicator: true,
     removeDuplicateCodeBlockIndicator: true,
     ignoredFilePatterns: "**/secret/**\n",
+    ignoredTags: "#secret",
     cacheSuggestions: true,
     debugMode: false,
 };

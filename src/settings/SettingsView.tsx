@@ -478,7 +478,6 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                             </li>
                         </ul>
                     </div>
-
                 }
                 display={"block"}
                 errorMessage={errors.get("ignoredFilePatterns")}
@@ -486,11 +485,36 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 <textarea
                     className="setting-item-text-area-copilot-auto-completion"
                     rows={10}
-                    placeholder="Your system message..."
+                    placeholder="**/secret/**"
                     value={settings.ignoredFilePatterns}
                     onChange={(e) =>
                         updateSettings({
                             ignoredFilePatterns: e.target.value
+                        })
+                    }
+                />
+            </SettingsItem>
+            <SettingsItem
+                name={"Ignored tags"}
+                description={
+                    <div>
+                        <p>Files containing any of these tags will be ignored. When you open a file containing a
+                             tag listed here, the plugin will automatically disable itself and display a 'disabled'
+                             status in the bottom menu. Enter one tag per line, or a comma-separated list.
+                        </p>
+                    </div>
+                }
+                display={"block"}
+                errorMessage={errors.get("ignoredTags")}
+            >
+                <textarea
+                    className="setting-item-text-area-copilot-auto-completion"
+                    rows={10}
+                    placeholder="#secret, #private"
+                    value={settings.ignoredTags}
+                    onChange={(e) =>
+                        updateSettings({
+                            ignoredTags: e.target.value
                         })
                     }
                 />
