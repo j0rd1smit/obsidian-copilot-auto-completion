@@ -83,7 +83,16 @@ export const settingsSchema = z.object({
         .filter(s => !isValidIgnorePattern(s)).length === 0,
         {message: "Invalid ignore pattern"}
     ),
-    ignoredTags: z.string(),
+    ignoredTags: z.string().refine((value) => value
+        .split("\n")
+        .filter(s => s.includes(" ")).length === 0, {message: "Tags cannot contain spaces"}
+    ).refine((value) => value
+        .split("\n")
+        .filter(s => s.includes("#")).length === 0, {message: "Enter tags without the # symbol"}
+    ).refine((value) => value
+        .split("\n")
+        .filter(s => s.includes(",")).length === 0, {message: "Enter each tag on a new line without commas"}
+    ),
     cacheSuggestions: z.boolean(),
     debugMode: z.boolean(),
 }).strict();
@@ -188,7 +197,7 @@ ANSWER: here, you write the text that should be at the location of <mask/>
     removeDuplicateMathBlockIndicator: true,
     removeDuplicateCodeBlockIndicator: true,
     ignoredFilePatterns: "**/secret/**\n",
-    ignoredTags: "#secret",
+    ignoredTags: "",
     cacheSuggestions: true,
     debugMode: false,
 };

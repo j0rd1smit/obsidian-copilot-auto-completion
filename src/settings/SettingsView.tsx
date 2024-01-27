@@ -500,7 +500,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                     <div>
                         <p>Files containing any of these tags will be ignored. When you open a file containing a
                              tag listed here, the plugin will automatically disable itself and display a 'disabled'
-                             status in the bottom menu. Enter one tag per line, or a comma-separated list.
+                             status in the bottom menu. Enter one tag per line.
                         </p>
                     </div>
                 }
@@ -510,7 +510,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 <textarea
                     className="setting-item-text-area-copilot-auto-completion"
                     rows={10}
-                    placeholder="#secret, #private"
+                    placeholder="secret"
                     value={settings.ignoredTags}
                     onChange={(e) =>
                         updateSettings({

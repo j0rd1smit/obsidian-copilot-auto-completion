@@ -111,7 +111,7 @@ class EventListener implements EventHandler, SettingsObserver {
             return false;
         }
 
-        const ignoredTags = this.settings.ignoredTags.replace(/#/g, '').toLowerCase().split(/[\s,]+/);
+        const ignoredTags = this.settings.ignoredTags.toLowerCase().split('\n');
 
         const metadata = this.app.metadataCache.getFileCache(this.currentFile);
         if (!metadata || !metadata.tags) {
