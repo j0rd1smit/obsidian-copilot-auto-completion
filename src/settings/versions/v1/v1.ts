@@ -83,12 +83,7 @@ export const settingsSchema = z.object({
         .filter(s => !isValidIgnorePattern(s)).length === 0,
         {message: "Invalid ignore pattern"}
     ),
-    ignoredTags: z.string().refine((value) => value
-        .split(/[\s,]+/)
-        .filter(s => s.trim().length > 0)
-        .filter(s => !s.startsWith("#") || s.includes(" ")).length === 0,
-        {message: "Invalid tag"}
-    ),
+    ignoredTags: z.string(),
     cacheSuggestions: z.boolean(),
     debugMode: z.boolean(),
 }).strict();

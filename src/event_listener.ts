@@ -111,14 +111,14 @@ class EventListener implements EventHandler, SettingsObserver {
             return false;
         }
 
-        const ignoredTags = this.settings.ignoredTags.toLowerCase().split(/[\s,]+/);
+        const ignoredTags = this.settings.ignoredTags.replace(/#/g, '').toLowerCase().split(/[\s,]+/);
 
         const metadata = this.app.metadataCache.getFileCache(this.currentFile);
         if (!metadata || !metadata.tags) {
             return false;
         }
 
-        const tags = metadata.tags.map(tag => tag.tag.toLowerCase());
+        const tags = metadata.tags.map(tag => tag.tag.replace(/#/g, '').toLowerCase());
         return tags.some(tag => ignoredTags.includes(tag));
     }
 
