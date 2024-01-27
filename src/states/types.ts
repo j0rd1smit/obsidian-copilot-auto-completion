@@ -1,4 +1,5 @@
 
+import { TFile } from "obsidian";
 import { DocumentChanges } from "../render_plugin/document_changes_listener";
 import {Settings} from "../settings/versions";
 
@@ -19,6 +20,6 @@ export interface EventHandler {
 
     getStatusBarText(): string;
 
-    handleFilePathChange(path: string): void;
+    handleFileChange(file: TFile): void;
 
 }

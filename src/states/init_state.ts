@@ -1,6 +1,7 @@
 import { DocumentChanges } from "../render_plugin/document_changes_listener";
 import { EventHandler } from "./types";
 import {Settings} from "../settings/versions";
+import { TFile } from "obsidian";
 
 class InitState implements EventHandler {
     async handleDocumentChange(
@@ -29,7 +30,7 @@ class InitState implements EventHandler {
         return "Initializing...";
     }
 
-    handleFilePathChange(path: string): void {
+    handleFileChange(file: TFile): void {
 
     }
 }

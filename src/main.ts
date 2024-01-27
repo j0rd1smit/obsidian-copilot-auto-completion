@@ -1,4 +1,4 @@
-import {Editor, MarkdownView, Notice, Plugin} from "obsidian";
+import {Editor, MarkdownView, Notice, Plugin, TFile} from "obsidian";
 import {SettingTab} from "./settings/SettingsTab";
 import EventListener from "./event_listener";
 import StatusBar from "./status_bar";
@@ -28,7 +28,8 @@ export default class CopilotPlugin extends Plugin {
 
         const eventListener = EventListener.fromSettings(
             settingsTab.settings,
-            statusBar
+            statusBar,
+            this.app
         );
         settingsTab.addObserver(eventListener);
         this.registerEditorExtension([
@@ -58,8 +59,11 @@ export default class CopilotPlugin extends Plugin {
                 // @ts-expect-error, not typed
                 const editorView = leaf.view.editor.cm as EditorView;
                 eventListener.onViewUpdate(editorView);
-                eventListener.handleFilePathChange(leaf.view.file.path);
+                eventListener.handleFileChange(leaf.view.file);
             }
+        });
+        this.app.metadataCache.on("changed", (file: TFile) => {
+            eventListener.handleFileChange(file);
         });
         this.addCommand({
             id: "accept",

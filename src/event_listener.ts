@@ -20,6 +20,7 @@ import {LRUCache} from "lru-cache";
 import DisabledInvalidSettingsState from "./states/disabled_invalid_settings_state";
 import QueuedState from "./states/queued_state";
 import PredictingState from "./states/predicting_state";
+import { App, TFile } from "obsidian";
 
 
 const FIVE_MINUTES_IN_MS = 1000 * 60 * 5;
@@ -30,21 +31,24 @@ class EventListener implements EventHandler, SettingsObserver {
 
     private state: EventHandler = new InitState();
     private statusBar: StatusBar;
+    private app: App;
     context: Context = Context.Text;
     predictionService: PredictionService;
     settings: Settings;
-    private currentFilePath: string | null = null;
+    private currentFile: TFile | null = null;
     private suggestionCache = new LRUCache<string, string>({max: MAX_N_ITEMS_IN_CACHE, ttl: FIVE_MINUTES_IN_MS});
 
     public static fromSettings(
         settings: Settings,
-        statusBar: StatusBar
+        statusBar: StatusBar,
+        app: App
     ): EventListener {
         const predictionService = createPredictionService(settings);
 
         const eventListener = new EventListener(
             settings,
             statusBar,
+            app,
             predictionService
         );
 
@@ -63,10 +67,12 @@ class EventListener implements EventHandler, SettingsObserver {
     private constructor(
         settings: Settings,
         statusBar: StatusBar,
+        app: App,
         predictionService: PredictionService
     ) {
         this.settings = settings;
         this.statusBar = statusBar;
+        this.app = app;
         this.predictionService = predictionService;
     }
 
@@ -86,19 +92,36 @@ class EventListener implements EventHandler, SettingsObserver {
         this.view = view;
     }
 
-    public handleFilePathChange(path: string): void {
-        this.currentFilePath = path;
-        this.state.handleFilePathChange(path);
+    public handleFileChange(file: TFile): void {
+        this.currentFile = file;
+        this.state.handleFileChange(file);
 
     }
 
     public isCurrentFilePathIgnored(): boolean {
-        if (this.currentFilePath === null) {
+        if (this.currentFile === null) {
             return false;
         }
         const patterns = this.settings.ignoredFilePatterns.split("\n");
-        return isMatchBetweenPathAndPatterns(this.currentFilePath, patterns);
+        return isMatchBetweenPathAndPatterns(this.currentFile.path, patterns);
     }
+
+    public currentFileContainsIgnoredTag(): boolean {
+        if (this.currentFile === null) {
+            return false;
+        }
+
+        const ignoredTags = this.settings.ignoredTags.toLowerCase().split('\n');
+
+        const metadata = this.app.metadataCache.getFileCache(this.currentFile);
+        if (!metadata || !metadata.tags) {
+            return false;
+        }
+
+        const tags = metadata.tags.map(tag => tag.tag.replace(/#/g, '').toLowerCase());
+        return tags.some(tag => ignoredTags.includes(tag));
+    }
+
 
     insertCurrentSuggestion(suggestion: string): void {
         if (this.view === null) {

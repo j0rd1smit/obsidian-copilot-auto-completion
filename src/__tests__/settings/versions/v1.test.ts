@@ -99,6 +99,7 @@ describe('settingsSchema', () => {
         maxPrefixCharLimit: 1000,
         maxSuffixCharLimit: 1000,
         ignoredFilePatterns: '',
+        ignoredTags: '',
         removeDuplicateMathBlockIndicator: true,
         removeDuplicateCodeBlockIndicator: true,
         cacheSuggestions: true,

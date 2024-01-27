@@ -177,6 +177,7 @@
         "maxSuffixCharLimit": 2000,
         "removeDuplicateMathBlockIndicator": true,
         "removeDuplicateCodeBlockIndicator": true,
-        "ignoredFilePatterns": ""
+        "ignoredFilePatterns": "",
+        "ignoredTags": ""
     }
 }

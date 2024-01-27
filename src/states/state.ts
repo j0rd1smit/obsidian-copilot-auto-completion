@@ -3,7 +3,7 @@ import EventListener from "../event_listener";
 import {EventHandler} from "./types";
 import {Settings} from "../settings/versions";
 import {checkForErrors} from "../settings/utils";
-import {Notice} from "obsidian";
+import {Notice, TFile} from "obsidian";
 
 abstract class State implements EventHandler {
     protected readonly context: EventListener;
@@ -23,7 +23,7 @@ abstract class State implements EventHandler {
                 `Copilot: There are ${settingErrors.size} errors in your settings. The plugin will be disabled until they are fixed.`
             );
             this.context.transitionToDisabledInvalidSettingsState();
-        } else if (this.context.isCurrentFilePathIgnored()) {
+        } else if (this.context.isCurrentFilePathIgnored() || this.context.currentFileContainsIgnoredTag()) {
             this.context.transitionToDisabledFileSpecificState();
         }
     }
@@ -53,8 +53,8 @@ abstract class State implements EventHandler {
 
     abstract getStatusBarText(): string;
 
-    handleFilePathChange(path: string): void {
-        if (this.context.isCurrentFilePathIgnored()) {
+    handleFileChange(file: TFile): void {
+        if (this.context.isCurrentFilePathIgnored() || this.context.currentFileContainsIgnoredTag()) {
             this.context.transitionToDisabledFileSpecificState();
             return;
         }
