@@ -28,7 +28,8 @@ export default class CopilotPlugin extends Plugin {
 
         const eventListener = EventListener.fromSettings(
             settingsTab.settings,
-            statusBar
+            statusBar,
+            this.app
         );
         settingsTab.addObserver(eventListener);
         this.registerEditorExtension([

@@ -20,7 +20,7 @@ import {LRUCache} from "lru-cache";
 import DisabledInvalidSettingsState from "./states/disabled_invalid_settings_state";
 import QueuedState from "./states/queued_state";
 import PredictingState from "./states/predicting_state";
-import { TFile } from "obsidian";
+import { App, TFile } from "obsidian";
 
 
 const FIVE_MINUTES_IN_MS = 1000 * 60 * 5;
@@ -31,6 +31,7 @@ class EventListener implements EventHandler, SettingsObserver {
 
     private state: EventHandler = new InitState();
     private statusBar: StatusBar;
+    private app: App;
     context: Context = Context.Text;
     predictionService: PredictionService;
     settings: Settings;
@@ -39,13 +40,15 @@ class EventListener implements EventHandler, SettingsObserver {
 
     public static fromSettings(
         settings: Settings,
-        statusBar: StatusBar
+        statusBar: StatusBar,
+        app: App
     ): EventListener {
         const predictionService = createPredictionService(settings);
 
         const eventListener = new EventListener(
             settings,
             statusBar,
+            app,
             predictionService
         );
 
@@ -64,10 +67,12 @@ class EventListener implements EventHandler, SettingsObserver {
     private constructor(
         settings: Settings,
         statusBar: StatusBar,
+        app: App,
         predictionService: PredictionService
     ) {
         this.settings = settings;
         this.statusBar = statusBar;
+        this.app = app;
         this.predictionService = predictionService;
     }
 
@@ -108,7 +113,7 @@ class EventListener implements EventHandler, SettingsObserver {
 
         const ignoredTags = this.settings.ignoredTags.toLowerCase().split(/[\s,]+/);
 
-        const metadata = app.metadataCache.getFileCache(this.currentFile);
+        const metadata = this.app.metadataCache.getFileCache(this.currentFile);
         if (!metadata || !metadata.tags) {
             return false;
         }
