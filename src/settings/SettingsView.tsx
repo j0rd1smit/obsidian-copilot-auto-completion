@@ -485,7 +485,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 <textarea
                     className="setting-item-text-area-copilot-auto-completion"
                     rows={10}
-                    placeholder="**/secret/**"
+                    placeholder="Your file patterns, e.g., **/secret/**"
                     value={settings.ignoredFilePatterns}
                     onChange={(e) =>
                         updateSettings({
@@ -510,7 +510,7 @@ export default function SettingsView(props: IProps): React.JSX.Element {
                 <textarea
                     className="setting-item-text-area-copilot-auto-completion"
                     rows={10}
-                    placeholder="secret"
+                    placeholder="Your file tags, e.g., secret"
                     value={settings.ignoredTags}
                     onChange={(e) =>
                         updateSettings({
