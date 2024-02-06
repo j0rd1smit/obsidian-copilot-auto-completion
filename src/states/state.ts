@@ -56,9 +56,9 @@ abstract class State implements EventHandler {
     handleFileChange(file: TFile): void {
         if (this.context.isCurrentFilePathIgnored() || this.context.currentFileContainsIgnoredTag()) {
             this.context.transitionToDisabledFileSpecificState();
-            return;
+        } else if (this.context.isDisabled()) {
+            this.context.transitionToIdleState();
         }
-        this.context.transitionToIdleState();
     }
 }
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2  
+- Fixed a bug that caused the extension plugin to transition to the idle state when a file was saved. As a result, the application discarded suggestions while they were still relevant.  
+- Improved the placeholder text displayed when the ignore file paths patterns and tags fields are empty since the previous placeholder text could be mistaken for an entry.
+
 ## 1.1.1
 - Added the ability to exclude specific files based on tags in those files. Users can now define a list of tags in the settings, and the extension will automatically disable or enable when switching between files.
 
