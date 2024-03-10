@@ -49,9 +49,6 @@ class OpenAIApiClient implements ApiClient {
 
     async checkIfConfiguredCorrectly(): Promise<string[]> {
         const errors: string[] = [];
-        if (!this.apiKey) {
-            errors.push("OpenAI API key is not set");
-        }
         if (!this.url) {
             errors.push("OpenAI API url is not set");
         }
