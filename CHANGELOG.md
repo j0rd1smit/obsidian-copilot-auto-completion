@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.3
+- Made openai api key optional for `OpenAI API` provider. This allows you to point the `OpenAI API` provider to any local model or other api provider that implements the OpenAI API.
+
 ## 1.1.2  
 - Fixed a bug that caused the extension plugin to transition to the idle state when a file was saved. As a result, the application discarded suggestions while they were still relevant.  
 - Improved the placeholder text displayed when the ignore file paths patterns and tags fields are empty since the previous placeholder text could be mistaken for an entry.
