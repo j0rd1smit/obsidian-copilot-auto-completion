@@ -55,15 +55,15 @@ Be aware that this will reset all the settings to the default values.
 So ensure you have a backup of your settings if you want to keep them.
 
 ### Customize the system prompts
-The [model](#model) section shows the default system prompts.
+The [model](./how does the model work in details.md) section shows the default system prompts.
 This prompt is fully customizable.
 Feel free to experiment with this prompt to find the best settings for you.
 However, be aware that you must make it consistent with the following settings:
-- [Few shot examples](#customize-the-few-shot-examples)
+- Few shot examples (See Customize the few shot examples section bellow.)
 - Chain-of-thought removal regex: This regex removes all the non-answer-related text from the response. If this is not done correctly, you might get unexpected text in your suggestions.
 - User message template: This template is used to generate the user message that is shown in the suggestion. It determines how the prefix, mask, and suffix are combined into a single message.
 
-![system_prompt](assets/system_message_settings.jpg)
+![system_prompt](../assets/system_message_settings.jpg)
 
 ### Customize the few shot examples
 In the [model](#model) section, we have shown how the few shot examples are used to improve the model's predictions.
@@ -75,4 +75,4 @@ An example consists of 3 parts:
 - **Human message**: This is the input we want to give the model. This is an example document with text before and after `<mask/>`.
 - **Assist message**: This is an example answer of a suitable response. This answer should be consistent with the system prompt and the chain-of-thought removal regex.
 
-![few_shot_examples](assets/few_shot_example_settings.jpg)
+![few_shot_examples](../assets/few_shot_example_settings.jpg)
