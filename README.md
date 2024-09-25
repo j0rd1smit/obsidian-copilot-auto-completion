@@ -178,3 +178,9 @@ Please note that we are not liable for any information you provide to the API pr
 You have the discretion to enable or disable the plugin based on the content of your documents. 
 However, when you do this is your own responsibility.
 Please exercise caution when sharing sensitive information such as secrets or personal data with your API provider.
+
+
+## Support
+If you find this plugin useful and would like to support its development, you can buy me a coffee.
+
+<a href="https://buymeacoffee.com/jordismit"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=jordismit&button_colour=5F7FFF&font_colour=ffffff&font_family=Lato&outline_colour=000000&coffee_colour=FFDD00"></a>
